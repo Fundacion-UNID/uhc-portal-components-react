@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5 - 2026-07-29
+
+- Allow advanced hosts to reuse the shared clinical card body while retaining
+  their own expandable section heading, filters and editors.
+
 ## 0.1.4 - 2026-07-29
 
 - Add `IpsBundleSummary`, which accepts a complete IPS document Bundle and

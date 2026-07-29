@@ -48,7 +48,8 @@ The package deliberately exposes modules instead of a cloned application:
 - `PortalAccessChooser`: real-page navigation for professional access paths.
 - `ProfileProtectionGate`: fail-closed PIN unlock presentation.
 - `ClinicalSectionSummary`: brand-neutral rendering of already-resolved IPS
-  cards for personal and professional portals.
+  cards for personal and professional portals. Advanced viewers can set
+  `showHeader={false}` when they retain their own expandable heading.
 - `IpsBundleSummary`: receives one in-memory IPS document Bundle, obtains all
   `Composition.section` entries through Common Utils and renders every
   section's cards. It performs no ingestion or GW call.

@@ -22,4 +22,24 @@ describe('ClinicalSectionSummary', () => {
     expect(html).not.toContain('http://snomed.info/sct|373270004')
     expect(html).toContain('data-resource-type="AllergyIntolerance"')
   })
+
+  it('can reuse only the shared card body below a host-owned section header', () => {
+    const html = renderToStaticMarkup(
+      <ClinicalSectionSummary
+        code="48765-2"
+        title="Allergies"
+        resources={[{
+          key: 'AllergyIntolerance/allergy-1',
+          title: 'Penicillin',
+          resourceType: 'AllergyIntolerance',
+        }]}
+        emptyLabel="No entries"
+        showHeader={false}
+      />,
+    )
+
+    expect(html).toContain('aria-label="Allergies"')
+    expect(html).not.toContain('<header>')
+    expect(html).toContain('<bdi>Penicillin</bdi>')
+  })
 })

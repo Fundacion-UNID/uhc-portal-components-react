@@ -14,6 +14,8 @@ export type ClinicalSectionSummaryProps = Readonly<{
   emptyLabel: string
   resourceTypeLabel?: (resourceType: string) => string
   actions?: ReactNode
+  /** Hide only the heading when a host already owns the expandable section header. */
+  showHeader?: boolean
 }>
 
 /**
@@ -31,13 +33,20 @@ export function ClinicalSectionSummary({
   emptyLabel,
   resourceTypeLabel = (resourceType) => resourceType,
   actions,
+  showHeader = true,
 }: ClinicalSectionSummaryProps) {
   return (
-    <section className="uhcp-clinical-section" data-ips-section={code} aria-labelledby={`uhcp-section-${code}`}>
-      <header>
-        <h3 id={`uhcp-section-${code}`}>{title} <span>({resources.length})</span></h3>
-        {actions}
-      </header>
+    <section
+      className="uhcp-clinical-section"
+      data-ips-section={code}
+      {...(showHeader ? { 'aria-labelledby': `uhcp-section-${code}` } : { 'aria-label': title })}
+    >
+      {showHeader && (
+        <header>
+          <h3 id={`uhcp-section-${code}`}>{title} <span>({resources.length})</span></h3>
+          {actions}
+        </header>
+      )}
       {resources.length === 0
         ? <p className="uhcp-clinical-empty">{emptyLabel}</p>
         : (
