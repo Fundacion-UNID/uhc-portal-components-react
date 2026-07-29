@@ -47,6 +47,14 @@ The package deliberately exposes modules instead of a cloned application:
 - `PortalEntryHero`: identical product entry composition for every brand.
 - `PortalAccessChooser`: real-page navigation for professional access paths.
 - `ProfileProtectionGate`: fail-closed PIN unlock presentation.
+- `ClinicalSectionSummary`: brand-neutral rendering of already-resolved IPS
+  cards for personal and professional portals.
+
+Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
+pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
+when the UI matches the resource language, English `Coding.display` for
+English, or a terminology translation keyed by `system|code` for another
+locale. The terminology token is never a visible or editable title.
 
 UHC Personal and VetChain Personal must compose the same personal route
 modules. UHC Professional and VetChain Professional must compose the same
