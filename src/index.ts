@@ -1,5 +1,6 @@
 export * from './contracts.js'
 export * from './preferences.js'
+export * from './PortalBrandArtwork.js'
 export * from './PortalHeader.js'
 export * from './PortalShell.js'
 export * from './PortalEntry.js'

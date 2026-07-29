@@ -17,6 +17,7 @@ import {
   resolvePortalUiTheme,
   resolveRenderedPortalTheme,
 } from './preferences.js'
+import { PortalBrandArtwork } from './PortalBrandArtwork.js'
 
 export type PortalHeaderProps = Readonly<{
   brand: PortalBrand
@@ -107,7 +108,7 @@ export function PortalHeader({
   return (
     <header className="uhcp-header" style={brand.variables}>
       <a className="uhcp-brand" href={brand.homeHref} aria-label={copy.home}>
-        <span className="uhcp-brand-mark">{brand.logo || brand.logoText || 'UHC'}</span>
+        <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
         <span><strong>{brand.productName}</strong><small>{brand.organizationName}</small></span>
       </a>
       <div className="uhcp-account-menu" ref={ref}>
