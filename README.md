@@ -49,12 +49,28 @@ The package deliberately exposes modules instead of a cloned application:
 - `ProfileProtectionGate`: fail-closed PIN unlock presentation.
 - `ClinicalSectionSummary`: brand-neutral rendering of already-resolved IPS
   cards for personal and professional portals.
+- `IpsBundleSummary`: receives one in-memory IPS document Bundle, obtains all
+  `Composition.section` entries through Common Utils and renders every
+  section's cards. It performs no ingestion or GW call.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
 when the UI matches the resource language, English `Coding.display` for
 English, or a terminology translation keyed by `system|code` for another
 locale. The terminology token is never a visible or editable title.
+
+```tsx
+<IpsBundleSummary
+  bundle={bundleInMemory}
+  locale={currentLocale}
+  translateCode={terminology.translate}
+  emptyLabel={t('emptySection')}
+/>
+```
+
+The browser may render an optimistic in-memory Bundle while its authenticated
+BFF persists the command. Only backend code calls
+`ingestCommunicationAndUpdateIndex(...)`; the component never does.
 
 UHC Personal and VetChain Personal must compose the same personal route
 modules. UHC Professional and VetChain Professional must compose the same

@@ -171,6 +171,11 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   color: var(--uhcp-text);
   padding: 1.25rem;
 }
+
+.uhcp-clinical-summary {
+  display: grid;
+  gap: 1rem;
+}
 .uhcp-clinical-section > header { align-items: center; display: flex; gap: 1rem; justify-content: space-between; }
 .uhcp-clinical-section h3 { font-size: 1.125rem; margin: 0; }
 .uhcp-clinical-section h3 span { color: var(--uhcp-muted); }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4 - 2026-07-29
+
+- Add `IpsBundleSummary`, which accepts a complete IPS document Bundle and
+  renders every Composition section and its Common Utils card projections.
+- Test the official 16-section IPS fixture, every declared IPS resource type
+  and locale/terminology propagation.
+- State explicitly that browser components render in-memory data and never call
+  backend ingestion operations.
+
 ## 0.1.3
 
 - Add the brand-neutral `ClinicalSectionSummary` renderer for resolved IPS
