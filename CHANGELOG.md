@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 - 2026-07-29
+
+- Added a framework-neutral branding module for official light/dark surface
+  artwork with explicit intrinsic dimensions.
+- Replaced synthetic text monograms and forced gradient shapes in the shared
+  header and hero with undistorted brand-provided assets.
+- Added regression coverage for official asset paths, surface variants and
+  intrinsic proportions.
+
 ## 0.1.1 - 2026-07-29
 
 - Added publishable shell, entry hero and real-page access chooser modules.

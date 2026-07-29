@@ -23,8 +23,23 @@ import 'uhc-portal-components-react/styles.css'
 ```
 
 Brand differences are supplied through `PortalBrand`: product name,
-organization, logo and CSS variables. Components do not import Firebase,
-Next.js or any GDC/UHC SDK runtime.
+organization, official artwork and CSS variables. Artwork declares its
+light/dark-surface files and intrinsic dimensions; the shell preserves those
+proportions and never synthesizes a text monogram. Components do not import
+Firebase, Next.js or any GDC/UHC SDK runtime.
+
+```tsx
+const brand = {
+  family: 'professional',
+  productName: 'UNID Professional',
+  organizationName: 'Fundación UNID',
+  homeHref: '/es',
+  mark: {
+    lightSurface: { src: '/logos/uhc-logo.svg', alt: 'UHC', width: 100, height: 100 },
+    darkSurface: { src: '/logos/uhc-logo.svg', alt: 'UHC', width: 100, height: 100 },
+  },
+} satisfies PortalBrand
+```
 
 The package deliberately exposes modules instead of a cloned application:
 

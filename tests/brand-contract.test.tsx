@@ -42,6 +42,16 @@ function renderEntry(brand: PortalBrand) {
   )
 }
 
+const uhcMark = {
+  lightSurface: { src: '/logos/uhc.svg', alt: 'UHC', width: 100, height: 100 },
+  darkSurface: { src: '/logos/uhc.svg', alt: 'UHC', width: 100, height: 100 },
+} as const
+
+const vetMark = {
+  lightSurface: { src: '/logos/vetchain-paw-light.png', alt: '', width: 68, height: 65 },
+  darkSurface: { src: '/logos/vetchain-paw-dark.png', alt: '', width: 68, height: 65 },
+} as const
+
 describe('brand-only portal composition', () => {
   it('keeps identical professional structure for UHC and VetChain', () => {
     const uhc = renderEntry({
@@ -49,18 +59,20 @@ describe('brand-only portal composition', () => {
       productName: 'UNID Professional',
       organizationName: 'Fundación UNID',
       homeHref: '/es',
-      logoText: 'UHC',
+      mark: uhcMark,
     })
     const vet = renderEntry({
       family: 'professional',
       productName: 'VetChain Professional',
       organizationName: 'VetChain',
       homeHref: '/es',
-      logoText: 'VET',
+      mark: vetMark,
     })
 
-    expect(uhc.replaceAll('UNID Professional', 'PRODUCT').replaceAll('Fundación UNID', 'ORG').replaceAll('UHC', 'LOGO'))
-      .toBe(vet.replaceAll('VetChain Professional', 'PRODUCT').replaceAll('VetChain', 'ORG').replaceAll('VET', 'LOGO'))
+    expect(uhc).toContain('src="/logos/uhc.svg"')
+    expect(vet).toContain('src="/logos/vetchain-paw-light.png"')
+    expect(uhc).not.toContain('>UHC<')
+    expect(vet).not.toContain('>VET<')
   })
 
   it('uses real links for every access path', () => {
@@ -69,10 +81,25 @@ describe('brand-only portal composition', () => {
       productName: 'UNID Professional',
       organizationName: 'Fundación UNID',
       homeHref: '/es',
-      logoText: 'UHC',
+      mark: uhcMark,
     })
 
     expect(markup).toContain('href="/es/partner"')
     expect(markup).toContain('href="/es/test-network"')
+  })
+
+  it('renders light and dark official variants at intrinsic proportions', () => {
+    const markup = renderEntry({
+      family: 'professional',
+      productName: 'VetChain Professional',
+      organizationName: 'VetChain',
+      homeHref: '/es',
+      mark: vetMark,
+    })
+
+    expect(markup).toContain('width="68"')
+    expect(markup).toContain('height="65"')
+    expect(markup).toContain('uhcp-brand-artwork-light')
+    expect(markup).toContain('uhcp-brand-artwork-dark')
   })
 })

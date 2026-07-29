@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { CSSProperties } from 'react'
 
 export const portalUiDensities = ['small', 'medium', 'large'] as const
 export type PortalUiDensity = (typeof portalUiDensities)[number]
@@ -6,14 +6,34 @@ export type PortalUiDensity = (typeof portalUiDensities)[number]
 export const portalUiThemes = ['light', 'dark', 'system'] as const
 export type PortalUiTheme = (typeof portalUiThemes)[number]
 
+export type PortalBrandAsset = Readonly<{
+  src: string
+  alt: string
+  width: number
+  height: number
+}>
+
+/**
+ * Official artwork selected from the surface where it is rendered.
+ *
+ * A portal must preserve the asset's intrinsic proportions. The shared shell
+ * never reconstructs a brand from text or forces artwork into a generic shape.
+ */
+export type PortalBrandArtworkSet = Readonly<{
+  darkSurface: PortalBrandAsset
+  lightSurface: PortalBrandAsset
+}>
+
 export type PortalBrand = Readonly<{
   /** Product family is presentation metadata, never an authorization input. */
   family: 'personal' | 'professional'
   productName: string
   organizationName: string
   homeHref: string
-  logoText?: string
-  logo?: ReactNode
+  /** Compact official mark for navigation chrome. */
+  mark: PortalBrandArtworkSet
+  /** Optional official hero artwork; the compact mark is used when omitted. */
+  heroArtwork?: PortalBrandArtworkSet
   variables?: CSSProperties
 }>
 

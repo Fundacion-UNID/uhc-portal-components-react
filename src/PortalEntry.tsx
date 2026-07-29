@@ -1,4 +1,5 @@
 import type { PortalAccessOption, PortalBrand } from './contracts.js'
+import { PortalBrandArtwork } from './PortalBrandArtwork.js'
 
 export type PortalEntryHeroProps = Readonly<{
   brand: PortalBrand
@@ -19,7 +20,10 @@ export function PortalEntryHero({
   return (
     <section className="uhcp-entry-hero" style={brand.variables}>
       <div className="uhcp-hero-orbit" aria-hidden="true">
-        <div className="uhcp-hero-logo">{brand.logo || brand.logoText || brand.productName.slice(0, 3)}</div>
+        <PortalBrandArtwork
+          artwork={brand.heroArtwork || brand.mark}
+          className="uhcp-hero-logo"
+        />
       </div>
       <div className="uhcp-entry-copy">
         <div className="uhcp-badge">{eyebrow}</div>
