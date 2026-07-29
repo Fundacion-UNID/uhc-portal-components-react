@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Add the brand-neutral `ClinicalSectionSummary` renderer for resolved IPS
+  cards. Clinical terminology tokens remain translation keys and are never
+  derived into editable or visible names by the component.
+
 ## 0.1.2 - 2026-07-29
 
 - Added a framework-neutral branding module for official light/dark surface
