@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.6 - 2026-07-30
+
+- Consume Common Utils 2.3.12 so the shared IPS viewer uses the complete
+  all-section claims and localized clinical-name contract.
+- Keep the official 16-section fixture and every declared IPS resource type as
+  the executable rendering contract consumed by portal Playwright flows.
+
 ## 0.1.5 - 2026-07-29
 
 - Allow advanced hosts to reuse the shared clinical card body while retaining
