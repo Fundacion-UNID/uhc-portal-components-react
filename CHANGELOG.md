@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.7 - 2026-07-30
+
+- Add controlled, actor-neutral invitation-acceptance and subject-access
+  request panels. The same scanner/manual locator can be hosted by an
+  individual-member or professional facade; authorization remains in the BFF
+  and GW.
+- Keep requested clinical sections as explicit `system|code` values supplied
+  by the host instead of deriving role or permission semantics in React.
+
 ## 0.1.6 - 2026-07-30
 
 - Consume Common Utils 2.3.12 so the shared IPS viewer uses the complete

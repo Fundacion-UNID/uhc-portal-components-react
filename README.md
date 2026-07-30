@@ -53,6 +53,12 @@ The package deliberately exposes modules instead of a cloned application:
 - `IpsBundleSummary`: receives one in-memory IPS document Bundle, obtains all
   `Composition.section` entries through Common Utils and renders every
   section's cards. It performs no ingestion or GW call.
+- `InvitationAcceptancePanel`: controlled invitation-code UI for a related
+  individual member; the host refreshes the authorized-subject list after its
+  BFF accepts the invitation.
+- `SubjectAccessRequestPanel`: controlled QR, numeric-code or `did:web`
+  resolver plus section selector. It deliberately has no scanner role: the
+  same component is reusable by an individual member or a professional.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
@@ -72,6 +78,13 @@ locale. The terminology token is never a visible or editable title.
 The browser may render an optimistic in-memory Bundle while its authenticated
 BFF persists the command. Only backend code calls
 `ingestCommunicationAndUpdateIndex(...)`; the component never does.
+
+Access panels likewise contain no consent or SMART-token logic. A host first
+resolves the card locator, then asks its authenticated BFF to record the access
+request. If consent is already present, the BFF may obtain a narrowed SMART
+token immediately; otherwise it records a `Communication` request for the
+individual controller to review. The GW remains authoritative for the exact
+intersection of requested and consented sections.
 
 UHC Personal and VetChain Personal must compose the same personal route
 modules. UHC Professional and VetChain Professional must compose the same
