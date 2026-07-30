@@ -184,6 +184,33 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-title { font-weight: 800; margin: 0; }
 .uhcp-clinical-type { color: var(--uhcp-muted); font-size: .72rem; font-weight: 800; letter-spacing: .06em; margin: .35rem 0 0; text-transform: uppercase; }
 .uhcp-clinical-date, .uhcp-clinical-empty { color: var(--uhcp-muted); margin: .35rem 0 0; }
+.uhcp-access-panel { color: var(--uhcp-text); display: grid; gap: 1rem; }
+.uhcp-access-panel h2, .uhcp-access-panel p { margin: 0; }
+.uhcp-access-panel > p { color: var(--uhcp-muted); line-height: 1.5; }
+.uhcp-access-panel form { display: grid; gap: 1rem; }
+.uhcp-access-panel label { display: grid; font-weight: 700; gap: .4rem; }
+.uhcp-access-panel input, .uhcp-access-panel select {
+  background: var(--uhcp-panel);
+  border: 1px solid var(--uhcp-border);
+  border-radius: .75rem;
+  color: var(--uhcp-text);
+  font: inherit;
+  padding: .8rem;
+}
+.uhcp-access-panel fieldset { border: 1px solid var(--uhcp-border); border-radius: 1rem; display: grid; gap: .6rem; margin: 0; padding: 1rem; }
+.uhcp-access-panel fieldset label { align-items: center; display: flex; }
+.uhcp-access-panel button {
+  background: linear-gradient(135deg, var(--uhcp-action-start), var(--uhcp-action-end));
+  border: 0;
+  border-radius: .75rem;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: .8rem 1rem;
+}
+.uhcp-access-panel button:disabled { cursor: not-allowed; opacity: .55; }
+.uhcp-access-panel [role="alert"] { color: #c64747; font-weight: 700; }
 .uhcp-entry-hero {
   align-items: center;
   background:
