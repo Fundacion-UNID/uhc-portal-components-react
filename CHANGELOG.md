@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9 - 2026-08-02
+
+- Allow the SOSChain card picker to expose a host-owned card-import action for
+  scanning or entering a provider card identifier.
+
 ## 0.1.8 - 2026-08-02
 
 - Add the shared subject-first SOSChain card picker and workspace for Places,

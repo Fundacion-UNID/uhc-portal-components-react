@@ -49,6 +49,7 @@ export type SoschainWorkspaceCopy = Readonly<{
   emptyProducts: string
   emptyCommunications: string
   readOnly: string
+  importCard?: string
 }>
 
 export type SoschainWorkspaceProps = Readonly<{
@@ -63,6 +64,7 @@ export type SoschainWorkspaceProps = Readonly<{
   canManageAssociations: boolean
   addPlaceHref?: string
   addProductHref?: string
+  importCardHref?: string
 }>
 
 function AssociationList({ items, empty }: Readonly<{
@@ -103,6 +105,7 @@ export function SoschainWorkspace({
   canManageAssociations,
   addPlaceHref,
   addProductHref,
+  importCardHref,
 }: SoschainWorkspaceProps) {
   if (!selectedCard) {
     return (
@@ -111,6 +114,7 @@ export function SoschainWorkspace({
           <span>{copy.workspaceEyebrow}</span>
           <h1 id="sos-card-picker-title">{copy.cardsTitle}</h1>
           <p>{copy.cardsDescription}</p>
+          {importCardHref && copy.importCard ? <a href={importCardHref}>{copy.importCard} →</a> : null}
         </header>
         {cards.length === 0 ? (
           <div className="uhcp-sos-empty-panel">
