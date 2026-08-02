@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.8 - 2026-08-02
+
+- Add the shared subject-first SOSChain card picker and workspace for Places,
+  IndividualProducts and emergency/civil-protection communications.
+- Keep authorization host-owned: the component receives server-resolved cards
+  and capabilities and never treats a browser selection as authority.
+
 ## 0.1.7 - 2026-07-30
 
 - Add controlled, actor-neutral invitation-acceptance and subject-access

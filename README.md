@@ -59,6 +59,9 @@ The package deliberately exposes modules instead of a cloned application:
 - `SubjectAccessRequestPanel`: controlled QR, numeric-code or `did:web`
   resolver plus section selector. It deliberately has no scanner role: the
   same component is reusable by an individual member or a professional.
+- `SoschainWorkspace`: subject-card picker and four-area workspace for Places,
+  devices/vehicles and read-only emergency communications. The host supplies
+  already-authorized cards and capabilities.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
