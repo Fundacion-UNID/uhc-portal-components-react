@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.10 - 2026-08-03
+
+- Add the reusable organization workforce administration surface with total,
+  used and free license counters, active/inactive employee lifecycle actions,
+  invitation status history and an optional future device count.
+- Add browser-DOM interaction tests proving controlled inputs, disabled invite
+  behavior, callbacks and the disable-before-purge rule.
+
 ## 0.1.9 - 2026-08-02
 
 - Allow the SOSChain card picker to expose a host-owned card-import action for

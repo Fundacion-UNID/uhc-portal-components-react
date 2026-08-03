@@ -62,6 +62,10 @@ The package deliberately exposes modules instead of a cloned application:
 - `SoschainWorkspace`: subject-card picker and four-area workspace for Places,
   devices/vehicles and read-only emergency communications. The host supplies
   already-authorized cards and capabilities.
+- `OrganizationWorkforceAdministration`: controlled license-capacity,
+  employee lifecycle and invitation-status UI. Invitations remain host-owned
+  application records; the component does not reserve licenses or create GW
+  employees.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
