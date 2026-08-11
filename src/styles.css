@@ -327,3 +327,20 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   .uhcp-sos-overview-grid { grid-template-columns: 1fr; }
   .uhcp-sos-panel > header { display: grid; }
 }
+.uhcp-emergency-copy { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 2rem; color: var(--uhcp-text); padding: clamp(1.25rem, 4vw, 2.25rem); }
+.uhcp-emergency-copy > header { align-items: flex-start; display: flex; gap: 1.5rem; justify-content: space-between; }
+.uhcp-emergency-copy h2 { margin: 0 0 .45rem; }
+.uhcp-emergency-copy header p { color: var(--uhcp-muted); line-height: 1.6; margin: 0; max-width: 48rem; }
+.uhcp-emergency-copy-legend { display: grid; flex: 0 0 auto; gap: .5rem; }
+.uhcp-emergency-copy-pin { align-items: center; border-radius: 999px; display: inline-flex; font-size: .75rem; font-weight: 850; gap: .35rem; padding: .35rem .55rem; }
+.uhcp-emergency-copy-pin svg { fill: none; height: 1rem; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; width: 1rem; }
+.uhcp-emergency-copy-pin-secure { background: color-mix(in srgb, var(--uhcp-turquoise) 16%, transparent); color: color-mix(in srgb, var(--uhcp-turquoise) 72%, var(--uhcp-text)); }
+.uhcp-emergency-copy-pin-emergency { background: color-mix(in srgb, var(--uhcp-attention) 18%, transparent); color: color-mix(in srgb, var(--uhcp-attention) 78%, var(--uhcp-text)); }
+.uhcp-emergency-copy-list { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); list-style: none; margin: 1.5rem 0 0; padding: 0; }
+.uhcp-emergency-copy-list li { background: var(--uhcp-panel-muted); border: 1px solid var(--uhcp-border); border-radius: 1.25rem; display: grid; gap: .45rem; padding: 1rem; }
+.uhcp-emergency-copy-item-heading { align-items: center; display: flex; gap: .6rem; justify-content: space-between; }
+.uhcp-emergency-copy-category { color: var(--uhcp-emerald); font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.uhcp-emergency-copy-pins { display: inline-flex; gap: .3rem; }
+.uhcp-emergency-copy-list small, .uhcp-emergency-copy-list li > span, .uhcp-emergency-copy-empty { color: var(--uhcp-muted); }
+.uhcp-emergency-copy-empty { margin: 1.5rem 0 0; }
+@media (max-width: 620px) { .uhcp-emergency-copy > header { display: grid; } .uhcp-emergency-copy-legend { width: 100%; } }

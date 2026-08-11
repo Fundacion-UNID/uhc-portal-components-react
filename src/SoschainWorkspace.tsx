@@ -1,4 +1,6 @@
-export type SoschainWorkspaceArea = 'overview' | 'places' | 'products' | 'communications'
+import { ProtectedIndexEmergencyData, type ProtectedIndexEmergencyCopy, type ProtectedIndexEmergencyItem } from './ProtectedIndexEmergencyData.js'
+
+export type SoschainWorkspaceArea = 'overview' | 'emergency-data' | 'places' | 'products' | 'communications'
 
 export type SoschainCardSummary = Readonly<{
   identifier: string
@@ -37,6 +39,9 @@ export type SoschainWorkspaceCopy = Readonly<{
   areas: Record<SoschainWorkspaceArea, string>
   overviewTitle: string
   overviewBody: string
+  emergencyDataTitle: string
+  emergencyDataBody: string
+  emergencyData: ProtectedIndexEmergencyCopy
   placesTitle: string
   placesBody: string
   productsTitle: string
@@ -61,6 +66,7 @@ export type SoschainWorkspaceProps = Readonly<{
   places: readonly SoschainAssociationSummary[]
   products: readonly SoschainAssociationSummary[]
   communications: readonly SoschainCommunicationSummary[]
+  emergencyData?: readonly ProtectedIndexEmergencyItem[]
   canManageAssociations: boolean
   addPlaceHref?: string
   addProductHref?: string
@@ -102,6 +108,7 @@ export function SoschainWorkspace({
   places,
   products,
   communications,
+  emergencyData = [],
   canManageAssociations,
   addPlaceHref,
   addProductHref,
@@ -145,6 +152,8 @@ export function SoschainWorkspace({
       ? copy.productsTitle
       : activeArea === 'communications'
         ? copy.communicationsTitle
+        : activeArea === 'emergency-data'
+          ? copy.emergencyDataTitle
         : copy.overviewTitle
   const body = activeArea === 'places'
     ? copy.placesBody
@@ -152,6 +161,8 @@ export function SoschainWorkspace({
       ? copy.productsBody
       : activeArea === 'communications'
         ? copy.communicationsBody
+        : activeArea === 'emergency-data'
+          ? copy.emergencyDataBody
         : copy.overviewBody
 
   return (
@@ -174,7 +185,7 @@ export function SoschainWorkspace({
             <h2>{title}</h2>
             <p>{body}</p>
           </div>
-          {!canManageAssociations && activeArea !== 'communications' && (
+          {!canManageAssociations && activeArea !== 'communications' && activeArea !== 'emergency-data' && (
             <span className="uhcp-sos-readonly">{copy.readOnly}</span>
           )}
           {canManageAssociations && activeArea === 'places' && addPlaceHref && <a href={addPlaceHref}>{copy.addPlace}</a>}
@@ -187,6 +198,7 @@ export function SoschainWorkspace({
             <article><strong>{communications.length}</strong><span>{copy.areas.communications}</span></article>
           </div>
         )}
+        {activeArea === 'emergency-data' && <ProtectedIndexEmergencyData copy={copy.emergencyData} items={emergencyData} />}
         {activeArea === 'places' && <AssociationList items={places} empty={copy.emptyPlaces} />}
         {activeArea === 'products' && <AssociationList items={products} empty={copy.emptyProducts} />}
         {activeArea === 'communications' && (

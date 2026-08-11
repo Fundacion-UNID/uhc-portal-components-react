@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add a brand-neutral protected-index and emergency-copy panel. Hosts supply
+  backend-confirmed records; protected storage, individual authorship and
+  emergency availability remain separate states, and professional release is
+  never inferred by the browser.
+
 ## 0.1.10 - 2026-08-03
 
 - Add the reusable organization workforce administration surface with total,
