@@ -93,8 +93,13 @@ token immediately; otherwise it records a `Communication` request for the
 individual controller to review. The GW remains authoritative for the exact
 intersection of requested and consented sections.
 
-UHC Personal and VetChain Personal must compose the same personal route
-modules. UHC Professional and VetChain Professional must compose the same
-professional route modules. A brand adapter may change only tokens, logo,
-product names, descriptions and route destinations; it must not fork flow,
-profile or authorization behavior.
+UHC Personal and PetChain Personal must ultimately compose the same reusable
+personal flow modules. UHC Professional and VetChain Professional must do the
+same for professional flows. This package does **not yet expose those complete
+route modules**: login, versioned terms, profile protection, individual/member
+management, licences, clinical data, care and permissions still live in the
+UHC host application and must be extracted behind host-owned adapters. A brand
+adapter may change tokens, logo, product vocabulary, animal-specific forms and
+route destinations; it must not fork shared flow or authorization behavior.
+
+See [`docs/PERSONAL_FLOW_EXTRACTION.md`](docs/PERSONAL_FLOW_EXTRACTION.md).

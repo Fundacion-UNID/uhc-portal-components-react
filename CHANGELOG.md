@@ -1,7 +1,17 @@
 # Changelog
 
+## 0.1.12
+
+- Add a brand-neutral full-page account settings surface for security actions,
+  theme, text size, language and legal links, with a product-extension slot for
+  jurisdiction and data-use controls.
+
 ## Unreleased
 
+- Correct the reuse contract: the package currently provides presentation
+  primitives, not the full UHC Personal route journeys. Document the extraction
+  required before PetChain can reuse login, protected profiles, individuals,
+  members/licences, clinical data and permissions without cloning the app.
 - Add a brand-neutral protected-index and emergency-copy panel. Hosts supply
   backend-confirmed records; protected storage, individual authorship and
   emergency availability remain separate states, and professional release is
