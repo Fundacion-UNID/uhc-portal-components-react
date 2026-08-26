@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.13
+
+- Render versioned legal Markdown as semantic headings, paragraphs, lists,
+  links and inline code instead of exposing source markers.
+
 ## 0.1.12
 
 - Add a brand-neutral full-page account settings surface for security actions,
