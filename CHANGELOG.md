@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.14
+
+- Add a brand-neutral, three-step identity-evidence workspace that keeps the
+  selected subject separate from the controller's reusable identifiers.
+- Model self upload, authorized organization-worker upload and professional
+  attestation as independent host-confirmed capabilities; uploading evidence
+  never marks its signature or identity as verified in browser state.
+
 ## 0.1.13
 
 - Render versioned legal Markdown as semantic headings, paragraphs, lists,

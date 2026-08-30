@@ -66,6 +66,11 @@ The package deliberately exposes modules instead of a cloned application:
   employee lifecycle and invitation-status UI. Invitations remain host-owned
   application records; the component does not reserve licenses or create GW
   employees.
+- `IdentityEvidenceWorkspace`: plain-language subject, controller-identifier
+  and evidence steps. The host supplies authorized subjects, identifiers and
+  exact capabilities for self upload, organization-worker upload or
+  professional attestation; ICA or another trusted backend verifies the
+  signature after upload.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
