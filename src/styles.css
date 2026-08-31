@@ -288,8 +288,18 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-identity-documents li { align-items: center; background: var(--uhcp-panel-muted); border-radius: 1rem; display: flex; gap: 1rem; justify-content: space-between; padding: .85rem; }
 .uhcp-identity-documents li span { display: grid; gap: .25rem; }
 .uhcp-identity-documents [role='alert'] { color: #c64747; font-weight: 800; }
+.uhcp-identity-declaration { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 1.5rem; color: var(--uhcp-text); display: grid; gap: 1rem; padding: 1.25rem; }
+.uhcp-identity-declaration h3, .uhcp-identity-declaration p { margin: 0; }
+.uhcp-identity-declaration header p { color: var(--uhcp-muted); line-height: 1.55; margin-top: .4rem; }
+.uhcp-identity-declaration-fields { display: grid; gap: 1rem; }
+.uhcp-identity-declaration label { display: grid; font-weight: 800; gap: .5rem; }
+.uhcp-identity-declaration label:has(input[type='checkbox']) { align-items: center; display: flex; }
+.uhcp-identity-declaration input:not([type='checkbox']), .uhcp-identity-declaration select { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: .85rem; color: var(--uhcp-text); font: inherit; min-height: 2.75rem; padding: .7rem .8rem; }
+.uhcp-identity-declaration > button { background: linear-gradient(135deg, var(--uhcp-action-start), var(--uhcp-action-end)); border: 0; border-radius: .85rem; color: #fff; cursor: pointer; font: inherit; font-weight: 800; min-height: 2.75rem; padding: .65rem 1rem; }
+.uhcp-identity-declaration [role='alert'] { color: #c64747; font-weight: 800; }
 @media (min-width: 760px) {
   .uhcp-identity-upload-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .uhcp-identity-declaration-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .uhcp-clinical-summary {
