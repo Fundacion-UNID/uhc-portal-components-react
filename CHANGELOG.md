@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.15
+
+- Add an accessible, animated `PortalLoadingSkeleton` that authenticated
+  portals render while provider data is pending, before any empty or stale
+  business state is eligible to appear.
+
 ## 0.1.14
 
 - Add a brand-neutral, three-step identity-evidence workspace that keeps the
