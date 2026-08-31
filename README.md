@@ -71,6 +71,10 @@ The package deliberately exposes modules instead of a cloned application:
   exact capabilities for self upload, organization-worker upload or
   professional attestation; ICA or another trusted backend verifies the
   signature after upload.
+- `IdentityEvidenceDocumentPanel`: selects and uploads one signed PDF for the
+  chosen identity, requests trusted verification and renders only the status
+  returned by the provider facade. It contains no certificate or gateway
+  plumbing.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`

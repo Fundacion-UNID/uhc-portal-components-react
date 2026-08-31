@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.16
+
+- Add `IdentityEvidenceDocumentPanel`, a brand-neutral signed-PDF upload and
+  verification surface used by PetChain, UHC UNID and SOSChain.
+- Keep rendered status provider-owned: selecting or uploading a PDF never
+  changes pending evidence to verified in browser state.
+
 ## 0.1.15
 
 - Add an accessible, animated `PortalLoadingSkeleton` that authenticated
