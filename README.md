@@ -75,6 +75,9 @@ The package deliberately exposes modules instead of a cloned application:
   chosen identity, requests trusted verification and renders only the status
   returned by the provider facade. It contains no certificate or gateway
   plumbing.
+- `IdentityEvidenceDeclarationForm`: collects the business fields used to
+  prepare a declaration. Hosts supply governed options and one high-level
+  callback; the form never authors claims or handles certificates.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`

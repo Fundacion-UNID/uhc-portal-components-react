@@ -2,6 +2,7 @@ import type {
   IdentityEvidenceDocument,
   IdentityEvidenceDocumentPanelCopy,
   IdentityEvidenceIdentifier,
+  IdentityEvidenceDeclarationFormCopy,
   IdentityEvidenceSubject,
 } from '../../src/index.js'
 
@@ -9,6 +10,38 @@ export const identityEvidenceSubjectFixture: IdentityEvidenceSubject = Object.fr
   id: 'subject-fixture',
   displayName: 'Mochi',
   kind: 'animal',
+})
+
+export const identityEvidenceDeclarationCopyFixture: IdentityEvidenceDeclarationFormCopy = Object.freeze({
+  title: 'Add a personal identity',
+  body: 'Prepare a declaration for trusted verification.',
+  fullLegalName: 'Full legal name',
+  country: 'Country',
+  identifierKind: 'Identifier type',
+  identifierValue: 'Personal identifier',
+  regional: 'This identifier is regional',
+  region: 'Region',
+  capacity: 'Relationship',
+  prepare: 'Prepare PDF',
+  preparing: 'Preparing PDF',
+  required: 'Complete the required fields.',
+})
+
+export const identityEvidenceDeclarationOptionsFixture = Object.freeze({
+  countries: Object.freeze([{ value: 'ES', label: 'Spain' }]),
+  regions: Object.freeze([{ value: 'ES-CT', label: 'Catalonia' }]),
+  identifierKinds: Object.freeze([{ value: 'national-person-identifier', label: 'National number' }]),
+  capacities: Object.freeze([{ value: 'responsible-person', label: 'Responsible person' }]),
+})
+
+export const identityEvidenceDeclarationInputFixture = Object.freeze({
+  fullLegalName: 'Legal Name Fixture',
+  countryCode: identityEvidenceDeclarationOptionsFixture.countries[0].value,
+  regional: true,
+  subdivisionCode: identityEvidenceDeclarationOptionsFixture.regions[0].value,
+  identifierKind: identityEvidenceDeclarationOptionsFixture.identifierKinds[0].value,
+  identifierValue: 'IDENTIFIER-FIXTURE',
+  controllerCapacity: identityEvidenceDeclarationOptionsFixture.capacities[0].value,
 })
 
 export const identityEvidenceIdentifierFixture: IdentityEvidenceIdentifier = Object.freeze({

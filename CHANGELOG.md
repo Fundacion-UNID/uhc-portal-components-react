@@ -6,6 +6,9 @@
   verification surface used by PetChain, UHC UNID and SOSChain.
 - Keep rendered status provider-owned: selecting or uploading a PDF never
   changes pending evidence to verified in browser state.
+- Add `IdentityEvidenceDeclarationForm` for governed legal-name, jurisdiction,
+  identifier and relationship options with one high-level preparation
+  callback and no session, certificate or gateway fields.
 
 ## 0.1.15
 
