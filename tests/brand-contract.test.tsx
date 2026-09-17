@@ -1,3 +1,4 @@
+// TDD contract: write this test red first; make it green only with the complete real behavior.
 /**
  * Flow contract: UHC and VetChain render the same portal modules; a brand
  * adapter may alter only visual identity, product copy and destinations.

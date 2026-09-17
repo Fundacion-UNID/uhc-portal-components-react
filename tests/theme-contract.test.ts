@@ -1,3 +1,4 @@
+// TDD contract: write this test red first; make it green only with the complete real behavior.
 /**
  * Flow contract: dark mode changes surfaces and readable text, while primary
  * buttons and selected controls keep the exact UHC Personal action gradient.

@@ -1,3 +1,4 @@
+// TDD contract: write this test red first; make it green only with the complete real behavior.
 /**
  * Flow contract: the host supplies confirmed protected-index records; secure
  * storage and emergency availability remain two visible, independent states.

@@ -37,6 +37,8 @@
 
 ## Unreleased
 
+- Add the repository-wide mandatory red-green-refactor contributor contract
+  and mark the existing component suites with an explicit TDD contract header.
 - Correct the reuse contract: the package currently provides presentation
   primitives, not the full UHC Personal route journeys. Document the extraction
   required before PetChain can reuse login, protected profiles, individuals,
