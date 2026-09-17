@@ -1,3 +1,4 @@
+// TDD contract: write this test red first; make it green only with the complete real behavior.
 /**
  * Flow contract: personal and professional hosts share the exact SOSChain
  * workspace; only server-resolved capabilities enable association actions.

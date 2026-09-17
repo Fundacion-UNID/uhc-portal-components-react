@@ -1,3 +1,4 @@
+// TDD contract: write this test red first; make it green only with the complete real behavior.
 /**
  * Flow contract:
  * 1. The host gives the component one already-loaded IPS document Bundle.
