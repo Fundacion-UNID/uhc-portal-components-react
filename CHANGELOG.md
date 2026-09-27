@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.17
+
+- Add provider-enabled microchip, tattoo, email and telephone subject locator
+  kinds without exposing any locator that the owning BFF has not enabled.
+- Carry server-returned identifier evidence as presentation-only metadata and
+  add suitable browser input hints for ISO animal microchips and contacts.
+
 ## 0.1.16
 
 - Add `IdentityEvidenceDocumentPanel`, a brand-neutral signed-PDF upload and

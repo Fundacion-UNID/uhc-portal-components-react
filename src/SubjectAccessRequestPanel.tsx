@@ -1,6 +1,13 @@
 import type { FormEvent } from 'react'
 
-export type SubjectLocatorKind = 'qr' | 'numeric-code' | 'did-web'
+export type SubjectLocatorKind =
+  | 'qr'
+  | 'numeric-code'
+  | 'did-web'
+  | 'microchip'
+  | 'tattoo'
+  | 'email-address'
+  | 'phone-number'
 export type SubjectAccessRequestStatus =
   | 'idle'
   | 'resolving'
@@ -19,13 +26,21 @@ export type SubjectAccessSectionOption = Readonly<{
 export type ResolvedSubjectAccessTarget = Readonly<{
   subjectId: string
   display: string
+  /** Server-returned evidence for presentation only; it grants no access. */
+  identifiers?: readonly Readonly<{
+    kind: SubjectLocatorKind
+    system: string
+    value: string
+    attested: boolean
+  }>[]
 }>
 
 export type SubjectAccessRequestPanelCopy = Readonly<{
   title: string
   description: string
   locatorKindLabel: string
-  locatorKinds: Record<SubjectLocatorKind, string>
+  /** Only entries authorized and supported by the owning product are shown. */
+  locatorKinds: Partial<Record<SubjectLocatorKind, string>>
   locatorLabel: string
   resolve: string
   resolving: string
@@ -72,6 +87,7 @@ export function SubjectAccessRequestPanel({
   onToggleSection,
   onRequest,
 }: SubjectAccessRequestPanelProps) {
+  const locatorInput = locatorInputAttributes(locatorKind)
   function resolve(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     void onResolve()
@@ -103,6 +119,9 @@ export function SubjectAccessRequestPanel({
           <input
             value={locator}
             onChange={(event) => onLocatorChange(event.currentTarget.value)}
+            type={locatorInput.type}
+            inputMode={locatorInput.inputMode}
+            pattern={locatorInput.pattern}
             required
             disabled={status === 'resolving'}
           />
@@ -147,4 +166,16 @@ export function SubjectAccessRequestPanel({
       {error && <p role="alert">{error}</p>}
     </section>
   )
+}
+
+function locatorInputAttributes(kind: SubjectLocatorKind): Readonly<{
+  type?: 'email' | 'tel'
+  inputMode?: 'numeric' | 'email' | 'tel'
+  pattern?: string
+}> {
+  if (kind === 'microchip') return { inputMode: 'numeric', pattern: '[0-9 -]{15,21}' }
+  if (kind === 'numeric-code') return { inputMode: 'numeric' }
+  if (kind === 'email-address') return { type: 'email', inputMode: 'email' }
+  if (kind === 'phone-number') return { type: 'tel', inputMode: 'tel' }
+  return {}
 }

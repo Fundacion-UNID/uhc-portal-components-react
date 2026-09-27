@@ -56,7 +56,9 @@ The package deliberately exposes modules instead of a cloned application:
 - `InvitationAcceptancePanel`: controlled invitation-code UI for a related
   individual member; the host refreshes the authorized-subject list after its
   BFF accepts the invitation.
-- `SubjectAccessRequestPanel`: controlled QR, numeric-code or `did:web`
+- `SubjectAccessRequestPanel`: controlled provider-enabled QR, numeric-code,
+  `did:web`, microchip, tattoo, email or telephone locator. Resolution and
+  returned identifier evidence never grant subject access.
   resolver plus section selector. It deliberately has no scanner role: the
   same component is reusable by an individual member or a professional.
 - `SoschainWorkspace`: subject-card picker and four-area workspace for Places,
