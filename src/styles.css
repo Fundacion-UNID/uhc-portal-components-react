@@ -172,6 +172,85 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   padding: 1.25rem;
 }
 
+.uhcp-transfer-console { background:#fff; color:#102754; display:grid; font-family:Inter,ui-sans-serif,system-ui,sans-serif; grid-template-columns:minmax(16rem,23rem) minmax(0,1fr); min-height:calc(100vh - 4.5rem); }
+.uhcp-transfer-console button,.uhcp-transfer-console input,.uhcp-transfer-console textarea { font:inherit; }
+.uhcp-transfer-console svg { fill:none; height:1.25rem; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; width:1.25rem; }
+.uhcp-transfer-contacts { border-inline-end:1px solid #dce5ec; padding:1.2rem; }
+.uhcp-transfer-contacts summary { cursor:pointer; font-size:1.05rem; font-weight:850; list-style-position:inside; padding:.35rem 0 1rem; }
+.uhcp-transfer-contact-list { border-block:1px solid #e2e9ef; display:grid; padding:.45rem 0; }
+.uhcp-transfer-contact-list button { background:transparent; border:0; border-inline-start:3px solid transparent; color:inherit; cursor:pointer; display:grid; gap:.15rem; grid-template-columns:2.7rem 1fr; padding:.75rem; text-align:start; }
+.uhcp-transfer-contact-list button[aria-pressed=true] { background:#eaf8fd; border-inline-start-color:#09a9dc; }
+.uhcp-transfer-contact-list button>span { align-items:center; background:#d7e7f1; border-radius:50%; display:flex; font-weight:800; grid-row:span 2; height:2.4rem; justify-content:center; width:2.4rem; }
+.uhcp-transfer-contact-list small { color:#58708e; }
+.uhcp-transfer-contact-actions { display:grid; gap:.55rem; padding:1rem 0; }
+.uhcp-transfer-contact-actions button,.uhcp-transfer-mode button,.uhcp-transfer-composer fieldset button { align-items:center; background:#fff; border:1px solid #cad7e2; border-radius:.55rem; color:inherit; cursor:pointer; display:flex; gap:.7rem; padding:.7rem .85rem; }
+.uhcp-transfer-contact-actions button[aria-pressed=true],.uhcp-transfer-mode button[aria-pressed=true] { background:#eaf8fd; border-color:#09a9dc; color:#006f96; font-weight:800; }
+.uhcp-transfer-composer fieldset button[aria-pressed=true] { background:#eaf8fd; border-color:#09a9dc; color:#006f96; font-weight:800; }
+.uhcp-transfer-composer { display:grid; gap:.8rem; }
+.uhcp-transfer-composer h3 { font-size:.95rem; margin:.2rem 0 0; }
+.uhcp-transfer-mode { display:grid; grid-template-columns:1fr 1fr; }
+.uhcp-transfer-mode button { justify-content:center; }
+.uhcp-transfer-composer label { display:grid; font-size:.82rem; font-weight:750; gap:.35rem; }
+.uhcp-transfer-composer textarea { border:1px solid #cad7e2; border-radius:.55rem; color:inherit; resize:vertical; padding:.75rem; }
+.uhcp-transfer-composer fieldset { border:0; margin:0; padding:0; }
+.uhcp-transfer-composer legend { font-size:.82rem; font-weight:750; margin-bottom:.4rem; }
+.uhcp-transfer-composer fieldset>div { display:flex; flex-wrap:wrap; gap:.4rem; }
+.uhcp-transfer-record { background:#fff; border:1px dashed #09a9dc; border-radius:.55rem; color:#006f96; padding:1rem; }
+.uhcp-transfer-primary { background:#0796a8!important; border-color:#0796a8!important; color:#fff!important; font-weight:850!important; }
+.uhcp-transfer-main { min-width:0; padding:1rem; }
+.uhcp-transfer-patient,.uhcp-transfer-journey,.uhcp-transfer-review { border:1px solid #dce5ec; border-radius:.7rem; box-shadow:0 4px 16px rgb(16 39 84 / 5%); }
+.uhcp-transfer-patient { padding:1rem; }
+.uhcp-transfer-patient h2,.uhcp-transfer-journey h2,.uhcp-transfer-review h2 { font-size:1.18rem; margin:0; }
+.uhcp-transfer-patient>div { align-items:center; display:grid; gap:.75rem; grid-template-columns:minmax(11rem,.85fr) 1px minmax(13rem,1fr) auto; margin-top:.75rem; }
+.uhcp-transfer-patient button,.uhcp-transfer-patient label { align-items:center; background:#fff; border:1px solid #9fb3c8; border-radius:.45rem; display:flex; gap:.65rem; min-height:3rem; padding:.7rem .9rem; }
+.uhcp-transfer-patient button { color:inherit; cursor:pointer; font-weight:800; justify-content:center; }
+.uhcp-transfer-patient button:last-child { background:#0796a8; border-color:#0796a8; color:#fff; }
+.uhcp-transfer-patient>div>span { background:#cbd7e1; height:2rem; }
+.uhcp-transfer-patient label { color:#64748b; }
+.uhcp-transfer-patient input { border:0; color:#102754; min-width:0; outline:0; width:100%; }
+.uhcp-transfer-journey { margin-top:.8rem; overflow:hidden; padding:1rem; }
+.uhcp-transfer-journey>header,.uhcp-transfer-review>header { align-items:center; display:flex; justify-content:space-between; }
+.uhcp-transfer-journey>header>div { display:flex; gap:.4rem; }
+.uhcp-transfer-journey>header button { align-items:center; background:#fff; border:1px solid #cad7e2; border-radius:.45rem; color:inherit; display:flex; padding:.45rem; }
+.uhcp-transfer-journey>header button:first-child svg { transform:rotate(180deg); }
+.uhcp-transfer-rail { align-items:center; display:flex; gap:.8rem; min-height:18rem; overflow-x:auto; padding:1rem .25rem; scrollbar-color:#aebfce #edf2f5; }
+.uhcp-transfer-card { border:1px solid #cad7e2; border-radius:.5rem; flex:0 0 10rem; min-height:12rem; overflow:hidden; }
+.uhcp-transfer-card h3 { background:#087db8; color:#fff; font-size:.82rem; margin:0; padding:.65rem; }
+.uhcp-transfer-card-body { display:grid; gap:.45rem; padding:.85rem; }
+.uhcp-transfer-card-body time,.uhcp-transfer-card-body span,.uhcp-transfer-card-body code { color:#60738c; font-size:.72rem; }
+.uhcp-transfer-card-body small { background:#edf2f5; border-radius:999px; color:#466079; font-size:.7rem; justify-self:start; padding:.25rem .55rem; }
+.uhcp-transfer-card-body small[data-status=in-progress] { background:#d7f4e5; color:#087a47; }
+.uhcp-transfer-card-body small[data-status=completed] { background:#dff6e8; color:#087a47; }
+.uhcp-transfer-card-body small[data-status=on-hold] { background:#fff1d2; color:#9a5a00; }
+.uhcp-transfer-source { border-color:#078dcc; flex-basis:13.5rem; }
+.uhcp-transfer-destination { border-color:#069f69; flex-basis:13rem; }
+.uhcp-transfer-destination h3 { background:#069f69; }
+.uhcp-transfer-source fieldset { border:0; border-top:1px solid #dce5ec; margin:.2rem .7rem .7rem; padding:.7rem 0 0; }
+.uhcp-transfer-source legend { font-size:.72rem; font-weight:800; }
+.uhcp-transfer-source label { align-items:start; display:flex; gap:.45rem; padding:.35rem 0; }
+.uhcp-transfer-source label span { display:grid; }
+.uhcp-transfer-source label small { color:#60738c; font-size:.68rem; }
+.uhcp-transfer-arrow { align-items:center; color:#0796a8; display:grid; flex:0 0 5rem; grid-template-columns:1fr auto; text-align:center; }
+.uhcp-transfer-arrow span { font-size:.7rem; font-weight:800; grid-column:1/-1; }
+.uhcp-transfer-arrow i { background:#0796a8; height:2px; }
+.uhcp-transfer-arrow svg { margin-left:-.45rem; }
+.uhcp-transfer-help { background:#f4f9fc; border-radius:.5rem; padding:.65rem .8rem; }
+.uhcp-transfer-help summary { cursor:pointer; font-size:.78rem; font-weight:800; }
+.uhcp-transfer-help p { color:#51677e; font-size:.78rem; margin:.4rem 0 0; }
+.uhcp-transfer-controls { display:flex; gap:.55rem; justify-content:flex-end; padding-top:.75rem; }
+.uhcp-transfer-controls button { background:#fff; border:1px solid #0796a8; border-radius:.45rem; color:#08738a; padding:.7rem 1rem; }
+.uhcp-transfer-review { margin-top:.8rem; padding:1rem; }
+.uhcp-transfer-review header p { background:#fff5dd; border:1px solid #f3ce79; border-radius:.4rem; color:#925800; font-size:.72rem; margin:0; padding:.5rem .7rem; }
+.uhcp-transfer-review ol { list-style:none; margin:.7rem 0 0; padding:0; }
+.uhcp-transfer-review li { align-items:center; border-top:1px solid #e1e8ee; display:grid; gap:.7rem; grid-template-columns:1.8rem 1fr auto; padding:.55rem; }
+.uhcp-transfer-review li>span { align-items:center; background:#e8f6fc; border-radius:50%; color:#087db8; display:flex; font-size:.72rem; font-weight:900; height:1.7rem; justify-content:center; width:1.7rem; }
+.uhcp-transfer-review li strong { font-size:.8rem; }
+.uhcp-transfer-review details { font-size:.68rem; }
+.uhcp-transfer-review summary { color:#60738c; cursor:pointer; }
+.uhcp-transfer-status { background:#dff6e8; border-radius:.45rem; color:#087a47; font-weight:750; padding:.75rem; }
+@media(max-width:900px){.uhcp-transfer-console{grid-template-columns:1fr}.uhcp-transfer-contacts{border-bottom:1px solid #dce5ec;border-inline-end:0}.uhcp-transfer-contact-actions{grid-template-columns:repeat(3,1fr)}.uhcp-transfer-patient>div{grid-template-columns:1fr}.uhcp-transfer-patient>div>span{display:none}.uhcp-transfer-review>header{align-items:flex-start;gap:.7rem;flex-direction:column}}
+@media(max-width:560px){.uhcp-transfer-main{padding:.55rem}.uhcp-transfer-contact-actions{grid-template-columns:1fr}.uhcp-transfer-rail{align-items:stretch}.uhcp-transfer-review li{grid-template-columns:1.8rem 1fr}.uhcp-transfer-review li details{grid-column:2}.uhcp-transfer-controls button{flex:1}.uhcp-transfer-review header p{font-size:.65rem}}
+
 .uhcp-identity-workspace {
   background: var(--uhcp-panel);
   border: 1px solid var(--uhcp-border);
