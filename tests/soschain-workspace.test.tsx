@@ -1,17 +1,15 @@
-// TDD contract: write this test red first; make it green only with the complete real behavior.
-/**
- * Flow contract: personal and professional hosts share the exact SOSChain
- * workspace; only server-resolved capabilities enable association actions.
- */
+// Flow contract: personal and professional hosts share one subject workspace; only server-resolved capabilities expose clinical, journey or association data.
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { SoschainWorkspace, type SoschainWorkspaceCopy } from '../src/SoschainWorkspace.js'
+import { SOSCHAIN_SUBJECT_WORKSPACE_AREAS, SoschainWorkspace, type SoschainWorkspaceCopy } from '../src/SoschainWorkspace.js'
 
 const copy: SoschainWorkspaceCopy = {
   cardsTitle: 'Choose a card', cardsDescription: 'Open an authorized card.', openCard: 'Open', selectedCard: 'Selected card', workspaceEyebrow: 'SOSChain',
   noCardTitle: 'No cards', noCardBody: 'No authorized cards.',
-  areas: { overview: 'Overview', 'emergency-data': 'Emergency data', places: 'Places', products: 'Devices', communications: 'Communications' },
+  areas: { overview: 'Overview', 'health-summary': 'Health summary', 'care-journey': 'Care journey', 'emergency-data': 'Emergency data', places: 'Places', products: 'Devices', communications: 'Communications' },
   overviewTitle: 'Overview', overviewBody: 'Summary', placesTitle: 'Places', placesBody: 'Locations', productsTitle: 'Devices', productsBody: 'Products',
+  healthSummaryTitle: 'Health summary', healthSummaryBody: 'Authorized clinical summary', emptyHealthSummary: 'No authorized summary',
+  careJourneyTitle: 'Care journey', careJourneyBody: 'Authorized encounters', emptyCareJourney: 'No encounters',
   emergencyDataTitle: 'Emergency data', emergencyDataBody: 'Confirmed copies', emergencyData: {
     title: 'Emergency copies', body: 'Minimum authorized data.', securePinTitle: 'Stored', securePinBody: 'Encrypted.', emergencyPinTitle: 'Emergency', emergencyPinBody: 'Policy checked.', emergencyOnly: 'Emergency enabled', protectedOnly: 'Stored only', empty: 'No copies', sourcePrefix: 'Source', creatorPrefix: 'Added by',
   },
@@ -19,9 +17,15 @@ const copy: SoschainWorkspaceCopy = {
   emptyPlaces: 'No Places', emptyProducts: 'No devices', emptyCommunications: 'No messages', readOnly: 'Read only',
 }
 const card = { identifier: 'urn:uuid:card', displayName: 'Luna', kindLabel: 'VetChain card', openHref: '/card' }
-const base = { copy, cards: [card], selectedCard: card, activeArea: 'places' as const, areaHrefs: { overview: '#o', 'emergency-data': '#e', places: '#p', products: '#d', communications: '#c' }, places: [], products: [], communications: [] }
+const base = { copy, cards: [card], selectedCard: card, activeArea: 'places' as const, areaHrefs: { overview: '#o', 'health-summary': '#h', 'care-journey': '#j', 'emergency-data': '#e', places: '#p', products: '#d', communications: '#c' }, places: [], products: [], communications: [] }
 
 describe('SoschainWorkspace', () => {
+  it('exports one canonical subject-area order for every host portal', () => {
+    expect(SOSCHAIN_SUBJECT_WORKSPACE_AREAS).toEqual([
+      'overview', 'health-summary', 'care-journey', 'emergency-data', 'communications', 'places', 'products',
+    ])
+  })
+
   it('renders the subject-card picker before opening a card', () => {
     const html = renderToStaticMarkup(<SoschainWorkspace {...base} selectedCard={undefined} />)
     expect(html).toContain('Choose a card')
@@ -45,5 +49,35 @@ describe('SoschainWorkspace', () => {
     }]} />)
     expect(html).toContain('Allergy')
     expect(html).toContain('Emergency enabled')
+  })
+
+  it('renders the host-authorized health summary without adding browser edit controls', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="health-summary"
+      canManageAssociations
+      healthSummary={<article>Authorized IPS sections</article>}
+    />)
+    expect(html).toContain('Authorized IPS sections')
+    expect(html).toContain('Read only')
+    expect(html).not.toContain('Add clinical data')
+  })
+
+  it('renders the bounded Encounter journey supplied by the host', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="care-journey"
+      careJourney={[{
+        identifier: 'encounter-emergency',
+        statusLabel: 'In progress',
+        serviceLabel: 'Emergency department',
+        periodStart: '2026-10-31T09:00:00Z',
+        locationLabel: 'Emergency',
+      }]}
+    />)
+    expect(html).toContain('Emergency department')
+    expect(html).toContain('In progress')
+    expect(html).toContain('Emergency')
+    expect(html).not.toContain('encounter-emergency')
   })
 })
