@@ -5,6 +5,8 @@ export type EncounterSourceOutcome = 'on-hold' | 'completed'
 
 export type EncounterTransferStage = Readonly<{
   identifier: string
+  /** Human-readable provider business identifier; never replaces the FHIR resource id. */
+  displayIdentifier?: string
   serviceLabel: string
   locationLabel?: string
   arrivedAt: string
@@ -28,6 +30,7 @@ export type EncounterTransferConsoleCopy = Readonly<{
   resourceSummary: string; sourceUpdate: string; sourceHistory: string; destinationUpdate: string; destinationHistory: string; indexProjection: string
   demoWarning: string; helpTitle: string; helpBody: string; transferReady: string; messageReady: string
   callReady: string; videoReady: string; patientReady: string; reviewReady: string; attachmentReady: string; technicalDetails: string
+  encounterIdentifier: string
 }>
 
 export type EncounterTransferConsoleProps = Readonly<{
@@ -130,14 +133,14 @@ export function EncounterTransferConsole({ copy, patientDisplay, encounters, sou
         <div className="uhcp-transfer-rail" ref={railRef}>
           {history.map((item) => <EncounterCard key={item.identifier} encounter={item}/>) }
           {source ? <article className="uhcp-transfer-card uhcp-transfer-source">
-            <h3>{copy.sourceTitle}</h3><EncounterCardBody encounter={source}/>
+            <h3>{copy.sourceTitle}</h3><EncounterCardBody encounter={source} identifierLabel={copy.encounterIdentifier}/>
             <fieldset><legend>{copy.helpTitle}</legend>
               <label><input type="radio" name="source-outcome" checked={sourceOutcome === 'on-hold'} onChange={() => setSourceOutcome('on-hold')}/><span><strong>{copy.returning}</strong><small>{copy.returningHint}</small></span></label>
               <label><input type="radio" name="source-outcome" checked={sourceOutcome === 'completed'} onChange={() => setSourceOutcome('completed')}/><span><strong>{copy.notReturning}</strong><small>{copy.notReturningHint}</small></span></label>
             </fieldset>
           </article> : null}
           <div className="uhcp-transfer-arrow"><span>{copy.transferTo}</span><i/><Icon name="chevron"/></div>
-          {destination ? <article className="uhcp-transfer-card uhcp-transfer-destination"><h3>{copy.destinationTitle}</h3><EncounterCardBody encounter={{ ...destination, status: 'in-progress' }}/></article> : null}
+          {destination ? <article className="uhcp-transfer-card uhcp-transfer-destination"><h3>{copy.destinationTitle}</h3><EncounterCardBody encounter={{ ...destination, status: 'in-progress' }} identifierLabel={copy.encounterIdentifier}/></article> : null}
         </div>
         <details className="uhcp-transfer-help" open><summary id={helpId}>{copy.helpTitle}</summary><p>{copy.helpBody}</p></details>
         <div className="uhcp-transfer-controls"><button type="button" onClick={() => { setShowTechnical(true); setStatus(copy.reviewReady) }}>{copy.reviewChanges}</button><button className="uhcp-transfer-primary" type="button" onClick={applyTransfer}>{copy.applyTransfer}</button></div>
@@ -158,6 +161,6 @@ function EncounterCard({ encounter }: Readonly<{ encounter: EncounterTransferSta
   return <article className="uhcp-transfer-card"><EncounterCardBody encounter={encounter}/></article>
 }
 
-function EncounterCardBody({ encounter }: Readonly<{ encounter: EncounterTransferStage }>) {
-  return <div className="uhcp-transfer-card-body"><time>{encounter.arrivedAt}</time><strong>{encounter.serviceLabel}</strong>{encounter.locationLabel ? <span>{encounter.locationLabel}</span> : null}<small data-status={encounter.status}>{encounter.status}</small><code>{encounter.identifier}</code></div>
+function EncounterCardBody({ encounter, identifierLabel }: Readonly<{ encounter: EncounterTransferStage; identifierLabel?: string }>) {
+  return <div className="uhcp-transfer-card-body"><time>{encounter.arrivedAt}</time><strong>{encounter.serviceLabel}</strong>{encounter.locationLabel ? <span>{encounter.locationLabel}</span> : null}<small data-status={encounter.status}>{encounter.status}</small><code aria-label={identifierLabel}>{encounter.displayIdentifier ?? encounter.identifier}</code></div>
 }

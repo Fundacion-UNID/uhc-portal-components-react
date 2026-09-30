@@ -68,7 +68,10 @@ The package deliberately exposes modules instead of a cloned application:
   resolves the authorized subject, contacts and write capability; the component
   only reports the chosen source outcome (`on-hold` when returning or
   `completed` when leaving definitively) and never treats browser state as
-  clinical authority.
+  clinical authority. `EncounterTransferStage.identifier` remains the FHIR
+  resource identity; an optional `displayIdentifier` is a provider-assigned
+  human-readable business identifier. The component never generates it or
+  resolves same-second concurrency.
 - `OrganizationWorkforceAdministration`: controlled license-capacity,
   employee lifecycle and invitation-status UI. Invitations remain host-owned
   application records; the component does not reserve licenses or create GW

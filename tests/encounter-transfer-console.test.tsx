@@ -18,11 +18,17 @@ const copy: EncounterTransferConsoleCopy = {
   helpTitle: '¿Qué ocurre al aplicar el traslado?', helpBody: 'Se conserva el recorrido y se actualiza cada etapa según si la persona volverá.',
   transferReady: 'Traslado preparado en modo demostración.', messageReady: 'Mensaje preparado en modo demostración.', callReady: 'Llamada preparada.', videoReady: 'Videollamada preparada.',
   patientReady: 'Paciente resuelto.', reviewReady: 'Revisión abierta.', attachmentReady: 'Adjunto seleccionado.', technicalDetails: 'Detalles técnicos',
+  encounterIdentifier: 'Identificador visible del encuentro',
 }
+
+const DEMO_PATIENT_DISPLAY_NAME = 'Jane Doe'
+const DEMO_CONTACT_DISPLAY_NAME = 'John Doe'
+const DEMO_CONTACT_PHONE = '+1 202-555-0101'
+const DEMO_SOURCE_ENCOUNTER_DISPLAY_IDENTIFIER = 'ENC-17-9076-3000'
 
 const encounters = [
   { identifier: 'Encounter/previous', serviceLabel: 'Radiología', locationLabel: 'Planta baja', arrivedAt: '09:05', status: 'completed' as const },
-  { identifier: 'Encounter/source', serviceLabel: 'Urgencias', locationLabel: 'Box 3', arrivedAt: '09:35', status: 'in-progress' as const },
+  { identifier: 'Encounter/source', displayIdentifier: DEMO_SOURCE_ENCOUNTER_DISPLAY_IDENTIFIER, serviceLabel: 'Urgencias', locationLabel: 'Box 3', arrivedAt: '09:35', status: 'in-progress' as const },
   { identifier: 'Encounter/destination', serviceLabel: 'Cuidados intensivos', locationLabel: 'UCI', arrivedAt: '10:10', status: 'planned' as const },
 ]
 
@@ -31,11 +37,12 @@ afterEach(cleanup)
 describe('EncounterTransferConsole', () => {
   it('makes the patient, source outcome, destination and five-resource review understandable without technical knowledge', async () => {
     const onApplyTransfer = vi.fn()
-    render(<EncounterTransferConsole copy={copy} patientDisplay="Nuria Sala" encounters={encounters} sourceEncounterId="Encounter/source" destinationEncounterId="Encounter/destination" contacts={[{ identifier: 'RelatedPerson/marta', name: 'Marta Sala', relationship: 'Hermana', phone: '+34 600 123 456' }]} demo onApplyTransfer={onApplyTransfer}/>)
+    render(<EncounterTransferConsole copy={copy} patientDisplay={DEMO_PATIENT_DISPLAY_NAME} encounters={encounters} sourceEncounterId="Encounter/source" destinationEncounterId="Encounter/destination" contacts={[{ identifier: 'RelatedPerson/demo-contact', name: DEMO_CONTACT_DISPLAY_NAME, relationship: 'Hermana', phone: DEMO_CONTACT_PHONE }]} demo onApplyTransfer={onApplyTransfer}/>)
 
     expect(screen.getByRole('heading', { name: copy.patientSearchTitle })).toBeTruthy()
     expect(screen.getByRole('region', { name: copy.journeyTitle }).textContent).toContain('Urgencias')
     expect(screen.getByRole('region', { name: copy.journeyTitle }).textContent).toContain('Cuidados intensivos')
+    expect(screen.getByText(DEMO_SOURCE_ENCOUNTER_DISPLAY_IDENTIFIER)).toBeTruthy()
     expect(screen.getByText(copy.helpBody)).toBeTruthy()
     expect(screen.getByRole('list', { name: copy.resourceSummary }).children).toHaveLength(5)
 
@@ -46,7 +53,7 @@ describe('EncounterTransferConsole', () => {
   })
 
   it('offers call, video and message actions while attachments remain DocumentReference-oriented choices', async () => {
-    render(<EncounterTransferConsole copy={copy} patientDisplay="Nuria Sala" encounters={encounters} sourceEncounterId="Encounter/source" destinationEncounterId="Encounter/destination" contacts={[{ identifier: 'RelatedPerson/marta', name: 'Marta Sala', relationship: 'Hermana', phone: '+34 600 123 456' }]} demo/>)
+    render(<EncounterTransferConsole copy={copy} patientDisplay={DEMO_PATIENT_DISPLAY_NAME} encounters={encounters} sourceEncounterId="Encounter/source" destinationEncounterId="Encounter/destination" contacts={[{ identifier: 'RelatedPerson/demo-contact', name: DEMO_CONTACT_DISPLAY_NAME, relationship: 'Hermana', phone: DEMO_CONTACT_PHONE }]} demo/>)
 
     expect(screen.getByRole('button', { name: copy.call })).toBeTruthy()
     expect(screen.getByRole('button', { name: copy.videoCall })).toBeTruthy()

@@ -9,6 +9,8 @@
   and calendar attachment choices without deriving authorization in the UI.
 - Keep plain-language help visible and place FHIR resource names in optional
   technical details.
+- Render a host-provided encounter business identifier without replacing the
+  FHIR resource identity or deriving identifiers in browser state.
 
 ## 0.1.18
 
