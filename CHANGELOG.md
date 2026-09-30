@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.18
+
+- Add shared, read-only Health summary and Care journey areas to the SOSChain
+  subject workspace used by Personal and Professional portals.
+- Render only host-authorized IPS content and bounded Encounter projections;
+  card or tab selection never exposes clinical mutation controls.
+
 ## 0.1.17
 
 - Add provider-enabled microchip, tattoo, email and telephone subject locator

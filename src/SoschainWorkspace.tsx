@@ -1,6 +1,7 @@
 import { ProtectedIndexEmergencyData, type ProtectedIndexEmergencyCopy, type ProtectedIndexEmergencyItem } from './ProtectedIndexEmergencyData.js'
+import type { ReactNode } from 'react'
 
-export type SoschainWorkspaceArea = 'overview' | 'emergency-data' | 'places' | 'products' | 'communications'
+export type SoschainWorkspaceArea = 'overview' | 'health-summary' | 'care-journey' | 'emergency-data' | 'places' | 'products' | 'communications'
 
 export type SoschainCardSummary = Readonly<{
   identifier: string
@@ -28,6 +29,21 @@ export type SoschainCommunicationSummary = Readonly<{
   placeLabel?: string
 }>
 
+/**
+ * Minimum Encounter projection suitable for a controller/member timeline.
+ * The host must already have removed room, bed, diagnosis and other details
+ * that the current actor is not authorized to read.
+ */
+export type SoschainCareJourneyEntry = Readonly<{
+  identifier: string
+  statusLabel: string
+  serviceLabel: string
+  periodStart: string
+  periodEnd?: string
+  locationLabel?: string
+  detail?: string
+}>
+
 export type SoschainWorkspaceCopy = Readonly<{
   cardsTitle: string
   cardsDescription: string
@@ -39,6 +55,12 @@ export type SoschainWorkspaceCopy = Readonly<{
   areas: Record<SoschainWorkspaceArea, string>
   overviewTitle: string
   overviewBody: string
+  healthSummaryTitle: string
+  healthSummaryBody: string
+  emptyHealthSummary: string
+  careJourneyTitle: string
+  careJourneyBody: string
+  emptyCareJourney: string
   emergencyDataTitle: string
   emergencyDataBody: string
   emergencyData: ProtectedIndexEmergencyCopy
@@ -66,6 +88,9 @@ export type SoschainWorkspaceProps = Readonly<{
   places: readonly SoschainAssociationSummary[]
   products: readonly SoschainAssociationSummary[]
   communications: readonly SoschainCommunicationSummary[]
+  /** Host-authorized IPS/clinical projection, normally `IpsBundleSummary`. */
+  healthSummary?: ReactNode
+  careJourney?: readonly SoschainCareJourneyEntry[]
   emergencyData?: readonly ProtectedIndexEmergencyItem[]
   canManageAssociations: boolean
   addPlaceHref?: string
@@ -108,6 +133,8 @@ export function SoschainWorkspace({
   places,
   products,
   communications,
+  healthSummary,
+  careJourney = [],
   emergencyData = [],
   canManageAssociations,
   addPlaceHref,
@@ -152,6 +179,10 @@ export function SoschainWorkspace({
       ? copy.productsTitle
       : activeArea === 'communications'
         ? copy.communicationsTitle
+        : activeArea === 'health-summary'
+          ? copy.healthSummaryTitle
+          : activeArea === 'care-journey'
+            ? copy.careJourneyTitle
         : activeArea === 'emergency-data'
           ? copy.emergencyDataTitle
         : copy.overviewTitle
@@ -161,6 +192,10 @@ export function SoschainWorkspace({
       ? copy.productsBody
       : activeArea === 'communications'
         ? copy.communicationsBody
+        : activeArea === 'health-summary'
+          ? copy.healthSummaryBody
+          : activeArea === 'care-journey'
+            ? copy.careJourneyBody
         : activeArea === 'emergency-data'
           ? copy.emergencyDataBody
         : copy.overviewBody
@@ -196,7 +231,25 @@ export function SoschainWorkspace({
             <article><strong>{places.length}</strong><span>{copy.areas.places}</span></article>
             <article><strong>{products.length}</strong><span>{copy.areas.products}</span></article>
             <article><strong>{communications.length}</strong><span>{copy.areas.communications}</span></article>
+            <article><strong>{careJourney.length}</strong><span>{copy.areas['care-journey']}</span></article>
           </div>
+        )}
+        {activeArea === 'health-summary' && (healthSummary ?? <p className="uhcp-sos-empty">{copy.emptyHealthSummary}</p>)}
+        {activeArea === 'care-journey' && (
+          careJourney.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCareJourney}</p> : (
+            <ol className="uhcp-sos-timeline uhcp-sos-care-journey">
+              {careJourney.map((encounter) => (
+                <li key={encounter.identifier}>
+                  <div><span>{encounter.statusLabel}</span><time dateTime={encounter.periodStart}>{encounter.periodStart}</time></div>
+                  <strong>{encounter.serviceLabel}</strong>
+                  {encounter.detail ? <p>{encounter.detail}</p> : null}
+                  {encounter.locationLabel || encounter.periodEnd ? <small>
+                    {[encounter.locationLabel, encounter.periodEnd].filter(Boolean).join(' · ')}
+                  </small> : null}
+                </li>
+              ))}
+            </ol>
+          )
         )}
         {activeArea === 'emergency-data' && <ProtectedIndexEmergencyData copy={copy.emergencyData} items={emergencyData} />}
         {activeArea === 'places' && <AssociationList items={places} empty={copy.emptyPlaces} />}
