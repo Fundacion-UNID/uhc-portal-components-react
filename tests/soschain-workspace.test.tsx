@@ -55,6 +55,7 @@ describe('SoschainWorkspace', () => {
     const html = renderToStaticMarkup(<SoschainWorkspace
       {...base}
       activeArea="health-summary"
+      canManageAssociations
       healthSummary={<article>Authorized IPS sections</article>}
     />)
     expect(html).toContain('Authorized IPS sections')
