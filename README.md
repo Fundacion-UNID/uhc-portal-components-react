@@ -64,6 +64,11 @@ The package deliberately exposes modules instead of a cloned application:
 - `SoschainWorkspace`: subject-card picker and four-area workspace for Places,
   devices/vehicles and read-only emergency communications. The host supplies
   already-authorized cards and capabilities.
+- `EncounterTransferConsole`: visual patient-transfer workspace. The host
+  resolves the authorized subject, contacts and write capability; the component
+  only reports the chosen source outcome (`on-hold` when returning or
+  `completed` when leaving definitively) and never treats browser state as
+  clinical authority.
 - `OrganizationWorkforceAdministration`: controlled license-capacity,
   employee lifecycle and invitation-status UI. Invitations remain host-owned
   application records; the component does not reserve licenses or create GW
