@@ -1,7 +1,7 @@
 // Flow contract: personal and professional hosts share one subject workspace; only server-resolved capabilities expose clinical, journey or association data.
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { SoschainWorkspace, type SoschainWorkspaceCopy } from '../src/SoschainWorkspace.js'
+import { SOSCHAIN_SUBJECT_WORKSPACE_AREAS, SoschainWorkspace, type SoschainWorkspaceCopy } from '../src/SoschainWorkspace.js'
 
 const copy: SoschainWorkspaceCopy = {
   cardsTitle: 'Choose a card', cardsDescription: 'Open an authorized card.', openCard: 'Open', selectedCard: 'Selected card', workspaceEyebrow: 'SOSChain',
@@ -20,6 +20,12 @@ const card = { identifier: 'urn:uuid:card', displayName: 'Luna', kindLabel: 'Vet
 const base = { copy, cards: [card], selectedCard: card, activeArea: 'places' as const, areaHrefs: { overview: '#o', 'health-summary': '#h', 'care-journey': '#j', 'emergency-data': '#e', places: '#p', products: '#d', communications: '#c' }, places: [], products: [], communications: [] }
 
 describe('SoschainWorkspace', () => {
+  it('exports one canonical subject-area order for every host portal', () => {
+    expect(SOSCHAIN_SUBJECT_WORKSPACE_AREAS).toEqual([
+      'overview', 'health-summary', 'care-journey', 'emergency-data', 'communications', 'places', 'products',
+    ])
+  })
+
   it('renders the subject-card picker before opening a card', () => {
     const html = renderToStaticMarkup(<SoschainWorkspace {...base} selectedCard={undefined} />)
     expect(html).toContain('Choose a card')

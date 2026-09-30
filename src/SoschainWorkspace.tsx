@@ -1,7 +1,17 @@
 import { ProtectedIndexEmergencyData, type ProtectedIndexEmergencyCopy, type ProtectedIndexEmergencyItem } from './ProtectedIndexEmergencyData.js'
 import type { ReactNode } from 'react'
 
-export type SoschainWorkspaceArea = 'overview' | 'health-summary' | 'care-journey' | 'emergency-data' | 'places' | 'products' | 'communications'
+export const SOSCHAIN_SUBJECT_WORKSPACE_AREAS = [
+  'overview',
+  'health-summary',
+  'care-journey',
+  'emergency-data',
+  'communications',
+  'places',
+  'products',
+] as const
+
+export type SoschainWorkspaceArea = typeof SOSCHAIN_SUBJECT_WORKSPACE_AREAS[number]
 
 export type SoschainCardSummary = Readonly<{
   identifier: string
@@ -208,7 +218,7 @@ export function SoschainWorkspace({
         <p>{selectedCard.kindLabel} · {selectedCard.identifier}</p>
       </header>
       <nav className="uhcp-sos-tabs" aria-label={copy.workspaceEyebrow}>
-        {(Object.keys(areaHrefs) as SoschainWorkspaceArea[]).map((area) => (
+        {SOSCHAIN_SUBJECT_WORKSPACE_AREAS.map((area) => (
           <a key={area} href={areaHrefs[area]} aria-current={activeArea === area ? 'page' : undefined}>
             {copy.areas[area]}
           </a>
