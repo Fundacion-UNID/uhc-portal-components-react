@@ -53,6 +53,12 @@ The package deliberately exposes modules instead of a cloned application:
 - `IpsBundleSummary`: receives one in-memory IPS document Bundle, obtains all
   `Composition.section` entries through Common Utils and renders every
   section's cards. It performs no ingestion or GW call.
+- `ClinicalArtifactEditor`: renders the same schema-driven clinical form for
+  human and animal subjects. The host supplies its UHC/Vet schema,
+  terminology-search adapter and authorized persistence callback. Selecting a
+  terminology candidate preserves source text and adds only the confirmed
+  `system|code` and display. Success requires a fresh provider readback Bundle;
+  local form state is never presented as a persisted write.
 - `InvitationAcceptancePanel`: controlled invitation-code UI for a related
   individual member; the host refreshes the authorized-subject list after its
   BFF accepts the invitation.
