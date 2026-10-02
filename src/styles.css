@@ -171,6 +171,22 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   color: var(--uhcp-text);
   padding: 1.25rem;
 }
+.uhcp-clinical-editor { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:1.5rem; box-shadow:0 20px 60px rgb(15 23 42 / 22%); color:var(--uhcp-text); inset:50% auto auto 50%; max-height:calc(100dvh - 2rem); max-width:48rem; overflow:auto; padding:1.5rem; position:fixed; transform:translate(-50%,-50%); width:calc(100% - 2rem); z-index:60; }
+.uhcp-clinical-editor>header { align-items:flex-start; display:flex; gap:1rem; justify-content:space-between; }
+.uhcp-clinical-editor h2,.uhcp-clinical-editor p { margin:.2rem 0; }
+.uhcp-clinical-editor>header>button { background:transparent; border:1px solid var(--uhcp-border); border-radius:50%; color:inherit; cursor:pointer; font-size:1.4rem; height:2.5rem; width:2.5rem; }
+.uhcp-clinical-editor form { display:grid; gap:1rem; grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:1.25rem; }
+.uhcp-clinical-editor label { color:var(--uhcp-text); display:grid; font-weight:700; gap:.35rem; }
+.uhcp-clinical-editor input,.uhcp-clinical-editor select,.uhcp-clinical-editor textarea { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:.7rem; color:inherit; font:inherit; padding:.75rem; }
+.uhcp-clinical-editor-wide,.uhcp-clinical-editor-error,.uhcp-clinical-editor footer { grid-column:1/-1; }
+.uhcp-clinical-editor footer { display:flex; gap:.75rem; justify-content:flex-end; }
+.uhcp-clinical-editor footer button,.uhcp-terminology-results button { border:1px solid var(--uhcp-border); border-radius:.7rem; cursor:pointer; font:inherit; padding:.7rem 1rem; }
+.uhcp-clinical-editor footer button[type=submit] { background:linear-gradient(135deg,var(--uhcp-action-start),var(--uhcp-action-end)); color:#fff; font-weight:800; }
+.uhcp-clinical-editor-error { color:#b42318; font-weight:700; }
+.uhcp-terminology-results ul { display:grid; gap:.35rem; list-style:none; margin:.25rem 0 0; padding:0; }
+.uhcp-terminology-results button { background:var(--uhcp-surface-muted); color:inherit; display:grid; text-align:start; width:100%; }
+.uhcp-terminology-results small { color:var(--uhcp-muted); display:block; font-weight:400; }
+@media (max-width:44rem) { .uhcp-clinical-editor form { grid-template-columns:1fr; } }
 
 .uhcp-transfer-console { background:#fff; color:#102754; display:grid; font-family:Inter,ui-sans-serif,system-ui,sans-serif; grid-template-columns:minmax(16rem,23rem) minmax(0,1fr); min-height:calc(100vh - 4.5rem); }
 .uhcp-transfer-console button,.uhcp-transfer-console input,.uhcp-transfer-console textarea { font:inherit; }

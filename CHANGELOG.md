@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.20
+
+- Add one brand-neutral, schema-driven clinical artifact editor for UHC,
+  Vet/Pet and SOSChain Personal and Professional portals.
+- Keep human-entered clinical text when a terminology candidate is explicitly
+  selected, and place its code and display in the schema-owned companion
+  claims without silently coding free text.
+- Require host-owned provider persistence to return a fresh Bundle before the
+  editor publishes a successful readback. The shared component owns no auth,
+  provider URL, write capability or human-versus-animal policy.
+
 ## 0.1.19
 
 - Add an accessible Encounter transfer console with patient lookup, a
