@@ -125,6 +125,8 @@ describe('ClinicalArtifactEditor', () => {
       onReadback={() => undefined}
     />)
 
+    expect(screen.getByLabelText('Immunization.lot-number').getAttribute('type')).toBe('text')
+    expect(screen.getByLabelText('Immunization.dose-sequence').getAttribute('type')).toBe('number')
     fireEvent.change(screen.getByLabelText('Vaccine or product'), { target: { value: sourceText } })
     fireEvent.change(screen.getByLabelText('Administration date'), { target: { value: '2026-04-10' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))

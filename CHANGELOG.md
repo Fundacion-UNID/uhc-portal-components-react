@@ -9,6 +9,8 @@
 - Keep one stable draft identifier across retries, expose pending/retryable
   synchronization without reporting local state as saved, and add the same
   retry contract to encounter transfers.
+- Derive form input types from that JSON Schema, so textual FHIR fields such
+  as a vaccine lot number are not misclassified by their claim name.
 
 ## 0.1.28
 
