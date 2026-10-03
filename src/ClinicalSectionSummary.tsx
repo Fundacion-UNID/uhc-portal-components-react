@@ -5,6 +5,7 @@ export type ClinicalSummaryCard = Readonly<{
   title: string
   resourceType: string
   date?: string
+  details?: readonly Readonly<{ label: string; value: string; unit?: string }>[]
 }>
 
 export type ClinicalSectionSummaryProps = Readonly<{
@@ -56,6 +57,11 @@ export function ClinicalSectionSummary({
                 <p className="uhcp-clinical-title" dir="auto"><bdi>{resource.title}</bdi></p>
                 <p className="uhcp-clinical-type">{resourceTypeLabel(resource.resourceType)}</p>
                 {resource.date && <p className="uhcp-clinical-date">{resource.date}</p>}
+                {resource.details?.length ? <dl className="uhcp-clinical-details">
+                  {resource.details.map((detail) => <div key={`${detail.label}:${detail.value}:${detail.unit ?? ''}`}>
+                    <dt>{detail.label}</dt><dd>{detail.value}{detail.unit ? ` ${detail.unit}` : ''}</dd>
+                  </div>)}
+                </dl> : null}
               </article>
             ))}
           </div>

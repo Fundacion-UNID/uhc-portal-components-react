@@ -409,6 +409,10 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-title { font-weight: 800; margin: 0; }
 .uhcp-clinical-type { color: var(--uhcp-muted); font-size: .72rem; font-weight: 800; letter-spacing: .06em; margin: .35rem 0 0; text-transform: uppercase; }
 .uhcp-clinical-date, .uhcp-clinical-empty { color: var(--uhcp-muted); margin: .35rem 0 0; }
+.uhcp-clinical-details { display: grid; gap: .3rem; margin: .6rem 0 0; }
+.uhcp-clinical-details div { align-items: baseline; display: flex; gap: .75rem; justify-content: space-between; }
+.uhcp-clinical-details dt { color: var(--uhcp-muted); font-size: .78rem; }
+.uhcp-clinical-details dd { font-size: .9rem; font-weight: 800; margin: 0; }
 .uhcp-access-panel { color: var(--uhcp-text); display: grid; gap: 1rem; }
 .uhcp-access-panel h2, .uhcp-access-panel p { margin: 0; }
 .uhcp-access-panel > p { color: var(--uhcp-muted); line-height: 1.5; }

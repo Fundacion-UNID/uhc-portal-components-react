@@ -38,6 +38,9 @@ export function IpsBundleSummary({
   sectionActions,
 }: IpsBundleSummaryProps) {
   const sections = toClinicalSectionViews(bundle, { locale, translateCode })
+  const nativeResources = new Map((bundle.entry ?? bundle.data ?? []).flatMap((entry) =>
+    entry.fullUrl && entry.resource ? [[entry.fullUrl, entry.resource] as const] : [],
+  ))
 
   if (sections.length === 0) {
     return <p className="uhcp-clinical-empty" data-ips-summary-empty>{noSectionsLabel}</p>
@@ -55,6 +58,7 @@ export function IpsBundleSummary({
             title: resource.title,
             resourceType: resource.resourceType,
             date: resource.date,
+            details: observationComponentDetails(nativeResources.get(resource.fullUrl ?? '')),
           }))}
           emptyLabel={emptyLabel}
           resourceTypeLabel={resourceTypeLabel}
@@ -63,4 +67,20 @@ export function IpsBundleSummary({
       ))}
     </div>
   )
+}
+
+function observationComponentDetails(resource: unknown): readonly Readonly<{ label: string; value: string; unit?: string }>[] | undefined {
+  const candidate = resource as Readonly<{ resourceType?: string; component?: readonly unknown[] }> | undefined
+  if (candidate?.resourceType !== 'Observation' || !Array.isArray(candidate.component)) return undefined
+  const details = candidate.component.flatMap((value) => {
+    const component = value as Readonly<{
+      code?: Readonly<{ text?: string; coding?: readonly Readonly<{ display?: string }>[] }>
+      valueQuantity?: Readonly<{ value?: number; unit?: string }>
+    }>
+    const label = component.code?.text ?? component.code?.coding?.find((coding) => coding.display)?.display
+    const quantity = component.valueQuantity
+    if (!label || !Number.isFinite(quantity?.value)) return []
+    return [{ label, value: String(quantity!.value), ...(quantity?.unit ? { unit: quantity.unit } : {}) }]
+  })
+  return details.length ? details : undefined
 }
