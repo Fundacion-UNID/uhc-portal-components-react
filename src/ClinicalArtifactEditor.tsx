@@ -15,6 +15,7 @@ import {
   selectMultichannelOperationClaimValues,
   type MultichannelOperationIdValue,
   type MultichannelOperationSchema,
+  type MultichannelOperationSchemaNode,
   type MultichannelOperationValues,
 } from 'sos-data-utils-ts/multichannel-operation-schemas'
 
@@ -287,7 +288,7 @@ export function ClinicalArtifactEditor({
           {statusOptions(request.resourceType, parameter) ? <select id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} onChange={update}>
             {statusOptions(request.resourceType, parameter)!.map((option) => <option key={option} value={option}>{humanize(option)}</option>)}
           </select> : isMultiline(parameter) ? <textarea id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} rows={3} onChange={update}/>
-            : <input id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} type={fieldInputType(parameter)} onChange={update}/>} 
+            : <input id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} type={fieldInputType(parameter, operationSchema?.properties.claims?.properties?.[claim])} onChange={update}/>}
           {terminologyEnabled && activeTerminologyClaim === claim ? <div className="uhcp-terminology-results">
             {terminologyBusy ? <small role="status">{copy.terminologyLoading}</small> : null}
             {terminologyError ? <small role="alert">{copy.terminologyUnavailable}</small> : null}
@@ -394,7 +395,8 @@ function selectedCodingClaims(resourceType: string, inputClaim: string, candidat
 
 function isMultiline(parameter: string): boolean { return /note|description|summary|instruction|outcome|reference-range-text/.test(parameter) }
 function humanize(value: string): string { return value ? value[0].toUpperCase() + value.slice(1).replaceAll('_', ' ') : value }
-function fieldInputType(parameter: string): 'text' | 'number' {
+function fieldInputType(parameter: string, schemaNode?: MultichannelOperationSchemaNode): 'text' | 'number' {
+  if (schemaNode) return schemaNode.type === 'number' || schemaNode.type === 'integer' ? 'number' : 'text'
   if (/(?:^|-)number$|frequency$|dose-sequence$/.test(parameter)) return 'number'
   // FHIR date/search fields may carry a partial date or a complete dateTime
   // with timezone. HTML date inputs silently truncate or reject those values.
