@@ -63,6 +63,13 @@ The package deliberately exposes modules instead of a cloned application:
   exclude inapplicable areas. Family history, care-team members and emergency
   contacts remain independent; the organizer never follows another subject's
   card or documents automatically.
+- `ClinicalTimeline` and `ClinicalDateTimeFields`: render longitudinal entries
+  with localized dates, inclusive date/time ranges, multi-select clinical
+  facets and accessible latest-first navigation. Editors capture calendar date
+  and time separately; ISO/FHIR instants remain wire values, not UI labels.
+- `EmergencyContactDirectory`: renders already-authorized `RelatedPerson`
+  contacts and delegates create, update, delete and fresh provider readback to
+  the host portal. Browser editing never grants contact access.
 - `ClinicalArtifactEditor`: renders the same schema-driven clinical form for
   human and animal subjects. The host supplies its UHC/Vet schema,
   terminology-search adapter and authorized persistence callback. Selecting a
