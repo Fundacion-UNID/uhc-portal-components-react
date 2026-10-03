@@ -147,6 +147,11 @@
 
 ## Unreleased
 
+- Add a reusable, accessible Consent permission directory/editor for
+  provider-backed create, edit, suspend/reactivate and delete flows. The host
+  owns the schema-backed Bundle mutation and must return authoritative
+  readback; the component performs no optimistic authorization mutation.
+
 - Add the repository-wide mandatory red-green-refactor contributor contract
   and mark the existing component suites with an explicit TDD contract header.
 - Correct the reuse contract: the package currently provides presentation
