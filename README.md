@@ -58,6 +58,11 @@ The package deliberately exposes modules instead of a cloned application:
   journey navigation and renders either IPS or non-IPS sections with the same
   viewer. It never treats an Encounter as the clinical subject or performs
   authorization, fetching or persistence in the browser.
+- `AllClinicalSections<Person|Animal>`: lets each portal compose the same
+  authorized section views as a stack or tabs, nest collapsible subsections and
+  exclude inapplicable areas. Family history, care-team members and emergency
+  contacts remain independent; the organizer never follows another subject's
+  card or documents automatically.
 - `ClinicalArtifactEditor`: renders the same schema-driven clinical form for
   human and animal subjects. The host supplies its UHC/Vet schema,
   terminology-search adapter and authorized persistence callback. Selecting a
