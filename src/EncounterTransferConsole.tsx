@@ -31,6 +31,12 @@ export type EncounterTransferConsoleCopy = Readonly<{
   demoWarning: string; helpTitle: string; helpBody: string; transferReady: string; messageReady: string
   callReady: string; videoReady: string; patientReady: string; reviewReady: string; attachmentReady: string; technicalDetails: string
   encounterIdentifier: string
+  transferPending: string; retryTransfer: string; transferRejected: string
+}>
+
+export type EncounterTransferApplyOutcome = Readonly<{
+  state: 'confirmed' | 'pending' | 'retryable' | 'rejected'
+  message?: string
 }>
 
 export type EncounterTransferConsoleProps = Readonly<{
@@ -41,7 +47,7 @@ export type EncounterTransferConsoleProps = Readonly<{
   destinationEncounterId: string
   contacts: readonly EmergencyContactAction[]
   demo?: boolean
-  onApplyTransfer?: (sourceOutcome: EncounterSourceOutcome) => void
+  onApplyTransfer?: (sourceOutcome: EncounterSourceOutcome) => void | EncounterTransferApplyOutcome | Promise<void | EncounterTransferApplyOutcome>
 }>
 
 const icons = {
@@ -73,6 +79,7 @@ export function EncounterTransferConsole({ copy, patientDisplay, encounters, sou
   const [attachments, setAttachments] = useState<readonly string[]>([])
   const [showTechnical, setShowTechnical] = useState(false)
   const [status, setStatus] = useState('')
+  const [transferSync, setTransferSync] = useState<'idle' | 'submitting' | 'retryable'>('idle')
   const railRef = useRef<HTMLDivElement>(null)
   const source = useMemo(() => encounters.find((item) => item.identifier === sourceEncounterId), [encounters, sourceEncounterId])
   const destination = useMemo(() => encounters.find((item) => item.identifier === destinationEncounterId), [encounters, destinationEncounterId])
@@ -85,9 +92,26 @@ export function EncounterTransferConsole({ copy, patientDisplay, encounters, sou
     setStatus(copy.attachmentReady)
   }
 
-  function applyTransfer() {
-    onApplyTransfer?.(sourceOutcome)
-    setStatus(copy.transferReady)
+  async function applyTransfer() {
+    setTransferSync('submitting')
+    try {
+      const outcome = await onApplyTransfer?.(sourceOutcome)
+      if (outcome?.state === 'pending' || outcome?.state === 'retryable') {
+        setTransferSync('retryable')
+        setStatus(outcome.message || copy.transferPending)
+        return
+      }
+      if (outcome?.state === 'rejected') {
+        setTransferSync('idle')
+        setStatus(outcome.message || copy.transferRejected)
+        return
+      }
+      setTransferSync('idle')
+      setStatus(copy.transferReady)
+    } catch (reason) {
+      setTransferSync('retryable')
+      setStatus(reason instanceof Error && reason.message ? reason.message : copy.transferPending)
+    }
   }
 
   return <section className="uhcp-transfer-console">
@@ -143,7 +167,7 @@ export function EncounterTransferConsole({ copy, patientDisplay, encounters, sou
           {destination ? <article className="uhcp-transfer-card uhcp-transfer-destination"><h3>{copy.destinationTitle}</h3><EncounterCardBody encounter={{ ...destination, status: 'in-progress' }} identifierLabel={copy.encounterIdentifier}/></article> : null}
         </div>
         <details className="uhcp-transfer-help" open><summary id={helpId}>{copy.helpTitle}</summary><p>{copy.helpBody}</p></details>
-        <div className="uhcp-transfer-controls"><button type="button" onClick={() => { setShowTechnical(true); setStatus(copy.reviewReady) }}>{copy.reviewChanges}</button><button className="uhcp-transfer-primary" type="button" onClick={applyTransfer}>{copy.applyTransfer}</button></div>
+        <div className="uhcp-transfer-controls"><button type="button" onClick={() => { setShowTechnical(true); setStatus(copy.reviewReady) }}>{copy.reviewChanges}</button><button className="uhcp-transfer-primary" type="button" disabled={transferSync === 'submitting'} onClick={() => void applyTransfer()}>{transferSync === 'retryable' ? copy.retryTransfer : copy.applyTransfer}</button></div>
       </section>
 
       <section className="uhcp-transfer-review">

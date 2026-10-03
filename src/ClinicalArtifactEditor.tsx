@@ -1,12 +1,30 @@
 'use client'
 
-import { useEffect, useId, useMemo, useState, type ChangeEvent } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import type { ClinicalResourceBundleLike } from 'gdc-common-utils-ts/utils/clinical-resource-view'
+import {
+  clinicalArtifactEditorClaimsFromFhirR4,
+  clinicalArtifactFhirR4ToFlat,
+  type ClinicalArtifactFhirR4Resource,
+  type FhirIpsClinicalArtifactType,
+} from 'fhir-data-utils-ts'
+import {
+  buildMultichannelOperationBundle,
+  MultichannelOperationMode,
+  readMultichannelOperationFromBundle,
+  selectMultichannelOperationClaimValues,
+  type MultichannelOperationIdValue,
+  type MultichannelOperationSchema,
+  type MultichannelOperationValues,
+} from 'sos-data-utils-ts/multichannel-operation-schemas'
 
 export type ClinicalArtifactSchema = Readonly<{
   resourceType: string
+  sectionCode?: string
   requiredClaims: readonly string[]
   optionalClaims: readonly string[]
+  terminologyTextClaims?: readonly string[]
+  initialClaims?: Readonly<Record<string, string>>
 }>
 
 export type ClinicalArtifactEditorRequest = Readonly<{
@@ -14,7 +32,12 @@ export type ClinicalArtifactEditorRequest = Readonly<{
   sectionCode: string
   mode: 'create' | 'update'
   artifactId?: string
+  ifMatch?: string
   initialClaims?: Readonly<Record<string, unknown>>
+  /** Native FHIR R4 resource hydrated through the selected shared schema. */
+  initialResource?: Readonly<Record<string, unknown> & { resourceType: string }>
+  /** Authoritative claims-first provider Bundle hydrated through BundleReader. */
+  initialBundle?: Readonly<Record<string, unknown>>
 }>
 
 export type ClinicalArtifactDraft = Readonly<{
@@ -23,6 +46,28 @@ export type ClinicalArtifactDraft = Readonly<{
   sectionCode: string
   mode: 'create' | 'update'
   claims: Readonly<Record<string, string>>
+  /** Complete schema-validated operation values when a multichannel schema is supplied. */
+  operationValues?: MultichannelOperationValues
+  /** Claims-first batch produced by the shared BundleEditor. */
+  changesBundle?: ClinicalArtifactChangesBundle
+}>
+
+export type ClinicalArtifactChangesBundle = Readonly<{
+  resourceType: string
+  type: string
+  data?: readonly unknown[]
+  entry?: readonly unknown[]
+}>
+
+export type ClinicalArtifactAuthoringContext = Readonly<{
+  subjectReference: string
+  language: string
+  createdAt: string
+  dataAuthorReference: string
+  attestationState: 'draft' | 'confirmed'
+  attesterReference?: string
+  attesterMode?: string
+  attestedAt?: string
 }>
 
 export type ClinicalTerminologyCandidate = Readonly<{
@@ -51,17 +96,29 @@ export type ClinicalArtifactEditorCopy = Readonly<{
   terminologyLoading: string
   terminologyUnavailable: string
   readbackMissing: string
+  pending?: string
+  retry?: string
 }>
+
+export type ClinicalArtifactSaveOutcome = Readonly<
+  | { state: 'confirmed'; bundle: ClinicalResourceBundleLike }
+  | { state: 'pending' | 'retryable'; message?: string }
+  | { state: 'rejected'; message: string }
+>
 
 export type ClinicalArtifactEditorProps = Readonly<{
   request: ClinicalArtifactEditorRequest
   schema: ClinicalArtifactSchema
+  /** Shared JSON Schema 2020-12 contract used by portal, voice, chat and WhatsApp. */
+  operationSchema?: MultichannelOperationSchema
+  /** Host-owned subject and provenance; never inferred from the transport sender. */
+  authoringContext?: ClinicalArtifactAuthoringContext
   copy: ClinicalArtifactEditorCopy
   locale?: string
   taxonomyId?: string
   fieldLabel: (claim: string) => string
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
-  saveArtifact: (draft: ClinicalArtifactDraft) => Promise<ClinicalResourceBundleLike | undefined>
+  saveArtifact: (draft: ClinicalArtifactDraft) => Promise<ClinicalResourceBundleLike | ClinicalArtifactSaveOutcome | undefined>
   onCancel: () => void
   onReadback: (bundle: ClinicalResourceBundleLike) => void
 }>
@@ -74,6 +131,8 @@ export type ClinicalArtifactEditorProps = Readonly<{
 export function ClinicalArtifactEditor({
   request,
   schema,
+  operationSchema,
+  authoringContext,
   copy,
   locale = 'en',
   taxonomyId,
@@ -86,24 +145,61 @@ export function ClinicalArtifactEditor({
   const titleId = useId()
   const descriptionId = useId()
   const acceptedClaims = useMemo(
-    () => [...schema.requiredClaims, ...schema.optionalClaims],
-    [schema.optionalClaims, schema.requiredClaims],
+    () => operationSchema
+      ? Object.keys(operationSchema.properties.claims?.properties ?? {})
+      : [...schema.requiredClaims, ...schema.optionalClaims],
+    [operationSchema, schema.optionalClaims, schema.requiredClaims],
   )
   const fields = useMemo(() => acceptedClaims
     .filter((claim) => !claim.endsWith('.section') && !claim.endsWith('.user-selected'))
     .filter((claim) => !isHiddenCodingCompanion(request.resourceType, claim, acceptedClaims)),
   [acceptedClaims, request.resourceType])
-  const requiredClaims = useMemo(() => new Set(schema.requiredClaims), [schema.requiredClaims])
-  const [claims, setClaims] = useState<Record<string, string>>(() => ({
-    ...defaultClaims(request.resourceType),
-    ...Object.fromEntries(Object.entries(request.initialClaims ?? {}).map(([claim, value]) => [claim, String(value ?? '')])),
-  }))
+  const requiredClaims = useMemo(() => new Set(
+    operationSchema?.properties.claims?.required ?? schema.requiredClaims,
+  ), [operationSchema, schema.requiredClaims])
+  const [claims, setClaims] = useState<Record<string, string>>(() => {
+    const operationId = operationSchema?.['x-operation-id']
+    const initialBundleClaims = request.initialBundle && operationId
+      ? readMultichannelOperationFromBundle(operationId, request.initialBundle, {
+        operation: request.mode === 'update' ? MultichannelOperationMode.Update : MultichannelOperationMode.Create,
+        resourceId: request.artifactId,
+        ifMatch: request.ifMatch,
+      }).claims
+      : {}
+    const initialResourceClaims = request.initialResource
+      ? operationId
+        ? selectMultichannelOperationClaimValues(
+          operationId,
+          clinicalArtifactFhirR4ToFlat(request.initialResource as ClinicalArtifactFhirR4Resource),
+        )
+        : clinicalArtifactEditorClaimsFromFhirR4(
+          request.initialResource as ClinicalArtifactFhirR4Resource,
+          {
+            resourceType: request.resourceType as FhirIpsClinicalArtifactType,
+            sectionCode: schema.sectionCode ?? request.sectionCode,
+            requiredClaims: schema.requiredClaims,
+            optionalClaims: schema.optionalClaims,
+            terminologyTextClaims: schema.terminologyTextClaims ?? [],
+            initialClaims: schema.initialClaims ?? defaultClaims(request.resourceType),
+          },
+        )
+      : {}
+    return {
+      ...(operationSchema ? jsonSchemaDefaultClaims(operationSchema) : defaultClaims(request.resourceType)),
+      ...schema.initialClaims,
+      ...stringClaims(initialBundleClaims),
+      ...stringClaims(initialResourceClaims),
+      ...Object.fromEntries(Object.entries(request.initialClaims ?? {}).map(([claim, value]) => [claim, String(value ?? '')])),
+    }
+  })
   const [activeTerminologyClaim, setActiveTerminologyClaim] = useState<string>()
   const [candidates, setCandidates] = useState<readonly ClinicalTerminologyCandidate[]>([])
   const [terminologyBusy, setTerminologyBusy] = useState(false)
   const [terminologyError, setTerminologyError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [pending, setPending] = useState('')
+  const draftId = useRef(request.artifactId ?? crypto.randomUUID())
 
   useEffect(() => {
     if (!activeTerminologyClaim || !searchTerminology) return
@@ -136,15 +232,33 @@ export function ClinicalArtifactEditor({
     setSaving(true)
     setError('')
     try {
-      const readback = await saveArtifact({
+      const result = await saveArtifact({
         resourceType: request.resourceType,
-        id: request.artifactId ?? crypto.randomUUID(),
+        id: draftId.current,
         sectionCode: request.sectionCode,
         mode: request.mode,
         claims,
+        ...(operationSchema ? buildOperationDraft(
+          operationSchema,
+          authoringContext,
+          request,
+          draftId.current,
+          claims,
+        ) : {}),
       })
-      if (!readback) throw new Error(copy.readbackMissing)
-      onReadback(readback)
+      if (!result) throw new Error(copy.readbackMissing)
+      if (isSaveOutcome(result)) {
+        if (result.state === 'confirmed') {
+          setPending('')
+          onReadback(result.bundle)
+          return
+        }
+        if (result.state === 'rejected') throw new Error(result.message)
+        setPending(result.message || copy.pending || copy.readbackMissing)
+        return
+      }
+      setPending('')
+      onReadback(result)
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason))
     } finally {
@@ -186,14 +300,63 @@ export function ClinicalArtifactEditor({
         </label>
       })}
       {error ? <p className="uhcp-clinical-editor-error" role="alert">{error}</p> : null}
-      <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : copy.save}</button></footer>
+      {pending ? <p className="uhcp-clinical-editor-pending" role="status">{copy.pending || pending}</p> : null}
+      <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : pending ? (copy.retry || copy.save) : copy.save}</button></footer>
     </form>
   </section>
 }
 
+function isSaveOutcome(value: ClinicalResourceBundleLike | ClinicalArtifactSaveOutcome): value is ClinicalArtifactSaveOutcome {
+  return typeof value === 'object' && value !== null && 'state' in value
+}
+
+function buildOperationDraft(
+  operationSchema: MultichannelOperationSchema,
+  authoringContext: ClinicalArtifactAuthoringContext | undefined,
+  request: ClinicalArtifactEditorRequest,
+  resourceId: string,
+  claims: Readonly<Record<string, string>>,
+): Readonly<{ operationValues: MultichannelOperationValues; changesBundle: ClinicalArtifactChangesBundle }> {
+  if (!authoringContext) throw new TypeError('clinical_artifact_authoring_context_required')
+  const operationId = operationSchema['x-operation-id'] as MultichannelOperationIdValue
+  const operation = request.mode === 'update' ? MultichannelOperationMode.Update : MultichannelOperationMode.Create
+  const operationValues = {
+    operation,
+    resourceId,
+    ...authoringContext,
+    ...(request.ifMatch ? { ifMatch: request.ifMatch } : {}),
+    claims: coerceClaimsFromJsonSchema(operationSchema, claims),
+  } as MultichannelOperationValues
+  return Object.freeze({
+    operationValues,
+    changesBundle: buildMultichannelOperationBundle(operationId, operationValues),
+  })
+}
+
+function coerceClaimsFromJsonSchema(
+  schema: MultichannelOperationSchema,
+  claims: Readonly<Record<string, string>>,
+): Readonly<Record<string, unknown>> {
+  const properties = schema.properties.claims?.properties ?? {}
+  return Object.freeze(Object.fromEntries(Object.entries(claims)
+    .filter(([claim, value]) => properties[claim] && value !== '')
+    .map(([claim, value]) => [claim, properties[claim]?.type === 'number' ? Number(value) : value])))
+}
+
+function stringClaims(claims: Readonly<Record<string, unknown>>): Record<string, string> {
+  return Object.fromEntries(Object.entries(claims).map(([claim, value]) => [claim, String(value ?? '')]))
+}
+
+function jsonSchemaDefaultClaims(schema: MultichannelOperationSchema): Record<string, string> {
+  return Object.fromEntries(Object.entries(schema.properties.claims?.properties ?? {})
+    .filter(([, node]) => node.default !== undefined)
+    .map(([claim, node]) => [claim, String(node.default)]))
+}
+
 function defaultClaims(resourceType: string): Record<string, string> {
   if (resourceType === 'Immunization') return { 'Immunization.status': 'completed' }
-  if (resourceType === 'Observation' || resourceType === 'DiagnosticReport' || resourceType === 'Procedure') return { [`${resourceType}.status`]: 'final' }
+  if (resourceType === 'Observation' || resourceType === 'DiagnosticReport') return { [`${resourceType}.status`]: 'final' }
+  if (resourceType === 'Procedure') return { [`${resourceType}.status`]: 'completed' }
   if (resourceType === 'Condition' || resourceType === 'AllergyIntolerance') return { [`${resourceType}.clinical-status`]: 'active' }
   return {}
 }
