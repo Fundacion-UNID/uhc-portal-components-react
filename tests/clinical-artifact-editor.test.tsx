@@ -128,7 +128,7 @@ describe('ClinicalArtifactEditor', () => {
     expect(screen.getByLabelText('Immunization.lot-number').getAttribute('type')).toBe('text')
     expect(screen.getByLabelText('Immunization.dose-sequence').getAttribute('type')).toBe('number')
     fireEvent.change(screen.getByLabelText('Vaccine or product'), { target: { value: sourceText } })
-    fireEvent.change(screen.getByLabelText('Administration date'), { target: { value: '2026-04-10' } })
+    fireEvent.change(screen.getByLabelText('Administration date: Date'), { target: { value: '2026-04-10' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(saveArtifact).toHaveBeenCalledTimes(1))
@@ -181,7 +181,8 @@ describe('ClinicalArtifactEditor', () => {
     />)
 
     expect((screen.getByLabelText('Vaccine or product') as HTMLInputElement).value).toBe(sourceText)
-    expect((screen.getByLabelText('Administration date') as HTMLInputElement).value).toBe('2026-04-10')
+    expect((screen.getByLabelText('Administration date: Date') as HTMLInputElement).value).toBe('2026-04-10')
+    expect((screen.getByLabelText('Administration date: Time') as HTMLInputElement).value).toBe('')
   })
 
   it('does not publish local state when the provider omits authoritative readback', async () => {
@@ -231,7 +232,7 @@ describe('ClinicalArtifactEditor', () => {
   it('preserves a complete FHIR dateTime instead of truncating it to a calendar date', async () => {
     const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
     render(<ClinicalArtifactEditor
-      request={{ resourceType, sectionCode: '11369-6', mode: 'update', artifactId: 'immunization-id', initialClaims: { [sourceTextClaim]: sourceText, [dateClaim]: fhirDateTime } }}
+      request={{ resourceType, sectionCode: '11369-6', mode: 'update', artifactId: REPOSITORY_SAFE_EXAMPLES.resourceUuid, ifMatch: 'W/"1"', initialClaims: { [sourceTextClaim]: sourceText, [dateClaim]: fhirDateTime } }}
       schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [dateClaim] }}
       copy={{ title: 'Vaccination', description: 'Edit a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
       fieldLabel={(claim) => claim === dateClaim ? 'Occurrence' : 'Vaccine or product'}
@@ -245,5 +246,64 @@ describe('ClinicalArtifactEditor', () => {
     await waitFor(() => expect(saveArtifact).toHaveBeenCalledWith(expect.objectContaining({
       claims: expect.objectContaining({ [dateClaim]: fhirDateTime }),
     })))
+  })
+
+  it('edits a schema dateTime through separate local date and time controls and preserves the instant', async () => {
+    const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
+    render(<ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'update', artifactId: REPOSITORY_SAFE_EXAMPLES.resourceUuid, ifMatch: 'W/"1"', initialClaims: { [sourceTextClaim]: sourceText, [dateClaim]: fhirDateTime } }}
+      schema={FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization}
+      operationSchema={MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Immunization]}
+      authoringContext={{
+        subjectReference: REPOSITORY_SAFE_EXAMPLES.didWeb,
+        language: 'en',
+        createdAt: fhirDateTime,
+        dataAuthorReference: `RelatedPerson/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`,
+        attestationState: MultichannelAttestationState.Draft,
+      }}
+      timeZone="UTC"
+      copy={{
+        title: 'Vaccination', description: 'Edit a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close',
+        terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing',
+        dateTime: { date: 'Date', time: 'Time', useToday: 'Use today', useCurrentTime: 'Use current time' },
+      }}
+      fieldLabel={(claim) => claim === dateClaim ? 'Occurrence' : claim}
+      saveArtifact={saveArtifact}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect((screen.getByLabelText('Occurrence: Date') as HTMLInputElement).value).toBe('2026-04-10')
+    expect((screen.getByLabelText('Occurrence: Time') as HTMLInputElement).value).toBe('10:00:00')
+    expect(screen.queryByDisplayValue(fhirDateTime)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(saveArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      claims: expect.objectContaining({ [dateClaim]: fhirDateTime }),
+    })))
+  })
+
+  it('renders a blank choice for optional status fields without inventing clinical state', () => {
+    const conditionSchema = FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Condition
+    render(<ClinicalArtifactEditor
+      request={{ resourceType: ResourceTypesFhirR4.Condition, sectionCode: conditionSchema.sectionCode, mode: 'create' }}
+      schema={conditionSchema}
+      operationSchema={MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Condition]}
+      authoringContext={{
+        subjectReference: REPOSITORY_SAFE_EXAMPLES.didWeb,
+        language: 'en',
+        createdAt: fhirDateTime,
+        dataAuthorReference: `RelatedPerson/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`,
+        attestationState: MultichannelAttestationState.Draft,
+      }}
+      copy={{ title: 'Condition', description: 'Add condition', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    const verificationStatus = screen.getByLabelText('Condition.verification-status') as HTMLSelectElement
+    expect(verificationStatus.value).toBe('')
+    expect(verificationStatus.options[0]?.value).toBe('')
   })
 })

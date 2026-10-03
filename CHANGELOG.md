@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.32
+
+- Present every JSON-Schema `date-time` and `fhir-date-time` clinical claim as
+  separate calendar-date and local-time controls, including accessible actions
+  for the current date and time, while preserving canonical FHIR instants.
+- Keep optional status fields genuinely empty until selected so an
+  edit/delete/recreate round trip never invents clinical state.
+- Consume the canonical clinical subject-reference fix from
+  `fhir-data-utils-ts@0.6.12`.
+
 ## 0.1.30
 
 - Pin the corrected shared clinical reader so IPS cards prefer each resource's

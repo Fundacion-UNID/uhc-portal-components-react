@@ -5,6 +5,9 @@ import type { ClinicalResourceBundleLike } from 'gdc-common-utils-ts/utils/clini
 import {
   clinicalArtifactEditorClaimsFromFhirR4,
   clinicalArtifactFhirR4ToFlat,
+  composeFhirDateTimeFromLocalParts,
+  splitFhirDateTimeForInput,
+  type LocalDateTimeParts,
   type ClinicalArtifactFhirR4Resource,
   type FhirIpsClinicalArtifactType,
 } from 'fhir-data-utils-ts'
@@ -18,6 +21,7 @@ import {
   type MultichannelOperationSchemaNode,
   type MultichannelOperationValues,
 } from 'sos-data-utils-ts/multichannel-operation-schemas'
+import type { ClinicalDateTimeFieldLabels } from './ClinicalTimeline.js'
 
 export type ClinicalArtifactSchema = Readonly<{
   resourceType: string
@@ -99,6 +103,7 @@ export type ClinicalArtifactEditorCopy = Readonly<{
   readbackMissing: string
   pending?: string
   retry?: string
+  dateTime?: ClinicalDateTimeFieldLabels
 }>
 
 export type ClinicalArtifactSaveOutcome = Readonly<
@@ -116,6 +121,8 @@ export type ClinicalArtifactEditorProps = Readonly<{
   authoringContext?: ClinicalArtifactAuthoringContext
   copy: ClinicalArtifactEditorCopy
   locale?: string
+  /** IANA zone used to present and compose separate local date/time controls. */
+  timeZone?: string
   taxonomyId?: string
   fieldLabel: (claim: string) => string
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
@@ -136,6 +143,7 @@ export function ClinicalArtifactEditor({
   authoringContext,
   copy,
   locale = 'en',
+  timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
   taxonomyId,
   fieldLabel,
   searchTerminology,
@@ -279,13 +287,24 @@ export function ClinicalArtifactEditor({
         const terminologyEnabled = Boolean(searchTerminology && terminologyCodeClaim(request.resourceType, claim))
         const inputId = `${titleId}-${claim}`
         const value = claims[claim] ?? ''
+        const schemaNode = operationSchema?.properties.claims?.properties?.[claim]
         const update = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
           setClaims((current) => ({ ...current, [claim]: event.target.value }))
           if (terminologyEnabled) setActiveTerminologyClaim(claim)
         }
+        if (isDateTimeSchemaNode(schemaNode)) return <ClinicalDateTimeClaimField
+          key={claim}
+          label={label}
+          required={requiredClaims.has(claim)}
+          value={value}
+          timeZone={timeZone}
+          labels={copy.dateTime ?? DEFAULT_DATE_TIME_LABELS}
+          onChange={(nextValue) => setClaims((current) => ({ ...current, [claim]: nextValue }))}
+        />
         return <label key={claim} className={isMultiline(parameter) ? 'uhcp-clinical-editor-wide' : undefined} htmlFor={inputId}>
           <span>{label}{requiredClaims.has(claim) ? ' *' : ''}</span>
           {statusOptions(request.resourceType, parameter) ? <select id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} onChange={update}>
+            {!requiredClaims.has(claim) ? <option value=""></option> : null}
             {statusOptions(request.resourceType, parameter)!.map((option) => <option key={option} value={option}>{humanize(option)}</option>)}
           </select> : isMultiline(parameter) ? <textarea id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} rows={3} onChange={update}/>
             : <input id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} type={fieldInputType(parameter, operationSchema?.properties.claims?.properties?.[claim])} onChange={update}/>}
@@ -305,6 +324,52 @@ export function ClinicalArtifactEditor({
       <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : pending ? (copy.retry || copy.save) : copy.save}</button></footer>
     </form>
   </section>
+}
+
+const DEFAULT_DATE_TIME_LABELS: ClinicalDateTimeFieldLabels = Object.freeze({
+  date: 'Date',
+  time: 'Time',
+  useToday: 'Use today',
+  useCurrentTime: 'Use current time',
+})
+
+function ClinicalDateTimeClaimField({ label, required, value, timeZone, labels, onChange }: Readonly<{
+  label: string
+  required: boolean
+  value: string
+  timeZone: string
+  labels: ClinicalDateTimeFieldLabels
+  onChange: (value: string) => void
+}>) {
+  const [parts, setParts] = useState<LocalDateTimeParts>(() => splitTemporalClaim(value, timeZone))
+  const current = splitFhirDateTimeForInput(new Date(), timeZone)
+  const update = (next: LocalDateTimeParts) => {
+    setParts(next)
+    onChange(composeTemporalClaim(next, timeZone))
+  }
+  return <fieldset className="uhcp-clinical-editor-date-time">
+    <legend>{label}{required ? ' *' : ''}</legend>
+    <label><span>{labels.date}</span><input aria-label={`${label}: ${labels.date}`} required={required} type="date" value={parts.date} onChange={(event) => update({ ...parts, date: event.target.value })}/></label>
+    <button type="button" title={labels.useToday} aria-label={`${labels.useToday}: ${label}`} onClick={() => update({ ...parts, date: current.date })}>◉</button>
+    <label><span>{labels.time}</span><input aria-label={`${label}: ${labels.time}`} type="time" step="1" value={parts.time} onChange={(event) => update({ ...parts, time: event.target.value })}/></label>
+    <button type="button" title={labels.useCurrentTime} aria-label={`${labels.useCurrentTime}: ${label}`} onClick={() => update({ ...parts, time: current.time })}>◷</button>
+  </fieldset>
+}
+
+function splitTemporalClaim(value: string, timeZone: string): LocalDateTimeParts {
+  if (!value) return { date: '', time: '' }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return { date: value, time: '' }
+  try { return splitFhirDateTimeForInput(value, timeZone) } catch { return { date: '', time: '' } }
+}
+
+function composeTemporalClaim(parts: LocalDateTimeParts, timeZone: string): string {
+  if (!parts.date) return ''
+  if (!parts.time) return parts.date
+  return composeFhirDateTimeFromLocalParts({ ...parts, timeZone })
+}
+
+function isDateTimeSchemaNode(schemaNode?: MultichannelOperationSchemaNode): boolean {
+  return schemaNode?.format === 'date-time' || schemaNode?.format === 'fhir-date-time'
 }
 
 function isSaveOutcome(value: ClinicalResourceBundleLike | ClinicalArtifactSaveOutcome): value is ClinicalArtifactSaveOutcome {
