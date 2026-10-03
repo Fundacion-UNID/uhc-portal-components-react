@@ -49,7 +49,7 @@ export function AllClinicalSections<SubjectKind extends ClinicalSubjectKind>({
   excludedSectionIds = [],
   presentation = 'sections',
 }: AllClinicalSectionsProps<SubjectKind>) {
-  const visibleSections = sections.filter(({ id }) => !excludedSectionIds.includes(id))
+  const visibleSections = organizeClinicalSections(sections.filter(({ id }) => !excludedSectionIds.includes(id)))
   const [selectedId, setSelectedId] = useState(visibleSections[0]?.id ?? '')
   const selectedSection = visibleSections.find(({ id }) => id === selectedId) ?? visibleSections[0]
 
@@ -85,6 +85,22 @@ export function AllClinicalSections<SubjectKind extends ClinicalSubjectKind>({
       )}
     </section>
   )
+}
+
+function organizeClinicalSections<SubjectKind extends ClinicalSubjectKind>(
+  sections: readonly AllClinicalSectionDefinition<SubjectKind>[],
+): readonly AllClinicalSectionDefinition<SubjectKind>[] {
+  const ipsChildrenIds = new Set<string>([
+    ClinicalSectionNavigationIds.GoalsAndPreferences,
+    ClinicalSectionNavigationIds.ClinicalTests,
+  ])
+  const ipsChildren = sections.filter(({ id }) => ipsChildrenIds.has(id))
+  if (ipsChildren.length === 0) return sections
+  return sections
+    .filter(({ id }) => !ipsChildrenIds.has(id))
+    .map((section) => section.id === ClinicalSectionNavigationIds.IpsSummary
+      ? { ...section, children: [...(section.children ?? []), ...ipsChildren] }
+      : section)
 }
 
 function ClinicalSection<SubjectKind extends ClinicalSubjectKind>({

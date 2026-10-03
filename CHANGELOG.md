@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.28
+
+- Add a reusable emergency-contact directory with provider-owned create,
+  update and delete callbacks plus accessible telephone and email actions.
+- Keep Goals and Preferences and Clinical Tests inside the unified IPS
+  presentation instead of duplicating them as top-level sections.
+- Add a locale-aware clinical timeline with inclusive from/to date and time
+  filters, OR-within/AND-across multi-select facets, latest-first cards,
+  accessible previous/next navigation and an expanded-list alternative.
+- Replace free-text vital-sign timestamps with separate calendar date and time
+  controls, optional seconds defaulted to `00`, explicit current-date/current-
+  time actions and canonical FHIR instant composition in the selected IANA
+  time zone.
+- Keep long clinical editors scrollable on mobile while their save/cancel
+  actions remain visible and clickable.
+
 ## 0.1.27
 
 - Add generic `AllClinicalSections<Person|Animal>` organization with stack or

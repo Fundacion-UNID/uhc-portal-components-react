@@ -187,11 +187,25 @@ describe('IpsBundleSummary', () => {
       }, { fullUrl: graph.primary.reference, resource: observation }],
     }
 
-    const html = renderToStaticMarkup(<IpsBundleSummary bundle={bundle} locale="en" emptyLabel="No records" />)
+    const html = renderToStaticMarkup(<IpsBundleSummary
+      bundle={bundle}
+      locale="en-CA"
+      timeZone="America/Vancouver"
+      emptyLabel="No records"
+      timeline={{
+        labels: { from: 'From', to: 'To', date: 'Date', time: 'Time', previous: 'Previous', next: 'Next', showAll: 'Show all', empty: 'No dated results' },
+        sectionFacetLabel: 'Section',
+        resourceTypeFacetLabel: 'Resource type',
+      }}
+    />)
 
     for (const component of observation.component ?? []) {
       expect(html).toContain(component.code.coding[0].display)
       expect(html).toContain(`>${component.valueQuantity.value} ${component.valueQuantity.unit}<`)
     }
+    expect(html).toContain('Oct 3, 2026, 02:30')
+    expect(html).not.toContain('2026-10-03T09:30:00Z')
+    expect(html).toContain('1 / 1')
+    expect(html).toContain('<legend>Section</legend>')
   })
 })

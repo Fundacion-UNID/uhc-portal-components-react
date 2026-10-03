@@ -6,16 +6,23 @@ import {
   type ClinicalTerminologyTranslationInput,
 } from 'gdc-common-utils-ts/utils/clinical-resource-view'
 import { ClinicalSectionSummary } from './ClinicalSectionSummary.js'
+import { ClinicalTimeline, type ClinicalTimelineFacet, type ClinicalTimelineLabels } from './ClinicalTimeline.js'
 
 export type IpsBundleSummaryProps = Readonly<{
   bundle: ClinicalResourceBundleLike
   locale?: string
+  timeZone?: string
   translateCode?: (input: ClinicalTerminologyTranslationInput) => string | undefined
   emptyLabel: string
   noSectionsLabel?: string
   sectionTitle?: (section: ClinicalSectionView) => string
   resourceTypeLabel?: (resourceType: string) => string
   sectionActions?: (section: ClinicalSectionView) => ReactNode
+  timeline?: Readonly<{
+    labels: ClinicalTimelineLabels
+    sectionFacetLabel: string
+    resourceTypeFacetLabel: string
+  }>
 }>
 
 /**
@@ -30,12 +37,14 @@ export type IpsBundleSummaryProps = Readonly<{
 export function IpsBundleSummary({
   bundle,
   locale,
+  timeZone,
   translateCode,
   emptyLabel,
   noSectionsLabel = emptyLabel,
   sectionTitle = (section) => section.title,
   resourceTypeLabel,
   sectionActions,
+  timeline,
 }: IpsBundleSummaryProps) {
   const sections = toClinicalSectionViews(bundle, { locale, translateCode })
   const nativeResources = new Map((bundle.entry ?? bundle.data ?? []).flatMap((entry) =>
@@ -46,8 +55,43 @@ export function IpsBundleSummary({
     return <p className="uhcp-clinical-empty" data-ips-summary-empty>{noSectionsLabel}</p>
   }
 
+  const timelineEntries = sections.flatMap((section, sectionIndex) => section.resources.flatMap((resource, resourceIndex) =>
+    resource.date ? [{
+      id: resource.fullUrl ?? `${sectionIndex}:${resourceIndex}:${resource.resourceType}`,
+      title: resource.title,
+      dateTime: resource.date,
+      facets: {
+        section: [section.code ?? section.title],
+        resourceType: [resource.resourceType],
+      },
+      content: <small>{resourceTypeLabel?.(resource.resourceType) ?? resource.resourceType}</small>,
+    }] : [],
+  ))
+  const timelineFacets: readonly ClinicalTimelineFacet[] = timeline ? [
+    {
+      id: 'section',
+      label: timeline.sectionFacetLabel,
+      options: uniqueOptions(sections.map((section) => ({ id: section.code ?? section.title, label: sectionTitle(section) }))),
+    },
+    {
+      id: 'resourceType',
+      label: timeline.resourceTypeFacetLabel,
+      options: uniqueOptions(sections.flatMap((section) => section.resources.map((resource) => ({
+        id: resource.resourceType,
+        label: resourceTypeLabel?.(resource.resourceType) ?? resource.resourceType,
+      })))),
+    },
+  ] : []
+
   return (
     <div className="uhcp-clinical-summary" data-ips-summary>
+      {timeline && timeZone && timelineEntries.length ? <ClinicalTimeline
+        entries={timelineEntries}
+        facets={timelineFacets}
+        locale={locale ?? 'en'}
+        timeZone={timeZone}
+        labels={timeline.labels}
+      /> : null}
       {sections.map((section, sectionIndex) => (
         <ClinicalSectionSummary
           key={section.code ?? `${section.title}:${sectionIndex}`}
@@ -63,10 +107,16 @@ export function IpsBundleSummary({
           emptyLabel={emptyLabel}
           resourceTypeLabel={resourceTypeLabel}
           actions={sectionActions?.(section)}
+          locale={locale}
+          timeZone={timeZone}
         />
       ))}
     </div>
   )
+}
+
+function uniqueOptions(options: readonly Readonly<{ id: string; label: string }>[]): readonly Readonly<{ id: string; label: string }>[] {
+  return [...new Map(options.map((option) => [option.id, option])).values()]
 }
 
 function observationComponentDetails(resource: unknown): readonly Readonly<{ label: string; value: string; unit?: string }>[] | undefined {
