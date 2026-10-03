@@ -71,8 +71,15 @@ The package deliberately exposes modules instead of a cloned application:
   contacts and delegates create, update, delete and fresh provider readback to
   the host portal. Browser editing never grants contact access.
 - `ClinicalArtifactEditor`: renders the same schema-driven clinical form for
-  human and animal subjects. The host supplies its UHC/Vet schema,
-  terminology-search adapter and authorized persistence callback. Selecting a
+  human and animal subjects. For writes, the host supplies the shared
+  `MULTICHANNEL_OPERATION_SCHEMAS` contract and provenance context. The
+  component turns validated form values into the canonical claims-first batch
+  with `buildMultichannelOperationBundle`; it does not ask each portal to map
+  its own claims. Existing claims-first records can be reopened from an
+  authoritative Bundle with `BundleReader`, while native FHIR imports use the
+  shared FHIR converter before selecting the same schema-owned fields. The host
+  also supplies its IPS section descriptor, terminology-search adapter and
+  authorized persistence callback. Selecting a
   terminology candidate preserves source text and adds only the confirmed
   `system|code` and display. Success requires a fresh provider readback Bundle;
   local form state is never presented as a persisted write.

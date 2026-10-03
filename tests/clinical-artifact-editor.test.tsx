@@ -11,6 +11,20 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ResourceTypesFhirR4 } from 'gdc-common-utils-ts/constants/fhir-resource-types'
+import {
+  FHIR_IPS_ALL_SECTIONS_DEMO_DATA,
+  FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS,
+  FhirIpsClinicalArtifactTypes,
+} from 'fhir-data-utils-ts'
+import {
+  MULTICHANNEL_OPERATION_SCHEMAS,
+  MultichannelAttestationState,
+  MultichannelOperationId,
+  MultichannelOperationMode,
+  buildMultichannelOperationBundle,
+  readMultichannelOperationFromBundle,
+} from 'sos-data-utils-ts/multichannel-operation-schemas'
+import { REPOSITORY_SAFE_EXAMPLES } from 'sos-data-utils-ts/repository-privacy'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ClinicalArtifactEditor } from '../src/ClinicalArtifactEditor.js'
 
@@ -33,6 +47,30 @@ const providerReadback = Object.freeze({ resourceType: 'Bundle', type: 'document
 afterEach(cleanup)
 
 describe('ClinicalArtifactEditor', () => {
+  it('hydrates the editor claims directly from a FHIR Bundle resource and its shared schema', () => {
+    const immunization = FHIR_IPS_ALL_SECTIONS_DEMO_DATA.bundle.entry
+      .find(({ resource }) => resource.resourceType === FhirIpsClinicalArtifactTypes.Immunization)?.resource
+    expect(immunization).toBeDefined()
+
+    render(<ClinicalArtifactEditor
+      request={{
+        resourceType,
+        sectionCode: FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization.sectionCode,
+        mode: 'update',
+        artifactId: immunization!.id,
+        initialResource: immunization!,
+      }}
+      schema={FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization}
+      copy={{ title: 'Vaccination', description: 'Edit a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim === sourceTextClaim ? 'Vaccine or product' : claim}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect((screen.getByLabelText('Vaccine or product') as HTMLInputElement).value).toBe(immunization!.vaccineCode.text)
+  })
+
   it('keeps source text and submits only the explicitly selected terminology code', async () => {
     const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])
     const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
@@ -66,6 +104,84 @@ describe('ClinicalArtifactEditor', () => {
     expect(onReadback).toHaveBeenCalledWith(providerReadback)
   })
 
+  it('uses the shared JSON Schema to create the BundleEditor claims and round-trip them through BundleReader', async () => {
+    const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
+    const authoringContext = Object.freeze({
+      subjectReference: REPOSITORY_SAFE_EXAMPLES.didWeb,
+      language: 'en',
+      createdAt: fhirDateTime,
+      dataAuthorReference: `RelatedPerson/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`,
+      attestationState: MultichannelAttestationState.Draft,
+    })
+    render(<ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'create' }}
+      schema={FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization}
+      operationSchema={MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Immunization]}
+      authoringContext={authoringContext}
+      copy={{ title: 'Vaccination', description: 'Add a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim === sourceTextClaim ? 'Vaccine or product' : claim === dateClaim ? 'Administration date' : claim}
+      saveArtifact={saveArtifact}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    fireEvent.change(screen.getByLabelText('Vaccine or product'), { target: { value: sourceText } })
+    fireEvent.change(screen.getByLabelText('Administration date'), { target: { value: '2026-04-10' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => expect(saveArtifact).toHaveBeenCalledTimes(1))
+    const submitted = saveArtifact.mock.calls[0][0]
+    expect(submitted.changesBundle).toBeDefined()
+    expect(readMultichannelOperationFromBundle(
+      MultichannelOperationId.Immunization,
+      submitted.changesBundle,
+      { operation: MultichannelOperationMode.Create },
+    )).toEqual(submitted.operationValues)
+  })
+
+  it('hydrates the shared JSON Schema fields from a claims-first BundleReader entry', () => {
+    const authoringContext = Object.freeze({
+      subjectReference: REPOSITORY_SAFE_EXAMPLES.didWeb,
+      language: 'es',
+      createdAt: fhirDateTime,
+      dataAuthorReference: `RelatedPerson/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`,
+      attestationState: MultichannelAttestationState.Draft,
+    })
+    const operationValues = Object.freeze({
+      operation: MultichannelOperationMode.Create,
+      resourceId: REPOSITORY_SAFE_EXAMPLES.resourceUuid,
+      ...authoringContext,
+      claims: Object.freeze({
+        [statusClaim]: 'completed',
+        [dateClaim]: '2026-04-10',
+        [sourceTextClaim]: sourceText,
+      }),
+    })
+    const initialBundle = buildMultichannelOperationBundle(MultichannelOperationId.Immunization, operationValues)
+
+    render(<ClinicalArtifactEditor
+      request={{
+        resourceType,
+        sectionCode: '11369-6',
+        mode: 'update',
+        artifactId: REPOSITORY_SAFE_EXAMPLES.resourceUuid,
+        ifMatch: 'W/"1"',
+        initialBundle,
+      }}
+      schema={FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization}
+      operationSchema={MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Immunization]}
+      authoringContext={authoringContext}
+      copy={{ title: 'Vaccination', description: 'Edit a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim === sourceTextClaim ? 'Vaccine or product' : claim === dateClaim ? 'Administration date' : claim}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect((screen.getByLabelText('Vaccine or product') as HTMLInputElement).value).toBe(sourceText)
+    expect((screen.getByLabelText('Administration date') as HTMLInputElement).value).toBe('2026-04-10')
+  })
+
   it('does not publish local state when the provider omits authoritative readback', async () => {
     const onReadback = vi.fn()
     render(<ClinicalArtifactEditor
@@ -83,6 +199,31 @@ describe('ClinicalArtifactEditor', () => {
 
     expect((await screen.findByRole('alert')).textContent).toContain('Readback missing')
     expect(onReadback).not.toHaveBeenCalled()
+  })
+
+  it('keeps a durably queued draft visible and retries until provider readback confirms it', async () => {
+    const saveArtifact = vi.fn()
+      .mockResolvedValueOnce({ state: 'retryable', message: 'Provider unavailable' })
+      .mockResolvedValueOnce({ state: 'confirmed', bundle: providerReadback })
+    const onReadback = vi.fn()
+    render(<ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization.sectionCode, mode: 'create' }}
+      schema={FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Immunization}
+      copy={{ title: 'Vaccination', description: 'Add a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing', pending: 'Draft pending synchronization', retry: 'Retry synchronization' }}
+      fieldLabel={(claim) => claim === sourceTextClaim ? 'Vaccine or product' : 'Status'}
+      saveArtifact={saveArtifact}
+      onCancel={() => undefined}
+      onReadback={onReadback}
+    />)
+
+    fireEvent.change(screen.getByLabelText('Vaccine or product'), { target: { value: sourceText } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    expect((await screen.findByRole('status')).textContent).toContain('Draft pending synchronization')
+    expect(onReadback).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retry synchronization' }))
+    await waitFor(() => expect(onReadback).toHaveBeenCalledWith(providerReadback))
+    expect(saveArtifact).toHaveBeenCalledTimes(2)
   })
 
   it('preserves a complete FHIR dateTime instead of truncating it to a calendar date', async () => {

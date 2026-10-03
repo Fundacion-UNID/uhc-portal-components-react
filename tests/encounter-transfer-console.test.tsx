@@ -19,6 +19,7 @@ const copy: EncounterTransferConsoleCopy = {
   transferReady: 'Traslado preparado en modo demostración.', messageReady: 'Mensaje preparado en modo demostración.', callReady: 'Llamada preparada.', videoReady: 'Videollamada preparada.',
   patientReady: 'Paciente resuelto.', reviewReady: 'Revisión abierta.', attachmentReady: 'Adjunto seleccionado.', technicalDetails: 'Detalles técnicos',
   encounterIdentifier: 'Identificador visible del encuentro',
+  transferPending: 'Traslado pendiente de sincronización.', retryTransfer: 'Reintentar traslado', transferRejected: 'El proveedor rechazó el traslado.',
 }
 
 const DEMO_PATIENT_DISPLAY_NAME = 'Jane Doe'
@@ -64,5 +65,19 @@ describe('EncounterTransferConsole', () => {
     await userEvent.click(screen.getByRole('button', { name: copy.pdf }))
     expect(screen.getByRole('button', { name: copy.pdf }).getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByRole('status').textContent).toContain(copy.attachmentReady)
+  })
+
+  it('retains and retries the same transfer draft after a retryable provider error', async () => {
+    const onApplyTransfer = vi.fn()
+      .mockResolvedValueOnce({ state: 'retryable' })
+      .mockResolvedValueOnce({ state: 'confirmed' })
+    render(<EncounterTransferConsole copy={copy} patientDisplay={DEMO_PATIENT_DISPLAY_NAME} encounters={encounters} sourceEncounterId="Encounter/source" destinationEncounterId="Encounter/destination" contacts={[]} onApplyTransfer={onApplyTransfer}/>)
+
+    await userEvent.click(screen.getByRole('button', { name: copy.applyTransfer }))
+    expect(screen.getByRole('status').textContent).toContain(copy.transferPending)
+    await userEvent.click(screen.getByRole('button', { name: copy.retryTransfer }))
+    expect(screen.getByRole('status').textContent).toContain(copy.transferReady)
+    expect(onApplyTransfer).toHaveBeenNthCalledWith(1, 'on-hold')
+    expect(onApplyTransfer).toHaveBeenNthCalledWith(2, 'on-hold')
   })
 })

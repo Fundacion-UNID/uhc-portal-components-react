@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.29
+
+- Bind `ClinicalArtifactEditor` to the shared multichannel JSON Schema. The
+  component now creates the claims-first changes Bundle through the reusable
+  `BundleEditor` helper and can hydrate the same form from authoritative
+  `BundleReader` readback or a native FHIR import.
+- Keep one stable draft identifier across retries, expose pending/retryable
+  synchronization without reporting local state as saved, and add the same
+  retry contract to encounter transfers.
+
 ## 0.1.28
 
 - Add a reusable emergency-contact directory with provider-owned create,
