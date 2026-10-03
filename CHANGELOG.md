@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.27
+
+- Add generic `AllClinicalSections<Person|Animal>` organization with stack or
+  tab presentation, nested collapsible groups and host-controlled exclusions.
+- Keep family health history, care-team members, emergency contacts,
+  Encounters and IPS summary as independent navigation concepts while the host
+  supplies authorized clinical content.
+
 ## 0.1.26
 
 - Add a brand-neutral clinical document and Encounter explorer for an
