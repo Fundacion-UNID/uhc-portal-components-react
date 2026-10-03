@@ -14,6 +14,12 @@ import {
   HealthcareIpsSectionResourceProfiles,
   HealthcareIpsSharedResourceTypes,
 } from 'gdc-common-utils-ts/constants/healthcare'
+import {
+  FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS,
+  FhirIpsClinicalArtifactTypes,
+  buildVitalSignObservation,
+  projectVitalSignObservationR4,
+} from 'fhir-data-utils-ts'
 import { ResourceTypesFhirR4 } from 'gdc-common-utils-ts/constants/fhir-resource-types'
 import type { ClinicalResourceLike } from 'gdc-common-utils-ts/utils/clinical-resource-view'
 import { IpsBundleSummary } from '../src/IpsBundleSummary.js'
@@ -151,5 +157,41 @@ describe('IpsBundleSummary', () => {
 
     expect(html).toContain('Condition traduite')
     expect(html).not.toContain('>http://snomed.info/sct|123456<')
+  })
+
+  it('renders every component value of a composite Observation', () => {
+    const systolic = 120
+    const diastolic = 80
+    const graph = buildVitalSignObservation({
+      entryId: 'blood-pressure-id',
+      subjectReference: 'Patient/demo',
+      kind: 'blood-pressure',
+      measuredAt: '2026-10-03T09:30:00Z',
+      status: 'final',
+      systolic,
+      diastolic,
+    })
+    const observation = projectVitalSignObservationR4(graph)
+    const bundle = {
+      resourceType: 'Bundle',
+      type: 'document',
+      entry: [{
+        resource: {
+          resourceType: ResourceTypesFhirR4.Composition,
+          section: [{
+            title: 'Vital signs',
+            code: { coding: [{ system: 'http://loinc.org', code: FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS[FhirIpsClinicalArtifactTypes.Observation].sectionCode }] },
+            entry: [{ reference: graph.primary.reference }],
+          }],
+        },
+      }, { fullUrl: graph.primary.reference, resource: observation }],
+    }
+
+    const html = renderToStaticMarkup(<IpsBundleSummary bundle={bundle} locale="en" emptyLabel="No records" />)
+
+    for (const component of observation.component ?? []) {
+      expect(html).toContain(component.code.coding[0].display)
+      expect(html).toContain(`>${component.valueQuantity.value} ${component.valueQuantity.unit}<`)
+    }
   })
 })

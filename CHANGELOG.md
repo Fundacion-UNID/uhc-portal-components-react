@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.25
+
+- Render every labelled quantity component of a composite FHIR `Observation` in the shared IPS card, including systolic and diastolic blood-pressure values and units.
+
 ## 0.1.24
 
 - Reopen an existing vital-sign measurement with its typed values intact, including both systolic and diastolic blood-pressure components.
