@@ -436,6 +436,7 @@ function statusOptions(resourceType: string, parameter: string): readonly string
 
 function terminologyCodeClaim(resourceType: string, inputClaim: string): string {
   const parameter = inputClaim.slice(resourceType.length + 1)
+  if (parameter === 'code-text') return `${resourceType}.code`
   if (parameter.endsWith('-code-text')) return `${resourceType}.${parameter.slice(0, -5)}`
   if (resourceType === 'MedicationStatement' && parameter === 'medication-text') return 'MedicationStatement.code'
   if (parameter === 'target-disease' || parameter.endsWith('-code') || parameter === 'code') return inputClaim

@@ -104,6 +104,31 @@ describe('ClinicalArtifactEditor', () => {
     expect(onReadback).toHaveBeenCalledWith(providerReadback)
   })
 
+  it('resolves the root code-text field used by allergy, condition and procedure editors', async () => {
+    const allergyResourceType = ResourceTypesFhirR4.AllergyIntolerance
+    const allergyTextClaim = `${allergyResourceType}.code-text`
+    const allergyCodeClaim = `${allergyResourceType}.code`
+    const allergyDisplayClaim = `${allergyResourceType}.code-display`
+    const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])
+
+    render(<ClinicalArtifactEditor
+      request={{ resourceType: allergyResourceType, sectionCode: '48765-2', mode: 'create' }}
+      schema={{ resourceType: allergyResourceType, requiredClaims: [allergyTextClaim], optionalClaims: [allergyCodeClaim, allergyDisplayClaim] }}
+      copy={{ title: 'Allergy', description: 'Add allergy', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim === allergyTextClaim ? 'Clinical concept' : claim}
+      searchTerminology={searchTerminology}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: sourceText } })
+    await waitFor(() => expect(searchTerminology).toHaveBeenCalledWith(expect.objectContaining({
+      claim: allergyCodeClaim,
+      text: sourceText,
+    })))
+  })
+
   it('uses the shared JSON Schema to create the BundleEditor claims and round-trip them through BundleReader', async () => {
     const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
     const authoringContext = Object.freeze({
