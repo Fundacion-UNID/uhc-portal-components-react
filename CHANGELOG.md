@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.21
+
+- Allow a host with a server-resolved clinical write capability to present the shared SOSChain health workspace as editable instead of showing a contradictory read-only badge.
+
 ## 0.1.20
 
 - Add one brand-neutral, schema-driven clinical artifact editor for UHC,

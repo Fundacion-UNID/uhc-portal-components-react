@@ -1,4 +1,4 @@
-// Flow contract: personal and professional hosts share one subject workspace; only server-resolved capabilities expose clinical, journey or association data.
+// Flow contract: reuse shared test fixtures and canonical types; do not introduce duplicated literals.
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { SOSCHAIN_SUBJECT_WORKSPACE_AREAS, SoschainWorkspace, type SoschainWorkspaceCopy } from '../src/SoschainWorkspace.js'
@@ -61,6 +61,18 @@ describe('SoschainWorkspace', () => {
     expect(html).toContain('Authorized IPS sections')
     expect(html).toContain('Read only')
     expect(html).not.toContain('Add clinical data')
+  })
+
+  it('lets an authorized host declare that its supplied clinical workspace is editable', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="health-summary"
+      canManageAssociations
+      clinicalReadOnly={false}
+      healthSummary={<article><button type="button">Add clinical data</button></article>}
+    />)
+    expect(html).toContain('Add clinical data')
+    expect(html).not.toContain('Read only')
   })
 
   it('renders the bounded Encounter journey supplied by the host', () => {

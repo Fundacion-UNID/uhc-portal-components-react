@@ -100,6 +100,8 @@ export type SoschainWorkspaceProps = Readonly<{
   communications: readonly SoschainCommunicationSummary[]
   /** Host-authorized IPS/clinical projection, normally `IpsBundleSummary`. */
   healthSummary?: ReactNode
+  /** False only when the host has already resolved a current write capability. */
+  clinicalReadOnly?: boolean
   careJourney?: readonly SoschainCareJourneyEntry[]
   emergencyData?: readonly ProtectedIndexEmergencyItem[]
   canManageAssociations: boolean
@@ -144,6 +146,7 @@ export function SoschainWorkspace({
   products,
   communications,
   healthSummary,
+  clinicalReadOnly = true,
   careJourney = [],
   emergencyData = [],
   canManageAssociations,
@@ -209,7 +212,7 @@ export function SoschainWorkspace({
         : activeArea === 'emergency-data'
           ? copy.emergencyDataBody
         : copy.overviewBody
-  const clinicalAreaIsReadOnly = activeArea === 'health-summary' || activeArea === 'care-journey'
+  const clinicalAreaIsReadOnly = activeArea === 'care-journey' || (activeArea === 'health-summary' && clinicalReadOnly)
 
   return (
     <section className="uhcp-sos-wrap">
