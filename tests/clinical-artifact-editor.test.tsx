@@ -19,7 +19,9 @@ const sourceTextClaim = `${resourceType}.vaccine-code-text`
 const codeClaim = `${resourceType}.vaccine-code`
 const displayClaim = `${resourceType}.vaccine-code-display`
 const statusClaim = `${resourceType}.status`
+const dateClaim = `${resourceType}.date`
 const sourceText = 'Seasonal influenza vaccine'
+const fhirDateTime = '2026-04-10T10:00:00Z'
 const terminologyCandidate = Object.freeze({
   system: 'http://snomed.info/sct',
   code: '836377006',
@@ -81,5 +83,24 @@ describe('ClinicalArtifactEditor', () => {
 
     expect((await screen.findByRole('alert')).textContent).toContain('Readback missing')
     expect(onReadback).not.toHaveBeenCalled()
+  })
+
+  it('preserves a complete FHIR dateTime instead of truncating it to a calendar date', async () => {
+    const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
+    render(<ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'update', artifactId: 'immunization-id', initialClaims: { [sourceTextClaim]: sourceText, [dateClaim]: fhirDateTime } }}
+      schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [dateClaim] }}
+      copy={{ title: 'Vaccination', description: 'Edit a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim === dateClaim ? 'Occurrence' : 'Vaccine or product'}
+      saveArtifact={saveArtifact}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect((screen.getByLabelText('Occurrence') as HTMLInputElement).value).toBe(fhirDateTime)
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    await waitFor(() => expect(saveArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      claims: expect.objectContaining({ [dateClaim]: fhirDateTime }),
+    })))
   })
 })
