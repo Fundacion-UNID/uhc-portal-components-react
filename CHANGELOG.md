@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.30
+
+- Pin the corrected shared clinical reader so IPS cards prefer each resource's
+  clinical event date over the enclosing Composition authoring timestamp.
+
 ## 0.1.29
 
 - Bind `ClinicalArtifactEditor` to the shared multichannel JSON Schema. The
