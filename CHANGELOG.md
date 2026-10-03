@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.33
+
+- Resolve the root `code-text` terminology input to the canonical `code`
+  claim for AllergyIntolerance, Condition and Procedure editors. This restores
+  coded create/recreate parity with MedicationStatement and Immunization.
+
 ## 0.1.32
 
 - Present every JSON-Schema `date-time` and `fhir-date-time` clinical claim as
