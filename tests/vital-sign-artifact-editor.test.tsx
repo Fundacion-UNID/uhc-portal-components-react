@@ -50,4 +50,21 @@ describe('VitalSignArtifactEditor', () => {
     expect(saveMeasurement.mock.calls[0][0]).not.toHaveProperty('value')
     expect(onReadback).toHaveBeenCalledWith(providerReadback)
   })
+
+  it('reopens both blood-pressure components without reducing them to one scalar value', () => {
+    render(<VitalSignArtifactEditor
+      entryId="measurement-id"
+      subjectReference="Patient/demo"
+      initialMeasurement={{ entryId: 'measurement-id', subjectReference: 'Patient/demo', kind: 'blood-pressure', measuredAt, status: 'final', systolic, diastolic }}
+      copy={{ title: 'Edit vital sign', description: 'Review both components.', kind: 'Measurement type', measuredAt: 'Measured at', value: 'Value', systolic: 'Systolic', diastolic: 'Diastolic', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', readbackMissing: 'Readback missing' }}
+      kindLabels={{ 'blood-pressure': 'Blood pressure', temperature: 'Temperature', 'heart-rate': 'Heart rate', 'oxygen-saturation': 'Oxygen saturation', 'respiratory-rate': 'Respiratory rate', 'body-weight': 'Body weight' }}
+      saveMeasurement={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect((screen.getByLabelText('Measurement type') as HTMLSelectElement).value).toBe('blood-pressure')
+    expect((screen.getByLabelText('Systolic') as HTMLInputElement).value).toBe(String(systolic))
+    expect((screen.getByLabelText('Diastolic') as HTMLInputElement).value).toBe(String(diastolic))
+  })
 })

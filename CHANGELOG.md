@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.24
+
+- Reopen an existing vital-sign measurement with its typed values intact, including both systolic and diastolic blood-pressure components.
+
 ## 0.1.23
 
 - Add a shared vital-sign editor with an explicit measurement-type selector.

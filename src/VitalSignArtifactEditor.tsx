@@ -28,6 +28,7 @@ export type VitalSignKindLabels = Readonly<Record<VitalSignKind, string>>
 export type VitalSignArtifactEditorProps = Readonly<{
   entryId: string
   subjectReference: string
+  initialMeasurement?: VitalSignMeasurement
   copy: VitalSignArtifactEditorCopy
   kindLabels: VitalSignKindLabels
   saveMeasurement: (measurement: VitalSignMeasurement) => Promise<ClinicalResourceBundleLike | undefined>
@@ -48,6 +49,7 @@ const VITAL_SIGN_KINDS: readonly VitalSignKind[] = Object.freeze([
 export function VitalSignArtifactEditor({
   entryId,
   subjectReference,
+  initialMeasurement,
   copy,
   kindLabels,
   saveMeasurement,
@@ -56,11 +58,11 @@ export function VitalSignArtifactEditor({
 }: VitalSignArtifactEditorProps) {
   const titleId = useId()
   const descriptionId = useId()
-  const [kind, setKind] = useState<VitalSignKind>('oxygen-saturation')
-  const [measuredAt, setMeasuredAt] = useState('')
-  const [value, setValue] = useState('')
-  const [systolic, setSystolic] = useState('')
-  const [diastolic, setDiastolic] = useState('')
+  const [kind, setKind] = useState<VitalSignKind>(initialMeasurement?.kind ?? 'oxygen-saturation')
+  const [measuredAt, setMeasuredAt] = useState(initialMeasurement?.measuredAt ?? '')
+  const [value, setValue] = useState(initialMeasurement && initialMeasurement.kind !== 'blood-pressure' ? String(initialMeasurement.value) : '')
+  const [systolic, setSystolic] = useState(initialMeasurement?.kind === 'blood-pressure' ? String(initialMeasurement.systolic) : '')
+  const [diastolic, setDiastolic] = useState(initialMeasurement?.kind === 'blood-pressure' ? String(initialMeasurement.diastolic) : '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
