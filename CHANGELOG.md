@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.23
+
+- Add a shared vital-sign editor with an explicit measurement-type selector.
+- Capture systolic and diastolic blood pressure as two components of one typed measurement, ready for the canonical flat observation graph and one composite FHIR `Observation` at the projection boundary.
+- Keep persistence, authorization and provider readback in the host portal.
+
 ## 0.1.22
 
 - Preserve complete FHIR date and dateTime values in the shared clinical editor instead of silently truncating timezone-bearing values through an HTML calendar-date input.
