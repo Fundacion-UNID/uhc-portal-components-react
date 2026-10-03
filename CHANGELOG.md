@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.22
+
+- Preserve complete FHIR date and dateTime values in the shared clinical editor instead of silently truncating timezone-bearing values through an HTML calendar-date input.
+
 ## 0.1.21
 
 - Allow a host with a server-resolved clinical write capability to present the shared SOSChain health workspace as editable instead of showing a contradictory read-only badge.

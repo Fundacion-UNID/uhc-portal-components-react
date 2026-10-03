@@ -231,8 +231,9 @@ function selectedCodingClaims(resourceType: string, inputClaim: string, candidat
 
 function isMultiline(parameter: string): boolean { return /note|description|summary|instruction|outcome|reference-range-text/.test(parameter) }
 function humanize(value: string): string { return value ? value[0].toUpperCase() + value.slice(1).replaceAll('_', ' ') : value }
-function fieldInputType(parameter: string): 'text' | 'number' | 'date' {
+function fieldInputType(parameter: string): 'text' | 'number' {
   if (/(?:^|-)number$|frequency$|dose-sequence$/.test(parameter)) return 'number'
-  if (parameter === 'date' || parameter.endsWith('-date') || parameter.endsWith('-datetime')) return 'date'
+  // FHIR date/search fields may carry a partial date or a complete dateTime
+  // with timezone. HTML date inputs silently truncate or reject those values.
   return 'text'
 }
