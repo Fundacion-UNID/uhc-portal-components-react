@@ -436,6 +436,9 @@ function statusOptions(resourceType: string, parameter: string): readonly string
 
 function terminologyCodeClaim(resourceType: string, inputClaim: string): string {
   const parameter = inputClaim.slice(resourceType.length + 1)
+  // `code-text` is the generic primary-concept alias. Immunization deliberately
+  // uses `vaccine-code-text` so vaccine product and target disease remain two
+  // independent coded concepts throughout editing and FHIR projection.
   if (parameter === 'code-text') return `${resourceType}.code`
   if (parameter.endsWith('-code-text')) return `${resourceType}.${parameter.slice(0, -5)}`
   if (resourceType === 'MedicationStatement' && parameter === 'medication-text') return 'MedicationStatement.code'
