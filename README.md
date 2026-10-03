@@ -53,6 +53,11 @@ The package deliberately exposes modules instead of a cloned application:
 - `IpsBundleSummary`: receives one in-memory IPS document Bundle, obtains all
   `Composition.section` entries through Common Utils and renders every
   section's cards. It performs no ingestion or GW call.
+- `ClinicalDocumentEncounterExplorer`: receives host-authorized Encounter
+  resources and Composition-first document Bundles, provides backward/forward
+  journey navigation and renders either IPS or non-IPS sections with the same
+  viewer. It never treats an Encounter as the clinical subject or performs
+  authorization, fetching or persistence in the browser.
 - `ClinicalArtifactEditor`: renders the same schema-driven clinical form for
   human and animal subjects. The host supplies its UHC/Vet schema,
   terminology-search adapter and authorized persistence callback. Selecting a

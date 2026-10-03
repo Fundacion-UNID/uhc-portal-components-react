@@ -183,6 +183,27 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-editor footer button,.uhcp-terminology-results button { border:1px solid var(--uhcp-border); border-radius:.7rem; cursor:pointer; font:inherit; padding:.7rem 1rem; }
 .uhcp-clinical-editor footer button[type=submit] { background:linear-gradient(135deg,var(--uhcp-action-start),var(--uhcp-action-end)); color:#fff; font-weight:800; }
 .uhcp-clinical-editor-error { color:#b42318; font-weight:700; }
+.uhcp-document-explorer { background:var(--uhcp-surface); color:var(--uhcp-text); display:grid; gap:1rem; padding:1rem; }
+.uhcp-document-explorer button { color:inherit; cursor:pointer; font:inherit; }
+.uhcp-document-explorer button:disabled { cursor:not-allowed; opacity:.45; }
+.uhcp-document-explorer-heading { align-items:center; display:flex; gap:1rem; justify-content:space-between; }
+.uhcp-document-explorer-heading p,.uhcp-document-panel>article>header p { color:var(--uhcp-muted); font-size:.8rem; font-weight:750; margin:0 0 .25rem; text-transform:uppercase; }
+.uhcp-document-explorer-heading h2,.uhcp-document-panel h2,.uhcp-document-panel h3 { margin:0; }
+.uhcp-document-explorer-heading nav { display:flex; gap:.45rem; }
+.uhcp-document-explorer-heading button { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:50%; height:2.5rem; width:2.5rem; }
+.uhcp-encounter-rail { display:flex; gap:.75rem; overflow-x:auto; padding:.15rem .05rem .65rem; scroll-snap-type:x proximity; }
+.uhcp-encounter-rail>div { flex:0 0 min(17rem,76vw); scroll-snap-align:start; }
+.uhcp-encounter-rail>div>button { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:1rem; display:grid; gap:.45rem; min-height:9.5rem; padding:1rem; text-align:start; width:100%; }
+.uhcp-encounter-rail>div>button[aria-current=step] { border-color:var(--uhcp-turquoise); box-shadow:0 0 0 2px color-mix(in srgb,var(--uhcp-turquoise) 24%,transparent); }
+.uhcp-encounter-rail span,.uhcp-encounter-rail time { color:var(--uhcp-muted); font-size:.78rem; }
+.uhcp-encounter-rail small { background:var(--uhcp-surface-muted); border-radius:999px; justify-self:start; padding:.25rem .55rem; }
+.uhcp-document-panel { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:1.5rem; padding:1.25rem; }
+.uhcp-document-panel>p { color:var(--uhcp-muted); }
+.uhcp-document-tabs { display:flex; gap:.5rem; overflow:auto; padding:.75rem 0; }
+.uhcp-document-tabs button { background:var(--uhcp-surface-muted); border:1px solid var(--uhcp-border); border-radius:999px; padding:.55rem .8rem; white-space:nowrap; }
+.uhcp-document-tabs button[aria-pressed=true] { background:var(--uhcp-turquoise); color:#fff; }
+.uhcp-document-panel>article>header { align-items:start; border-bottom:1px solid var(--uhcp-border); display:flex; gap:1rem; justify-content:space-between; margin:1rem 0; padding-bottom:1rem; }
+.uhcp-document-panel>article>header time { color:var(--uhcp-muted); font-size:.8rem; white-space:nowrap; }
 .uhcp-terminology-results ul { display:grid; gap:.35rem; list-style:none; margin:.25rem 0 0; padding:0; }
 .uhcp-terminology-results button { background:var(--uhcp-surface-muted); color:inherit; display:grid; text-align:start; width:100%; }
 .uhcp-terminology-results small { color:var(--uhcp-muted); display:block; font-weight:400; }

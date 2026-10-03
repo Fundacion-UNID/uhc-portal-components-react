@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.26
+
+- Add a brand-neutral clinical document and Encounter explorer for an
+  authorized care journey.
+- Navigate chronologically between supplied Encounters while preserving
+  `Encounter.partOf` as hierarchy and rendering only document Bundles whose
+  leading Composition references the selected Encounter.
+- Reuse the section viewer for IPS and non-IPS documents; the Composition title
+  and type provide the document label.
+
 ## 0.1.25
 
 - Render every labelled quantity component of a composite FHIR `Observation` in the shared IPS card, including systolic and diastolic blood-pressure values and units.
