@@ -91,7 +91,11 @@ The package deliberately exposes modules instead of a cloned application:
   editor. Compatible IPS text fields show an accessible microphone only when
   configured; recognized text remains editable and enters the same debounced
   terminology-selection flow. The shared component never downloads a model,
-  stores audio or confirms a clinical code.
+  stores audio or confirms a clinical code. Use
+  `createClinicalSpeechInputChannel` with
+  `ClinicalSpeechInputChannelProvider` when the portal model must notify
+  already-mounted IPS sections as it moves through download, initialization,
+  readiness or failure.
 - `InvitationAcceptancePanel`: controlled invitation-code UI for a related
   individual member; the host refreshes the authorized-subject list after its
   BFF accepts the invitation.

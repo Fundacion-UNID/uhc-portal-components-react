@@ -1,15 +1,18 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, useSyncExternalStore, type ReactNode } from 'react'
 
-export type ClinicalSpeechInputPhase =
-  | 'idle'
-  | 'checking'
-  | 'downloading'
-  | 'initializing'
-  | 'ready'
-  | 'error'
-  | 'unavailable'
+export const ClinicalSpeechInputPhases = Object.freeze({
+  Idle: 'idle',
+  Checking: 'checking',
+  Downloading: 'downloading',
+  Initializing: 'initializing',
+  Ready: 'ready',
+  Error: 'error',
+  Unavailable: 'unavailable',
+} as const)
+
+export type ClinicalSpeechInputPhase = typeof ClinicalSpeechInputPhases[keyof typeof ClinicalSpeechInputPhases]
 
 export type ClinicalSpeechInputRequest = Readonly<{
   resourceType: string
@@ -28,6 +31,42 @@ export type ClinicalSpeechInputCapability = Readonly<{
   }>
 }>
 
+export type ClinicalSpeechInputRuntime = Pick<ClinicalSpeechInputCapability, 'phase' | 'transcribe'>
+
+export type ClinicalSpeechInputChannel = Readonly<{
+  getSnapshot: () => ClinicalSpeechInputRuntime
+  publish: (runtime: ClinicalSpeechInputRuntime) => void
+  subscribe: (listener: () => void) => () => void
+}>
+
+const unavailableRuntime: ClinicalSpeechInputRuntime = Object.freeze({
+  phase: ClinicalSpeechInputPhases.Unavailable,
+  transcribe: async () => { throw new Error('clinical_speech_input_unavailable') },
+})
+
+/**
+ * Creates one small external store through which a portal-owned model runtime
+ * can announce download, initialization and readiness changes to every nested
+ * clinical editor without importing the model into the shared UI package.
+ */
+export function createClinicalSpeechInputChannel(
+  initialRuntime: ClinicalSpeechInputRuntime = unavailableRuntime,
+): ClinicalSpeechInputChannel {
+  let snapshot = Object.freeze(initialRuntime)
+  const listeners = new Set<() => void>()
+  return Object.freeze({
+    getSnapshot: () => snapshot,
+    publish(runtime) {
+      snapshot = Object.freeze(runtime)
+      listeners.forEach((listener) => listener())
+    },
+    subscribe(listener) {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
+  })
+}
+
 const ClinicalSpeechInputContext = createContext<ClinicalSpeechInputCapability | undefined>(undefined)
 
 /**
@@ -40,6 +79,19 @@ export function ClinicalSpeechInputProvider({ value, children }: Readonly<{
   children: ReactNode
 }>) {
   return <ClinicalSpeechInputContext.Provider value={value}>{children}</ClinicalSpeechInputContext.Provider>
+}
+
+export function ClinicalSpeechInputChannelProvider({
+  channel,
+  labels,
+  children,
+}: Readonly<{
+  channel: ClinicalSpeechInputChannel
+  labels: ClinicalSpeechInputCapability['labels']
+  children: ReactNode
+}>) {
+  const runtime = useSyncExternalStore(channel.subscribe, channel.getSnapshot, channel.getSnapshot)
+  return <ClinicalSpeechInputProvider value={{ ...runtime, labels }}>{children}</ClinicalSpeechInputProvider>
 }
 
 export function useClinicalSpeechInput(): ClinicalSpeechInputCapability | undefined {
@@ -61,7 +113,7 @@ export function ClinicalSpeechInputButton({
   const [failed, setFailed] = useState(false)
   if (!capability) return null
 
-  const ready = capability.phase === 'ready'
+  const ready = capability.phase === ClinicalSpeechInputPhases.Ready
   const actionLabel = busy
     ? capability.labels.busy
     : ready
