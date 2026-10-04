@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Make this repository the single source of truth for the cross-portal
+  BloodChain/UHC, VetChain Expo and HospitalApp component recovery inventory.
+  Keep consumer ownership and proof requirements beside the reusable React
+  component boundary instead of duplicating the matrix in one product portal.
+
 ## 0.1.35
 
 - Keep create actions in the clinical section header while edit and delete
