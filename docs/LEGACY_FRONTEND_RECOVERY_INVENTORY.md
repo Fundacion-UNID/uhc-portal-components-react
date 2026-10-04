@@ -20,6 +20,7 @@ dependency.
 | Patient journey and current care location | `HospitalAppFamily/src/screens/PatientInfo`, `PatientFullData`, `MedicalInfo`; `HospitalAppPro/src/screens/DoctorPatient`, `NursePatient`, `PatientFullDoctorData`, `PatientFullNurseData` | `ClinicalDocumentEncounterExplorer`, `EncounterTransferConsole` |
 | Audio/video call entry and call identifier dialog | `HospitalAppFamily/src/screens/VideoCall`, `CalliDModal`; `HospitalAppPro/src/screens/VideoCall`, `CalliDModal` | Shared call-state presentation after the protected server creates a session |
 | Clinical documents, attachments and messaging | `web-bloodchain/src/components/DocumentViewer`, `FileUploader`, `SendMessageDialog`; HospitalApp Pro chat and send-info screens | Shared document/message presentation; portal and service own transport |
+| DICOM media parsing and study metadata | `uhc-fhir-utils-typescript/src/managers/Dicom.ts` and `src/models/DicomModels.ts`; React Native UHC `UserUploadImage.tsx` accepted `application/dicom` | Future `DicomStudyPicker` and `DicomStudyViewer` behind portal-owned authorization and storage adapters |
 
 ## Recover later, but keep explicit
 
@@ -27,8 +28,14 @@ dependency.
   `web-bloodchain/src/views/SmartHealthCardData` and the historical manager
   packages.
 - EU Digital COVID Certificate attachment conversion and provenance.
-- DICOM viewing from the historical UHC personal web application after its
-  exact repository anchor is confirmed.
+- Maintained DICOM image rendering and upload. The historical shared manager
+  parses `DICOMDIR`, study/series/instance metadata and pixels, but the located
+  BloodChain web route creates an attachment with a PDF MIME type and its
+  viewer uses `react-pdf`; it is not evidence of a complete web DICOM viewer.
+  Recover the parser behavior with typed tests, validate/de-identify fixtures,
+  render through a maintained viewer and persist through an authorized
+  DICOMweb/PACS or protected-object adapter. Native DICOM bytes do not belong
+  in a clinical Bundle or ledger.
 - Offline and Bluetooth exchange after the online authorization and
   synchronization contracts are complete.
 - HospitalApp media-call UX details after validating them against the current

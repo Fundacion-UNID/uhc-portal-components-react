@@ -34,7 +34,7 @@ Status means:
 | BloodChain `HealthSectionCard`, `Resource`, `ResourceFilters` and `SmartHealthCardData` | Attractive section cards, resource icons, counts, date/type filtering and compact summaries | `AllClinicalSections`, `IpsBundleSummary`, clinical timeline and facets | **Shared and proved**, although visual refinement and animal-specific summary fields remain |
 | BloodChain `IPSForm`, `IPSDocumentForm`, `ImmunizationForm`, `MedicationForm`, `DiagnosticReportForm`, `MedicalDeviceForm` | Structured capture and document-level composition | Claims-first Bundle editor/reader and typed clinical schemas | **Partial**: core IPS resources are proved; DiagnosticReport, Device, imaging and complete document authoring need end-to-end coverage |
 | BloodChain `DocumentViewer`, `DocumentReferenceForm`, diagnostic viewers | One route from a message/document to readable PDF, FHIR document or result | Governed Communication + DocumentReference viewer in the subject workspace | **Missing end to end** |
-| Older UHC Personal DICOM viewer and BloodChain DICOM byte handling | Clinical image viewing next to the report | Authorized DICOMweb/PACS adapter and maintained viewer | **Missing** |
+| Older UHC DICOMDIR/parser manager, React Native `application/dicom` upload and BloodChain attachment handling | Study/series/instance inspection and clinical image viewing next to the report | Shared folder picker and maintained viewer with authorized DICOMweb/PACS or protected-object adapter | **Missing**: parser code is confirmed; the located BloodChain web viewer is PDF-only and does not prove full DICOM rendering |
 
 ## Authorization, scanning and communication
 
