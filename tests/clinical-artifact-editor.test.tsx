@@ -9,7 +9,7 @@
  * Persistence invariant: local form state never counts as a successful clinical write.
  */
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ResourceTypesFhirR4 } from 'gdc-common-utils-ts/constants/fhir-resource-types'
 import {
   FHIR_IPS_ALL_SECTIONS_DEMO_DATA,
@@ -27,6 +27,12 @@ import {
 import { REPOSITORY_SAFE_EXAMPLES } from 'sos-data-utils-ts/repository-privacy'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ClinicalArtifactEditor } from '../src/ClinicalArtifactEditor.js'
+import {
+  ClinicalSpeechInputPhases,
+  ClinicalSpeechInputChannelProvider,
+  ClinicalSpeechInputProvider,
+  createClinicalSpeechInputChannel,
+} from '../src/ClinicalSpeechInput.js'
 
 const resourceType = ResourceTypesFhirR4.Immunization
 const sourceTextClaim = `${resourceType}.vaccine-code-text`
@@ -47,6 +53,72 @@ const providerReadback = Object.freeze({ resourceType: 'Bundle', type: 'document
 afterEach(cleanup)
 
 describe('ClinicalArtifactEditor', () => {
+  it('uses the portal speech capability to append an editable transcript and start terminology search', async () => {
+    const transcribe = vi.fn().mockResolvedValue(sourceText)
+    const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])
+
+    render(<ClinicalSpeechInputProvider value={{
+      phase: ClinicalSpeechInputPhases.Ready,
+      transcribe,
+      labels: { start: 'Dictate', unavailable: 'Speech unavailable', busy: 'Listening' },
+    }}><ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'create' }}
+      schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [codeClaim, displayClaim] }}
+      copy={{ title: 'Vaccination', description: 'Add a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={(claim) => claim === sourceTextClaim ? 'Vaccine or product' : claim}
+      searchTerminology={searchTerminology}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    /></ClinicalSpeechInputProvider>)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dictate: Vaccine or product' }))
+    await waitFor(() => expect((screen.getByLabelText('Vaccine or product') as HTMLInputElement).value).toBe(sourceText))
+    expect(transcribe).toHaveBeenCalledWith(expect.objectContaining({ claim: sourceTextClaim, locale: 'en', resourceType }))
+    await waitFor(() => expect(searchTerminology).toHaveBeenCalledWith(expect.objectContaining({ claim: codeClaim, text: sourceText })))
+  })
+
+  it('renders a disabled accessible microphone while the portal model is downloading', () => {
+    render(<ClinicalSpeechInputProvider value={{
+      phase: ClinicalSpeechInputPhases.Downloading,
+      transcribe: vi.fn(),
+      labels: { start: 'Dictate', unavailable: 'Speech model is downloading', busy: 'Listening' },
+    }}><ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'create' }}
+      schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [] }}
+      copy={{ title: 'Vaccination', description: 'Add a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={() => 'Vaccine or product'}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    /></ClinicalSpeechInputProvider>)
+
+    const microphone = screen.getByRole('button', { name: 'Speech model is downloading: Vaccine or product' })
+    expect(microphone.hasAttribute('disabled')).toBe(true)
+  })
+
+  it('enables an already-rendered nested microphone when the portal announces that its model is ready', () => {
+    const channel = createClinicalSpeechInputChannel()
+    const transcribe = vi.fn().mockResolvedValue(sourceText)
+    render(<ClinicalSpeechInputChannelProvider
+      channel={channel}
+      labels={{ start: 'Dictate', unavailable: 'Speech model is not ready', busy: 'Listening' }}
+    ><ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'create' }}
+      schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [] }}
+      copy={{ title: 'Vaccination', description: 'Add a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Readback missing' }}
+      fieldLabel={() => 'Vaccine or product'}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    /></ClinicalSpeechInputChannelProvider>)
+
+    const microphone = screen.getByRole('button', { name: 'Speech model is not ready: Vaccine or product' })
+    expect(microphone.hasAttribute('disabled')).toBe(true)
+    act(() => channel.publish({ phase: ClinicalSpeechInputPhases.Ready, transcribe }))
+    expect(screen.getByRole('button', { name: 'Dictate: Vaccine or product' }).hasAttribute('disabled')).toBe(false)
+  })
+
   it('hydrates the editor claims directly from a FHIR Bundle resource and its shared schema', () => {
     const immunization = FHIR_IPS_ALL_SECTIONS_DEMO_DATA.bundle.entry
       .find(({ resource }) => resource.resourceType === FhirIpsClinicalArtifactTypes.Immunization)?.resource

@@ -23,6 +23,7 @@ import {
 } from 'sos-data-utils-ts/multichannel-operation-schemas'
 import type { ClinicalDateTimeFieldLabels } from './ClinicalTimeline.js'
 import { ClinicalEditorLayer } from './ClinicalEditorLayer.js'
+import { ClinicalSpeechInputButton } from './ClinicalSpeechInput.js'
 
 export type ClinicalArtifactSchema = Readonly<{
   resourceType: string
@@ -302,8 +303,25 @@ export function ClinicalArtifactEditor({
           labels={copy.dateTime ?? DEFAULT_DATE_TIME_LABELS}
           onChange={(nextValue) => setClaims((current) => ({ ...current, [claim]: nextValue }))}
         />
-        return <label key={claim} className={isMultiline(parameter) ? 'uhcp-clinical-editor-wide' : undefined} htmlFor={inputId}>
-          <span>{label}{requiredClaims.has(claim) ? ' *' : ''}</span>
+        const fieldClassName = `uhcp-clinical-editor-field${isMultiline(parameter) ? ' uhcp-clinical-editor-wide' : ''}`
+        const appendTranscript = (transcript: string) => {
+          setClaims((current) => ({
+            ...current,
+            [claim]: [current[claim]?.trim(), transcript].filter(Boolean).join(' '),
+          }))
+          if (terminologyEnabled) setActiveTerminologyClaim(claim)
+        }
+        return <div key={claim} className={fieldClassName}>
+          <span className="uhcp-clinical-editor-field-heading">
+            <label htmlFor={inputId}>{label}{requiredClaims.has(claim) ? ' *' : ''}</label>
+            {isSpeechCompatibleField(parameter, schemaNode) ? <ClinicalSpeechInputButton
+              resourceType={request.resourceType}
+              claim={claim}
+              locale={locale}
+              fieldLabel={label}
+              onTranscript={appendTranscript}
+            /> : null}
+          </span>
           {statusOptions(request.resourceType, parameter) ? <select id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} onChange={update}>
             {!requiredClaims.has(claim) ? <option value=""></option> : null}
             {statusOptions(request.resourceType, parameter)!.map((option) => <option key={option} value={option}>{humanize(option)}</option>)}
@@ -318,7 +336,7 @@ export function ClinicalArtifactEditor({
               setActiveTerminologyClaim(undefined)
             }}>{candidate.display}<small>{candidate.system} · {candidate.code}</small></button></li>)}</ul> : null}
           </div> : null}
-        </label>
+        </div>
       })}
       {error ? <p className="uhcp-clinical-editor-error" role="alert">{error}</p> : null}
       {pending ? <p className="uhcp-clinical-editor-pending" role="status">{copy.pending || pending}</p> : null}
@@ -371,6 +389,12 @@ function composeTemporalClaim(parts: LocalDateTimeParts, timeZone: string): stri
 
 function isDateTimeSchemaNode(schemaNode?: MultichannelOperationSchemaNode): boolean {
   return schemaNode?.format === 'date-time' || schemaNode?.format === 'fhir-date-time'
+}
+
+function isSpeechCompatibleField(parameter: string, schemaNode?: MultichannelOperationSchemaNode): boolean {
+  if (statusOptions('', parameter)) return false
+  if (schemaNode?.type === 'number' || schemaNode?.type === 'integer' || schemaNode?.type === 'boolean') return false
+  return fieldInputType(parameter, schemaNode) === 'text'
 }
 
 function isSaveOutcome(value: ClinicalResourceBundleLike | ClinicalArtifactSaveOutcome): value is ClinicalArtifactSaveOutcome {

@@ -86,6 +86,16 @@ The package deliberately exposes modules instead of a cloned application:
   terminology candidate preserves source text and adds only the confirmed
   `system|code` and display. Success requires a fresh provider readback Bundle;
   local form state is never presented as a persisted write.
+- `ClinicalSpeechInputProvider`: lets the owning portal publish one
+  speech-recognition capability and model phase to every nested clinical
+  editor. Compatible IPS text fields show an accessible microphone only when
+  configured; recognized text remains editable and enters the same debounced
+  terminology-selection flow. The shared component never downloads a model,
+  stores audio or confirms a clinical code. Use
+  `createClinicalSpeechInputChannel` with
+  `ClinicalSpeechInputChannelProvider` when the portal model must notify
+  already-mounted IPS sections as it moves through download, initialization,
+  readiness or failure.
 - `InvitationAcceptancePanel`: controlled invitation-code UI for a related
   individual member; the host refreshes the authorized-subject list after its
   BFF accepts the invitation.
