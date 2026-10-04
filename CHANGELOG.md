@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a brand-neutral subject communication center that merges messages,
+  voice messages, internet calls and appointment notices behind accessible
+  All, Messages, Calls and Emergency filters.
+
 - Add a portal-owned clinical speech-input provider. Schema-backed IPS text
   fields now reflect the shared model state, append editable transcripts and
   reuse the existing explicit terminology-candidate selection flow. A shared
