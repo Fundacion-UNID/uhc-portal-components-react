@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.39
+
+- Keep clinical field labels unique to their inputs when speech controls are
+  rendered. Microphone buttons now expose only their action as the accessible
+  name while retaining the target field in the hover title.
+
 ## 0.1.38
 
 - Add a brand-neutral subject communication center that merges messages,

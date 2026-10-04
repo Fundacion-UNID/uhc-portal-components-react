@@ -138,8 +138,8 @@ export function ClinicalSpeechInputButton({
     <button
       type="button"
       className="uhcp-clinical-speech-button"
-      aria-label={`${actionLabel}: ${fieldLabel}`}
-      title={actionLabel}
+      aria-label={actionLabel}
+      title={`${actionLabel}: ${fieldLabel}`}
       disabled={!ready || busy}
       aria-pressed={busy}
       onClick={() => { void transcribe() }}
