@@ -171,13 +171,16 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   color: var(--uhcp-text);
   padding: 1.25rem;
 }
-.uhcp-clinical-editor { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:1.5rem; box-shadow:0 20px 60px rgb(15 23 42 / 22%); color:var(--uhcp-text); display:flex; flex-direction:column; inset:50% auto auto 50%; max-height:calc(100dvh - 2rem); max-width:48rem; overflow:hidden; padding:1.5rem; position:fixed; transform:translate(-50%,-50%); width:calc(100% - 2rem); z-index:60; }
+.uhcp-clinical-editor-backdrop { align-items:center; background:rgb(15 23 42 / 42%); display:flex; inset:0; justify-content:center; padding:1rem; position:fixed; z-index:1000; }
+.uhcp-clinical-editor { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:1.5rem; box-shadow:0 20px 60px rgb(15 23 42 / 22%); color:var(--uhcp-text); display:flex; flex-direction:column; max-height:calc(100dvh - 2rem); max-width:48rem; min-width:0; overflow:hidden; padding:1.5rem; width:100%; }
 .uhcp-clinical-editor>header { align-items:flex-start; display:flex; gap:1rem; justify-content:space-between; }
 .uhcp-clinical-editor h2,.uhcp-clinical-editor p { margin:.2rem 0; }
 .uhcp-clinical-editor>header>button { background:transparent; border:1px solid var(--uhcp-border); border-radius:50%; color:inherit; cursor:pointer; font-size:1.4rem; height:2.5rem; width:2.5rem; }
-.uhcp-clinical-editor form { display:grid; gap:1rem; grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:1.25rem; overflow:auto; }
+.uhcp-clinical-editor form { display:grid; gap:1rem; grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:1.25rem; min-width:0; overflow:auto; }
 .uhcp-clinical-editor label { color:var(--uhcp-text); display:grid; font-weight:700; gap:.35rem; }
-.uhcp-clinical-editor input,.uhcp-clinical-editor select,.uhcp-clinical-editor textarea { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:.7rem; color:inherit; font:inherit; padding:.75rem; }
+.uhcp-clinical-editor label,.uhcp-clinical-editor fieldset { min-width:0; }
+.uhcp-clinical-editor input,.uhcp-clinical-editor select,.uhcp-clinical-editor textarea { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:.7rem; color:inherit; font:inherit; min-width:0; padding:.75rem; width:100%; }
+.uhcp-clinical-editor-date-time { grid-column:1/-1; }
 .uhcp-clinical-editor-wide,.uhcp-clinical-editor-error,.uhcp-clinical-editor footer { grid-column:1/-1; }
 .uhcp-clinical-editor footer { background:var(--uhcp-panel); bottom:0; display:flex; gap:.75rem; justify-content:flex-end; padding:.75rem 0; position:sticky; z-index:2; }
 .uhcp-clinical-editor footer button,.uhcp-terminology-results button { border:1px solid var(--uhcp-border); border-radius:.7rem; cursor:pointer; font:inherit; padding:.7rem 1rem; }
@@ -447,7 +450,8 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-section h3 { font-size: 1.125rem; margin: 0; }
 .uhcp-clinical-section h3 span { color: var(--uhcp-muted); }
 .uhcp-clinical-grid { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin-top: 1rem; }
-.uhcp-clinical-card { background: var(--uhcp-panel-muted); border-radius: 1rem; padding: 1rem; }
+.uhcp-clinical-card { background: var(--uhcp-panel-muted); border-radius: 1rem; display: flex; flex-direction: column; min-width: 0; padding: 1rem; }
+.uhcp-clinical-card-actions { align-items: center; display: flex; gap: .4rem; justify-content: flex-end; margin-top: .75rem; }
 .uhcp-clinical-title { font-weight: 800; margin: 0; }
 .uhcp-clinical-type { color: var(--uhcp-muted); font-size: .72rem; font-weight: 800; letter-spacing: .06em; margin: .35rem 0 0; text-transform: uppercase; }
 .uhcp-clinical-date, .uhcp-clinical-empty { color: var(--uhcp-muted); margin: .35rem 0 0; }
@@ -468,10 +472,10 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-timeline-list { display: grid; gap: .5rem; margin: 0; padding-left: 1.5rem; }
 .uhcp-clinical-timeline-list li { padding: .5rem; }
 .uhcp-clinical-timeline-list time { display: block; margin-top: .2rem; }
-.uhcp-clinical-date-time-fields { align-items: end; display: grid; gap: .5rem; grid-template-columns: minmax(9rem, 1fr) auto minmax(7rem, .7fr) auto; }
+.uhcp-clinical-date-time-fields { align-items: end; display: grid; gap: .5rem; grid-template-columns: minmax(0, 1fr) auto minmax(0, .7fr) auto; min-width: 0; }
 .uhcp-clinical-date-time-fields label { display: grid; font-weight: 800; gap: .35rem; }
-.uhcp-clinical-date-time-fields input { border: 1px solid var(--uhcp-border); border-radius: .7rem; color: var(--uhcp-text); font: inherit; padding: .65rem; }
-@media (max-width: 620px) { .uhcp-clinical-range, .uhcp-clinical-date-time-fields { grid-template-columns: 1fr auto; } }
+.uhcp-clinical-date-time-fields input { border: 1px solid var(--uhcp-border); border-radius: .7rem; color: var(--uhcp-text); font: inherit; min-width: 0; padding: .65rem; width: 100%; }
+@media (max-width: 620px) { .uhcp-clinical-range, .uhcp-clinical-date-time-fields { grid-template-columns: minmax(0, 1fr) auto; } .uhcp-clinical-editor form { grid-template-columns:minmax(0,1fr); } .uhcp-clinical-editor-date-time,.uhcp-clinical-editor-wide,.uhcp-clinical-editor-error,.uhcp-clinical-editor footer { grid-column:1; } }
 .uhcp-clinical-details { display: grid; gap: .3rem; margin: .6rem 0 0; }
 .uhcp-clinical-details div { align-items: baseline; display: flex; gap: .75rem; justify-content: space-between; }
 .uhcp-clinical-details dt { color: var(--uhcp-muted); font-size: .78rem; }

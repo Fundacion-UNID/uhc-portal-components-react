@@ -7,6 +7,8 @@ export type ClinicalSummaryCard = Readonly<{
   resourceType: string
   date?: string
   details?: readonly Readonly<{ label: string; value: string; unit?: string }>[]
+  /** Actions belonging to this resource, rendered inside its card. */
+  actions?: ReactNode
 }>
 
 export type ClinicalSectionSummaryProps = Readonly<{
@@ -67,6 +69,7 @@ export function ClinicalSectionSummary({
                     <dt>{detail.label}</dt><dd>{detail.value}{detail.unit ? ` ${detail.unit}` : ''}</dd>
                   </div>)}
                 </dl> : null}
+                {resource.actions ? <div className="uhcp-clinical-card-actions">{resource.actions}</div> : null}
               </article>
             ))}
           </div>

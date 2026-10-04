@@ -18,6 +18,8 @@ export type IpsBundleSummaryProps = Readonly<{
   sectionTitle?: (section: ClinicalSectionView) => string
   resourceTypeLabel?: (resourceType: string) => string
   sectionActions?: (section: ClinicalSectionView) => ReactNode
+  /** Resource-owned actions such as edit or delete, rendered inside that resource card. */
+  resourceActions?: (section: ClinicalSectionView, resource: ClinicalSectionView['resources'][number]) => ReactNode
   timeline?: Readonly<{
     labels: ClinicalTimelineLabels
     sectionFacetLabel: string
@@ -44,6 +46,7 @@ export function IpsBundleSummary({
   sectionTitle = (section) => section.title,
   resourceTypeLabel,
   sectionActions,
+  resourceActions,
   timeline,
 }: IpsBundleSummaryProps) {
   const sections = toClinicalSectionViews(bundle, { locale, translateCode })
@@ -103,6 +106,7 @@ export function IpsBundleSummary({
             resourceType: resource.resourceType,
             date: resource.date,
             details: observationComponentDetails(nativeResources.get(resource.fullUrl ?? '')),
+            actions: resourceActions?.(section, resource),
           }))}
           emptyLabel={emptyLabel}
           resourceTypeLabel={resourceTypeLabel}

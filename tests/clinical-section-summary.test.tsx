@@ -4,6 +4,30 @@ import { describe, expect, it } from 'vitest'
 import { ClinicalSectionSummary } from '../src/ClinicalSectionSummary.js'
 
 describe('ClinicalSectionSummary', () => {
+  it('keeps section creation outside resources and resource actions inside their card', () => {
+    const html = renderToStaticMarkup(
+      <ClinicalSectionSummary
+        code="8716-3"
+        title="Vital signs"
+        emptyLabel="No entries"
+        actions={<button type="button" aria-label="Add vital sign">+</button>}
+        resources={[{
+          key: 'Observation/oxygen-saturation',
+          title: 'Oxygen saturation',
+          resourceType: 'Observation',
+          actions: <button type="button" aria-label="Edit oxygen saturation">Edit</button>,
+        }]}
+      />,
+    )
+
+    const header = html.match(/<header>(.*?)<\/header>/)?.[1] ?? ''
+    const card = html.match(/<article[^>]*>(.*?)<\/article>/)?.[1] ?? ''
+    expect(header).toContain('Add vital sign')
+    expect(header).not.toContain('Edit oxygen saturation')
+    expect(card).toContain('Edit oxygen saturation')
+    expect(card).not.toContain('Add vital sign')
+  })
+
   it('renders resolved human labels without deriving titles from terminology ids', () => {
     const html = renderToStaticMarkup(
       <ClinicalSectionSummary

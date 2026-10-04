@@ -78,6 +78,35 @@ function resourceFor(resourceType: string): ClinicalResourceLike {
 }
 
 describe('IpsBundleSummary', () => {
+  it('maps section and resource actions to their distinct visual owners', () => {
+    const bundle = {
+      resourceType: 'Bundle',
+      type: 'document',
+      entry: [{
+        resource: {
+          resourceType: ResourceTypesFhirR4.Composition,
+          section: [{
+            title: 'Problems',
+            entry: [{ reference: 'Condition/component-Condition' }],
+          }],
+        },
+      }, {
+        fullUrl: 'Condition/component-Condition',
+        resource: resourceFor(ResourceTypesFhirR4.Condition),
+      }],
+    }
+
+    const html = renderToStaticMarkup(<IpsBundleSummary
+      bundle={bundle}
+      emptyLabel="No records"
+      sectionActions={() => <button type="button">Add</button>}
+      resourceActions={(_section, resource) => <button type="button">Edit {resource.title}</button>}
+    />)
+
+    expect(html).toMatch(/<header>[\s\S]*?>Add<\/button>[\s\S]*?<\/header>/)
+    expect(html).toMatch(/<article[^>]*>[\s\S]*?>Edit Texto local Condition<\/button>[\s\S]*?<\/article>/)
+  })
+
   it('renders all 16 sections from the official IPS fixture', () => {
     const bundle = JSON.parse(fs.readFileSync(fixturePath, 'utf8'))
     const html = renderToStaticMarkup(
