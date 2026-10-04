@@ -75,6 +75,18 @@ describe('SoschainWorkspace', () => {
     expect(html).not.toContain('Read only')
   })
 
+  it('keeps clinical and association write capabilities independent', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="health-summary"
+      canManageAssociations={false}
+      clinicalReadOnly={false}
+      healthSummary={<article><button type="button">Add clinical data</button></article>}
+    />)
+    expect(html).toContain('Add clinical data')
+    expect(html).not.toContain('Read only')
+  })
+
   it('renders the bounded Encounter journey supplied by the host', () => {
     const html = renderToStaticMarkup(<SoschainWorkspace
       {...base}
