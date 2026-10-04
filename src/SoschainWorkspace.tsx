@@ -213,6 +213,9 @@ export function SoschainWorkspace({
           ? copy.emergencyDataBody
         : copy.overviewBody
   const clinicalAreaIsReadOnly = activeArea === 'care-journey' || (activeArea === 'health-summary' && clinicalReadOnly)
+  const associationAreaIsReadOnly = !canManageAssociations && (
+    activeArea === 'overview' || activeArea === 'places' || activeArea === 'products'
+  )
 
   return (
     <section className="uhcp-sos-wrap">
@@ -234,7 +237,7 @@ export function SoschainWorkspace({
             <h2>{title}</h2>
             <p>{body}</p>
           </div>
-          {(clinicalAreaIsReadOnly || (!canManageAssociations && activeArea !== 'communications' && activeArea !== 'emergency-data')) && (
+          {(clinicalAreaIsReadOnly || associationAreaIsReadOnly) && (
             <span className="uhcp-sos-readonly">{copy.readOnly}</span>
           )}
           {canManageAssociations && activeArea === 'places' && addPlaceHref && <a href={addPlaceHref}>{copy.addPlace}</a>}

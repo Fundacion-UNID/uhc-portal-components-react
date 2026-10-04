@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.34
+
+- Keep clinical-write and association-management capabilities independent in
+  `SoschainWorkspace`. An authorized editable health summary no longer carries
+  a contradictory read-only badge merely because the actor cannot manage
+  Places or devices.
+
 ## 0.1.33
 
 - Resolve the root `code-text` terminology input to the canonical `code`
