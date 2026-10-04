@@ -32,6 +32,18 @@ describe('SoschainWorkspace', () => {
     expect(html).toContain('Luna')
   })
 
+  it('lets a client host select a card without putting its identifier in a URL', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      selectedCard={undefined}
+      showCardIdentifier={false}
+      onSelectCard={() => undefined}
+    />)
+    expect(html).toContain('<button')
+    expect(html).not.toContain('href="/card"')
+    expect(html).not.toContain(card.identifier)
+  })
+
   it('does not render management links without a trusted capability', () => {
     const html = renderToStaticMarkup(<SoschainWorkspace {...base} canManageAssociations={false} addPlaceHref="/places/new" />)
     expect(html).toContain('Read only')
@@ -103,5 +115,21 @@ describe('SoschainWorkspace', () => {
     expect(html).toContain('In progress')
     expect(html).toContain('Emergency')
     expect(html).not.toContain('encounter-emergency')
+  })
+
+  it('supports one task-first overview and moves secondary areas behind More', () => {
+    const compactAreas = ['overview', 'health-summary', 'care-journey'] as const
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="overview"
+      overviewContent={<article>Primary emergency workflows</article>}
+      primaryAreas={compactAreas}
+      moreLabel="More"
+      showCardIdentifier={false}
+    />)
+    expect(html).toContain('Primary emergency workflows')
+    expect(html).toContain('<summary>More</summary>')
+    expect(html).not.toContain(card.identifier)
+    expect(html).not.toContain('>3<')
   })
 })

@@ -1,5 +1,8 @@
 # UHC Portal Components React
 
+Historical reusable UI and flow anchors are tracked in
+[`docs/LEGACY_FRONTEND_RECOVERY_INVENTORY.md`](docs/LEGACY_FRONTEND_RECOVERY_INVENTORY.md).
+
 Publishable, brand-neutral React components shared by:
 
 - UHC Personal
@@ -118,6 +121,15 @@ The package deliberately exposes modules instead of a cloned application:
 - `IdentityEvidenceDeclarationForm`: collects the business fields used to
   prepare a declaration. Hosts supply governed options and one high-level
   callback; the form never authors claims or handles certificates.
+- `AnimalIdentityOnboarding`: one progressive animal, owner-or-caregiver and
+  physical-evidence journey recovered from the VetChain Expo flow. The host
+  creates the subject and returns the veterinarian-attested result.
+- `SubjectIdentityCard`: capability-aware person or animal identity readback.
+  Facts, relationship status and edit authority are always provider supplied.
+- `ClinicalActionButton`: compact add, edit and delete actions with complete
+  accessible names and host-owned authorization state.
+- `EmergencyTaskHub`: task-first emergency navigation whose destinations and
+  availability are supplied by the authorized host.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
