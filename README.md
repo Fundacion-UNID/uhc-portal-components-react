@@ -154,4 +154,6 @@ UHC host application and must be extracted behind host-owned adapters. A brand
 adapter may change tokens, logo, product vocabulary, animal-specific forms and
 route destinations; it must not fork shared flow or authorization behavior.
 
-See [`docs/PERSONAL_FLOW_EXTRACTION.md`](docs/PERSONAL_FLOW_EXTRACTION.md).
+See [`docs/PERSONAL_FLOW_EXTRACTION.md`](docs/PERSONAL_FLOW_EXTRACTION.md) and
+the canonical cross-portal
+[`docs/HISTORICAL_PORTAL_COMPONENT_RECOVERY_MATRIX.md`](docs/HISTORICAL_PORTAL_COMPONENT_RECOVERY_MATRIX.md).
