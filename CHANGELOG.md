@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.40
+
+- Present subject Communications as an accessible bidirectional channel with
+  incoming/outgoing bubbles, sender avatars and an optional text/Bundle
+  composer, while preserving the existing message, call and emergency filters.
+
 ## 0.1.38
 
 - Add a brand-neutral subject communication center that merges messages,

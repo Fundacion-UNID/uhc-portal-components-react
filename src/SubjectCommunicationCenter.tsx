@@ -13,6 +13,18 @@ export type SubjectCommunicationItem = Readonly<{
   timestamp?: string
   status?: string
   action?: ReactNode
+  direction?: 'incoming' | 'outgoing' | 'system'
+  senderLabel?: string
+  avatarUrl?: string
+}>
+
+export type SubjectCommunicationComposer = Readonly<{
+  placeholder: string
+  sendLabel: string
+  attachLabel?: string
+  disabled?: boolean
+  onSend(text: string): void | Promise<void>
+  onAttach?(): void | Promise<void>
 }>
 
 export type SubjectCommunicationCenterCopy = Readonly<{
@@ -30,12 +42,14 @@ const DEFAULT_COPY: SubjectCommunicationCenterCopy = {
 const FILTERS: readonly SubjectCommunicationFilter[] = ['all', 'messages', 'calls', 'emergency']
 
 /** Brand-neutral, subject-scoped message and internet-call timeline for personal portals. */
-export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT_COPY }: Readonly<{
+export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT_COPY, composer }: Readonly<{
   subjectLabel: string
   items: readonly SubjectCommunicationItem[]
   copy?: SubjectCommunicationCenterCopy
+  composer?: SubjectCommunicationComposer
 }>) {
   const [filter, setFilter] = useState<SubjectCommunicationFilter>('all')
+  const [draft, setDraft] = useState('')
   const visibleItems = useMemo(() => items.filter(item => matchesFilter(item, filter)), [filter, items])
 
   return <section className="subject-communication-center" aria-labelledby="subject-communication-center-title">
@@ -45,9 +59,13 @@ export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT
         {copy.filters[value]}
       </button>)}
     </div>
-    {visibleItems.length === 0 ? <p className="subject-communication-empty">{copy.empty}</p> : <ol className="subject-communication-list">
-      {visibleItems.map(item => <li key={item.id} data-kind={item.kind} data-category={item.category}>
-        <div><strong>{item.title}</strong>{item.summary ? <p>{item.summary}</p> : null}</div>
+    {visibleItems.length === 0 ? <p className="subject-communication-empty">{copy.empty}</p> : <ol className="subject-communication-list" role="log">
+      {visibleItems.map(item => <li key={item.id} data-kind={item.kind} data-category={item.category} data-direction={item.direction || 'system'}>
+        {item.avatarUrl ? <img className="subject-communication-avatar" src={item.avatarUrl} alt={item.senderLabel || item.title} /> : null}
+        <div className="subject-communication-bubble">
+          {item.senderLabel ? <span className="subject-communication-sender">{item.senderLabel}</span> : null}
+          <strong>{item.title}</strong>{item.summary ? <p>{item.summary}</p> : null}
+        </div>
         <div className="subject-communication-meta">
           {item.timestamp ? <time dateTime={item.timestamp}>{item.timestamp}</time> : null}
           {item.status ? <span>{item.status}</span> : null}
@@ -55,6 +73,27 @@ export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT
         </div>
       </li>)}
     </ol>}
+    {composer ? <form className="subject-communication-composer" onSubmit={event => {
+      event.preventDefault()
+      const text = draft.trim()
+      if (!text || composer.disabled) return
+      void composer.onSend(text)
+      setDraft('')
+    }}>
+      <label className="subject-communication-composer-label" htmlFor="subject-communication-composer-input">{composer.placeholder}</label>
+      <textarea
+        id="subject-communication-composer-input"
+        aria-label={composer.placeholder}
+        placeholder={composer.placeholder}
+        value={draft}
+        disabled={composer.disabled}
+        onChange={event => setDraft(event.target.value)}
+      />
+      <div className="subject-communication-composer-actions">
+        {composer.onAttach && composer.attachLabel ? <button type="button" disabled={composer.disabled} onClick={() => void composer.onAttach?.()}>{composer.attachLabel}</button> : null}
+        <button type="submit" disabled={composer.disabled || !draft.trim()}>{composer.sendLabel}</button>
+      </div>
+    </form> : null}
   </section>
 }
 
