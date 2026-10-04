@@ -72,7 +72,8 @@ describe('ClinicalArtifactEditor', () => {
       onReadback={() => undefined}
     /></ClinicalSpeechInputProvider>)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Dictate: Vaccine or product' }))
+    expect(screen.getByLabelText('Vaccine or product', { exact: true }).tagName).toBe('INPUT')
+    fireEvent.click(screen.getByRole('button', { name: 'Dictate', exact: true }))
     await waitFor(() => expect((screen.getByLabelText('Vaccine or product') as HTMLInputElement).value).toBe(sourceText))
     expect(transcribe).toHaveBeenCalledWith(expect.objectContaining({ claim: sourceTextClaim, locale: 'en', resourceType }))
     await waitFor(() => expect(searchTerminology).toHaveBeenCalledWith(expect.objectContaining({ claim: codeClaim, text: sourceText })))
@@ -93,7 +94,7 @@ describe('ClinicalArtifactEditor', () => {
       onReadback={() => undefined}
     /></ClinicalSpeechInputProvider>)
 
-    const microphone = screen.getByRole('button', { name: 'Speech model is downloading: Vaccine or product' })
+    const microphone = screen.getByRole('button', { name: 'Speech model is downloading', exact: true })
     expect(microphone.hasAttribute('disabled')).toBe(true)
   })
 
@@ -113,10 +114,10 @@ describe('ClinicalArtifactEditor', () => {
       onReadback={() => undefined}
     /></ClinicalSpeechInputChannelProvider>)
 
-    const microphone = screen.getByRole('button', { name: 'Speech model is not ready: Vaccine or product' })
+    const microphone = screen.getByRole('button', { name: 'Speech model is not ready', exact: true })
     expect(microphone.hasAttribute('disabled')).toBe(true)
     act(() => channel.publish({ phase: ClinicalSpeechInputPhases.Ready, transcribe }))
-    expect(screen.getByRole('button', { name: 'Dictate: Vaccine or product' }).hasAttribute('disabled')).toBe(false)
+    expect(screen.getByRole('button', { name: 'Dictate', exact: true }).hasAttribute('disabled')).toBe(false)
   })
 
   it('hydrates the editor claims directly from a FHIR Bundle resource and its shared schema', () => {
