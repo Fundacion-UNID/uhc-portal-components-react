@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a portal-owned clinical speech-input provider. Schema-backed IPS text
+  fields now reflect the shared model state, append editable transcripts and
+  reuse the existing explicit terminology-candidate selection flow.
+
 - Add a shared progressive animal, owner-or-caregiver and physical-evidence
   onboarding form for veterinarian-assisted identity attestation.
 - Add a capability-aware `SubjectIdentityCard` for provider-confirmed animal
