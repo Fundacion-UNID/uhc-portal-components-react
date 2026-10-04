@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.40
+
+- Present subject Communications as an accessible bidirectional channel with
+  incoming/outgoing bubbles, sender avatars and an optional text/Bundle
+  composer, while preserving the existing message, call and emergency filters.
+
 ## 0.1.39
 
 - Keep clinical field labels unique to their inputs when speech controls are

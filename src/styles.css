@@ -685,7 +685,19 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .subject-communication-filters button { border: 1px solid currentColor; border-radius: 999px; padding: .55rem .9rem; background: transparent; font: inherit; cursor: pointer; }
 .subject-communication-filters button[aria-pressed="true"] { background: currentColor; color: Canvas; }
 .subject-communication-list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
-.subject-communication-list > li { display: flex; justify-content: space-between; gap: 1rem; align-items: start; border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 1rem; padding: 1rem; }
+.subject-communication-list > li { display: flex; justify-content: flex-start; gap: .75rem; align-items: end; }
+.subject-communication-list > li[data-direction="outgoing"] { flex-direction: row-reverse; }
+.subject-communication-list > li[data-direction="system"] { justify-content: center; }
+.subject-communication-avatar { width: 2.5rem; height: 2.5rem; border-radius: 999px; object-fit: cover; flex: 0 0 auto; }
+.subject-communication-bubble { max-width: min(78%, 42rem); border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 1rem 1rem 1rem .25rem; padding: .8rem 1rem; background: color-mix(in srgb, Canvas 94%, currentColor 6%); }
+.subject-communication-list > li[data-direction="outgoing"] .subject-communication-bubble { border-radius: 1rem 1rem .25rem 1rem; background: color-mix(in srgb, #66c8d1 18%, Canvas); }
+.subject-communication-sender { display: block; margin-bottom: .2rem; font-size: .8em; font-weight: 700; opacity: .72; }
 .subject-communication-list p { margin: .35rem 0 0; }
 .subject-communication-meta { display: grid; justify-items: end; gap: .35rem; font-size: .875em; }
 .subject-communication-empty { margin: 0; opacity: .72; }
+.subject-communication-composer { display: grid; gap: .65rem; border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); padding-top: 1rem; }
+.subject-communication-composer-label { font-weight: 700; }
+.subject-communication-composer textarea { min-height: 5rem; resize: vertical; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); border-radius: 1rem; padding: .8rem 1rem; font: inherit; color: inherit; background: Canvas; }
+.subject-communication-composer-actions { display: flex; justify-content: flex-end; gap: .65rem; }
+.subject-communication-composer-actions button { border: 1px solid currentColor; border-radius: 999px; padding: .55rem .9rem; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.subject-communication-composer-actions button[type="submit"] { background: currentColor; color: Canvas; }
