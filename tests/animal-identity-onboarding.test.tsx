@@ -27,12 +27,13 @@ describe('shared animal identity onboarding', () => {
 
   it('collects animal, controller and relationship evidence in one progressive journey', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(<AnimalIdentityOnboarding copy={copy} onSubmit={onSubmit} />)
+    render(<AnimalIdentityOnboarding copy={copy} onSubmit={onSubmit} submitAction="create-animal-individual" />)
 
     expect(screen.getByRole('heading', { name: copy.title })).not.toBeNull()
     expect(screen.getByRole('group', { name: copy.animalStep })).not.toBeNull()
     expect(screen.getByRole('group', { name: copy.controllerStep })).not.toBeNull()
     expect(screen.getByRole('group', { name: copy.evidenceStep })).not.toBeNull()
+    expect(screen.getByRole('button', { name: copy.submit }).getAttribute('data-portal-action')).toBe('create-animal-individual')
 
     fireEvent.change(screen.getByLabelText(copy.animalName), { target: { value: 'Pluto' } })
     fireEvent.change(screen.getByLabelText(copy.taxonomyId), { target: { value: '9615' } })

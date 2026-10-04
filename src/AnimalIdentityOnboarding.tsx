@@ -56,9 +56,10 @@ export type AnimalIdentityOnboardingCopy = Readonly<{
  * the progressive VetChain Expo journey. The host persists and verifies the
  * result; this component never grants authority or marks evidence verified.
  */
-export function AnimalIdentityOnboarding({ copy, onSubmit, busy = false }: Readonly<{
+export function AnimalIdentityOnboarding({ copy, onSubmit, submitAction, busy = false }: Readonly<{
   copy: AnimalIdentityOnboardingCopy
   onSubmit: (input: AnimalIdentityOnboardingInput) => Promise<void> | void
+  submitAction?: string
   busy?: boolean
 }>) {
   const [submitting, setSubmitting] = useState(false)
@@ -143,7 +144,7 @@ export function AnimalIdentityOnboarding({ copy, onSubmit, busy = false }: Reado
           <label>{copy.controllerPin}<input name="controllerPin" type="password" inputMode="numeric" pattern="[0-9]{6,12}" required autoComplete="new-password" /></label>
         </div>
       </fieldset>
-      <button type="submit" className="uhcp-animal-onboarding-submit" disabled={disabled}>{copy.submit}</button>
+      <button type="submit" className="uhcp-animal-onboarding-submit" data-portal-action={submitAction} disabled={disabled}>{copy.submit}</button>
     </form>
   </section>
 }
