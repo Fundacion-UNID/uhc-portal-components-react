@@ -22,6 +22,7 @@ import {
   type MultichannelOperationValues,
 } from 'sos-data-utils-ts/multichannel-operation-schemas'
 import type { ClinicalDateTimeFieldLabels } from './ClinicalTimeline.js'
+import { ClinicalEditorLayer } from './ClinicalEditorLayer.js'
 
 export type ClinicalArtifactSchema = Readonly<{
   resourceType: string
@@ -275,7 +276,7 @@ export function ClinicalArtifactEditor({
     }
   }
 
-  return <section className="uhcp-clinical-editor" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
+  return <ClinicalEditorLayer onDismiss={onCancel}><section className="uhcp-clinical-editor" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
     <header>
       <div><h2 id={titleId}>{copy.title}</h2><p id={descriptionId}>{copy.description}</p></div>
       <button type="button" onClick={onCancel} aria-label={copy.close}>×</button>
@@ -323,7 +324,7 @@ export function ClinicalArtifactEditor({
       {pending ? <p className="uhcp-clinical-editor-pending" role="status">{copy.pending || pending}</p> : null}
       <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : pending ? (copy.retry || copy.save) : copy.save}</button></footer>
     </form>
-  </section>
+  </section></ClinicalEditorLayer>
 }
 
 const DEFAULT_DATE_TIME_LABELS: ClinicalDateTimeFieldLabels = Object.freeze({

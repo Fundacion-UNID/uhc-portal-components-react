@@ -10,6 +10,7 @@ import {
 } from 'fhir-data-utils-ts'
 import type { ClinicalResourceBundleLike } from 'gdc-common-utils-ts/utils/clinical-resource-view'
 import { ClinicalDateTimeFields, type ClinicalDateTimeFieldLabels } from './ClinicalTimeline.js'
+import { ClinicalEditorLayer } from './ClinicalEditorLayer.js'
 
 export type VitalSignArtifactEditorCopy = Readonly<{
   title: string
@@ -95,7 +96,7 @@ export function VitalSignArtifactEditor({
     }
   }
 
-  return <section className="uhcp-clinical-editor" lang={locale} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
+  return <ClinicalEditorLayer onDismiss={onCancel}><section className="uhcp-clinical-editor" lang={locale} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
     <header>
       <div><h2 id={titleId}>{copy.title}</h2><p id={descriptionId}>{copy.description}</p></div>
       <button type="button" onClick={onCancel} aria-label={copy.close}>×</button>
@@ -114,7 +115,7 @@ export function VitalSignArtifactEditor({
       {error ? <p className="uhcp-clinical-editor-error" role="alert">{error}</p> : null}
       <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : copy.save}</button></footer>
     </form>
-  </section>
+  </section></ClinicalEditorLayer>
 }
 
 function unitFor(kind: Exclude<VitalSignKind, 'blood-pressure'>) {

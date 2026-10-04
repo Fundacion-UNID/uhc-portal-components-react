@@ -23,6 +23,23 @@ const diastolic = 80
 afterEach(cleanup)
 
 describe('VitalSignArtifactEditor', () => {
+  it('owns a top-level modal backdrop so header menus cannot cover the editor', () => {
+    render(<VitalSignArtifactEditor
+      entryId="measurement-id"
+      subjectReference="Patient/demo"
+      locale="en-GB"
+      timeZone="UTC"
+      copy={{ title: 'Add vital sign', description: 'Choose the measurement type.', kind: 'Measurement type', measuredAt: 'Measured at', dateTime: dateTimeCopy, value: 'Value', systolic: 'Systolic', diastolic: 'Diastolic', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', readbackMissing: 'Readback missing' }}
+      kindLabels={{ 'blood-pressure': 'Blood pressure', temperature: 'Temperature', 'heart-rate': 'Heart rate', 'oxygen-saturation': 'Oxygen saturation', 'respiratory-rate': 'Respiratory rate', 'body-weight': 'Body weight' }}
+      saveMeasurement={vi.fn().mockResolvedValue(providerReadback)}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect(document.body.querySelector(':scope > .uhcp-clinical-editor-backdrop')).not.toBeNull()
+    expect(screen.getByRole('dialog', { name: 'Add vital sign' }).parentElement?.classList.contains('uhcp-clinical-editor-backdrop')).toBe(true)
+  })
+
   it('submits blood pressure as one typed measurement with two components', async () => {
     const saveMeasurement = vi.fn().mockResolvedValue(providerReadback)
     const onReadback = vi.fn()

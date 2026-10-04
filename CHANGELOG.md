@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.35
+
+- Keep create actions in the clinical section header while edit and delete
+  actions belong to the exact resource card they modify.
+- Render clinical editors in a top-level modal layer so sticky account menus
+  cannot cover them, and make composite date/time and blood-pressure controls
+  shrink or stack without escaping the dialog.
+
 ## 0.1.34
 
 - Keep clinical-write and association-management capabilities independent in
