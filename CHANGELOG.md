@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a shared progressive animal, owner-or-caregiver and physical-evidence
+  onboarding form for veterinarian-assisted identity attestation.
+- Add a capability-aware `SubjectIdentityCard` for provider-confirmed animal
+  identity and relationship readback.
 - Make this repository the single source of truth for the cross-portal
   BloodChain/UHC, VetChain Expo and HospitalApp component recovery inventory.
   Keep consumer ownership and proof requirements beside the reusable React

@@ -118,6 +118,11 @@ The package deliberately exposes modules instead of a cloned application:
 - `IdentityEvidenceDeclarationForm`: collects the business fields used to
   prepare a declaration. Hosts supply governed options and one high-level
   callback; the form never authors claims or handles certificates.
+- `AnimalIdentityOnboarding`: one progressive animal, owner-or-caregiver and
+  physical-evidence journey recovered from the VetChain Expo flow. The host
+  creates the subject and returns the veterinarian-attested result.
+- `SubjectIdentityCard`: capability-aware person or animal identity readback.
+  Facts, relationship status and edit authority are always provider supplied.
 
 Clinical label semantics stay in `gdc-common-utils-ts` / the SDK reader. Hosts
 pass human titles to `ClinicalSectionSummary`: local `CodeableConcept.text`
