@@ -6,6 +6,10 @@
   onboarding form for veterinarian-assisted identity attestation.
 - Add a capability-aware `SubjectIdentityCard` for provider-confirmed animal
   identity and relationship readback.
+- Add compact accessible clinical action buttons and a task-first emergency
+  hub with host-owned navigation and authorization.
+- Let SOSChain hosts compose a task-first overview, keep secondary areas under
+  an accessible More menu and select cards without exposing identifiers in URLs.
 - Make this repository the single source of truth for the cross-portal
   BloodChain/UHC, VetChain Expo and HospitalApp component recovery inventory.
   Keep consumer ownership and proof requirements beside the reusable React

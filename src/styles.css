@@ -452,6 +452,12 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-grid { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); margin-top: 1rem; }
 .uhcp-clinical-card { background: var(--uhcp-panel-muted); border-radius: 1rem; display: flex; flex-direction: column; min-width: 0; padding: 1rem; }
 .uhcp-clinical-card-actions { align-items: center; display: flex; gap: .4rem; justify-content: flex-end; margin-top: .75rem; }
+.uhcp-clinical-icon-action { align-items:center; background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:.65rem; color:var(--uhcp-text); cursor:pointer; display:inline-flex; height:2.5rem; justify-content:center; padding:0; width:2.5rem; }
+.uhcp-clinical-icon-action:hover { border-color:var(--uhcp-turquoise); color:var(--uhcp-turquoise); }
+.uhcp-clinical-icon-action:focus-visible { outline:3px solid var(--uhcp-turquoise); outline-offset:2px; }
+.uhcp-clinical-icon-action:disabled { cursor:not-allowed; opacity:.42; }
+.uhcp-clinical-icon-action svg { fill:none; height:1.2rem; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.8; width:1.2rem; }
+.uhcp-clinical-icon-action-delete:hover { border-color:var(--uhcp-attention); color:var(--uhcp-attention); }
 .uhcp-clinical-title { font-weight: 800; margin: 0; }
 .uhcp-clinical-type { color: var(--uhcp-muted); font-size: .72rem; font-weight: 800; letter-spacing: .06em; margin: .35rem 0 0; text-transform: uppercase; }
 .uhcp-clinical-date, .uhcp-clinical-empty { color: var(--uhcp-muted); margin: .35rem 0 0; }
@@ -595,14 +601,15 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-sos-heading h1 { font-size: clamp(2rem, 5vw, 3.75rem); letter-spacing: -.04em; margin: .45rem 0; }
 .uhcp-sos-heading p, .uhcp-sos-panel header p { color: var(--uhcp-muted); line-height: 1.6; margin: 0; }
 .uhcp-sos-card-grid, .uhcp-sos-entity-list { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); list-style: none; margin: 2rem 0 0; padding: 0; }
-.uhcp-sos-card-grid a, .uhcp-sos-entity-list li { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 1.5rem; color: var(--uhcp-text); display: grid; gap: .65rem; padding: 1.4rem; text-decoration: none; }
-.uhcp-sos-card-grid a:hover { border-color: var(--uhcp-turquoise); transform: translateY(-2px); }
-.uhcp-sos-card-grid a:focus-visible, .uhcp-sos-tabs a:focus-visible, .uhcp-sos-panel a:focus-visible { outline: 3px solid var(--uhcp-turquoise); outline-offset: 3px; }
+.uhcp-sos-card-grid a, .uhcp-sos-card-grid button, .uhcp-sos-entity-list li { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 1.5rem; color: var(--uhcp-text); display: grid; font: inherit; gap: .65rem; padding: 1.4rem; text-align: left; text-decoration: none; width: 100%; }
+.uhcp-sos-card-grid a:hover, .uhcp-sos-card-grid button:hover { border-color: var(--uhcp-turquoise); transform: translateY(-2px); }
+.uhcp-sos-card-grid a:focus-visible, .uhcp-sos-card-grid button:focus-visible, .uhcp-sos-tabs a:focus-visible, .uhcp-sos-panel a:focus-visible { outline: 3px solid var(--uhcp-turquoise); outline-offset: 3px; }
 .uhcp-sos-card-grid span, .uhcp-sos-card-grid small, .uhcp-sos-entity-list span, .uhcp-sos-entity-list small { color: var(--uhcp-muted); }
 .uhcp-sos-card-grid b { color: var(--uhcp-turquoise); }
 .uhcp-sos-tabs { display: flex; gap: .5rem; margin: 2rem 0 1rem; overflow-x: auto; padding: .25rem; }
 .uhcp-sos-tabs a { border-radius: 999px; color: var(--uhcp-muted); font-weight: 800; padding: .75rem 1rem; text-decoration: none; white-space: nowrap; }
 .uhcp-sos-tabs a[aria-current='page'] { background: linear-gradient(135deg, var(--uhcp-action-start), var(--uhcp-action-end)); color: #fff; }
+.uhcp-sos-more{margin-left:auto;position:relative}.uhcp-sos-more>summary{border:1px solid var(--uhcp-border);border-radius:999px;color:var(--uhcp-muted);cursor:pointer;font-weight:800;list-style:none;padding:.7rem 1rem}.uhcp-sos-more>summary::-webkit-details-marker{display:none}.uhcp-sos-more>div{background:var(--uhcp-panel);border:1px solid var(--uhcp-border);border-radius:1rem;box-shadow:0 18px 45px rgb(22 39 66 / 14%);display:grid;min-width:13rem;padding:.45rem;position:absolute;right:0;top:calc(100% + .4rem);z-index:12}.uhcp-sos-more>div a{border-radius:.65rem}
 .uhcp-sos-panel, .uhcp-sos-empty-panel { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 2rem; padding: clamp(1.25rem, 4vw, 2.25rem); }
 .uhcp-sos-panel > header { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; }
 .uhcp-sos-panel h2 { margin: 0 0 .35rem; }
@@ -622,7 +629,10 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 @media (max-width: 620px) {
   .uhcp-sos-overview-grid { grid-template-columns: 1fr; }
   .uhcp-sos-panel > header { display: grid; }
+  .uhcp-sos-more{margin-left:0}.uhcp-sos-more>div{left:0;right:auto}
 }
+.uhcp-emergency-task-hub{display:grid;gap:1.25rem;margin-top:1.5rem}.uhcp-emergency-task-hub>header h2{font-size:clamp(1.35rem,3vw,1.9rem);margin:0}.uhcp-emergency-task-hub>header p{color:var(--uhcp-muted);margin:.35rem 0 0}.uhcp-emergency-task-list{display:grid;gap:.8rem}.uhcp-emergency-task-list article{align-items:center;border:1px solid var(--uhcp-border);border-radius:1.15rem;display:grid;gap:1rem;grid-template-columns:auto minmax(0,1fr) auto;padding:1rem}.uhcp-emergency-task-icon{align-items:center;background:color-mix(in srgb,var(--uhcp-turquoise) 12%,var(--uhcp-panel));border-radius:50%;color:var(--uhcp-turquoise);display:flex;height:3.25rem;justify-content:center;width:3.25rem}.uhcp-emergency-task-icon svg,.uhcp-emergency-task-list article>a svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.8}.uhcp-emergency-task-icon svg{height:1.65rem;width:1.65rem}.uhcp-emergency-task-copy h3{font-size:1.05rem;margin:0}.uhcp-emergency-task-copy p{color:var(--uhcp-muted);line-height:1.45;margin:.25rem 0 0}.uhcp-emergency-task-copy small{color:var(--uhcp-emerald);display:block;font-weight:750;margin-top:.35rem}.uhcp-emergency-task-list article>a{align-items:center;background:var(--uhcp-turquoise);border-radius:.75rem;color:#fff;display:inline-flex;font-weight:800;gap:.45rem;padding:.75rem .9rem;text-decoration:none}.uhcp-emergency-task-list article>a svg{height:1rem;width:1rem}.uhcp-emergency-task-unavailable{color:var(--uhcp-muted);font-size:.85rem;max-width:11rem}.uhcp-emergency-task-list article:has(>a):first-child{border-color:color-mix(in srgb,var(--uhcp-turquoise) 42%,var(--uhcp-border))}@media(max-width:720px){.uhcp-emergency-task-list article{align-items:start;grid-template-columns:auto 1fr}.uhcp-emergency-task-list article>a,.uhcp-emergency-task-unavailable{grid-column:1/-1;justify-content:center;max-width:none;text-align:center}}
+.uhcp-emergency-task-hub-grid .uhcp-emergency-task-list{grid-template-columns:repeat(3,minmax(0,1fr))}.uhcp-emergency-task-hub-grid .uhcp-emergency-task-list article{align-content:start;grid-template-columns:1fr;min-height:16rem;padding:1.35rem}.uhcp-emergency-task-hub-grid .uhcp-emergency-task-icon{height:4rem;width:4rem}.uhcp-emergency-task-hub-grid .uhcp-emergency-task-copy h3{font-size:1.25rem}.uhcp-emergency-task-hub-grid .uhcp-emergency-task-list article>a{justify-content:space-between;margin-top:auto;width:100%}@media(max-width:840px){.uhcp-emergency-task-hub-grid .uhcp-emergency-task-list{grid-template-columns:1fr}.uhcp-emergency-task-hub-grid .uhcp-emergency-task-list article{min-height:0}}
 .uhcp-emergency-copy { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 2rem; color: var(--uhcp-text); padding: clamp(1.25rem, 4vw, 2.25rem); }
 .uhcp-emergency-copy > header { align-items: flex-start; display: flex; gap: 1.5rem; justify-content: space-between; }
 .uhcp-emergency-copy h2 { margin: 0 0 .45rem; }
@@ -653,6 +663,7 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-animal-onboarding-fields label { display: grid; gap: .35rem; }
 .uhcp-animal-onboarding-fields input, .uhcp-animal-onboarding-fields select { box-sizing: border-box; min-height: 2.8rem; width: 100%; }
 .uhcp-animal-onboarding-submit { justify-self: start; }
+.uhcp-emergency-task-hub > header h1 { font-size: clamp(1.35rem, 3vw, 1.9rem); margin: 0; }
 .uhcp-subject-identity-card { border: 1px solid var(--uhcp-border, #d9dee7); border-radius: 1rem; display: grid; gap: 1rem; padding: 1rem; }
 .uhcp-subject-identity-card > header { align-items: center; display: grid; gap: .8rem; grid-template-columns: auto 1fr auto; }
 .uhcp-subject-identity-card img, .uhcp-subject-identity-avatar { align-items: center; aspect-ratio: 1; border-radius: 50%; display: flex; height: 3.5rem; justify-content: center; object-fit: cover; width: 3.5rem; }

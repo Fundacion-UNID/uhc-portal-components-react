@@ -108,6 +108,15 @@ export type SoschainWorkspaceProps = Readonly<{
   addPlaceHref?: string
   addProductHref?: string
   importCardHref?: string
+  /** Host-composed primary workflows for the selected subject overview. */
+  overviewContent?: ReactNode
+  /** Areas kept visible; remaining areas move into the accessible More menu. */
+  primaryAreas?: readonly SoschainWorkspaceArea[]
+  moreLabel?: string
+  /** Raw provider identifiers are hidden by SOSChain portals by default. */
+  showCardIdentifier?: boolean
+  /** Selects a card in host-owned state without exposing its identifier in a URL. */
+  onSelectCard?: (identifier: string) => void
 }>
 
 function AssociationList({ items, empty }: Readonly<{
@@ -153,6 +162,11 @@ export function SoschainWorkspace({
   addPlaceHref,
   addProductHref,
   importCardHref,
+  overviewContent,
+  primaryAreas,
+  moreLabel = 'More',
+  showCardIdentifier = true,
+  onSelectCard,
 }: SoschainWorkspaceProps) {
   if (!selectedCard) {
     return (
@@ -172,12 +186,17 @@ export function SoschainWorkspace({
           <ul className="uhcp-sos-card-grid">
             {cards.map((card) => (
               <li key={card.identifier}>
-                <a href={card.openHref}>
+                {onSelectCard ? <button type="button" onClick={() => onSelectCard(card.identifier)}>
                   <span>{card.kindLabel}</span>
                   <strong>{card.displayName}</strong>
-                  <small>{card.identifier}</small>
+                  {showCardIdentifier ? <small>{card.identifier}</small> : null}
                   <b>{copy.openCard} →</b>
-                </a>
+                </button> : <a href={card.openHref}>
+                  <span>{card.kindLabel}</span>
+                  <strong>{card.displayName}</strong>
+                  {showCardIdentifier ? <small>{card.identifier}</small> : null}
+                  <b>{copy.openCard} →</b>
+                </a>}
               </li>
             ))}
           </ul>
@@ -222,14 +241,20 @@ export function SoschainWorkspace({
       <header className="uhcp-sos-heading">
         <span>{copy.selectedCard}</span>
         <h1>{selectedCard.displayName}</h1>
-        <p>{selectedCard.kindLabel} · {selectedCard.identifier}</p>
+        <p>{selectedCard.kindLabel}{showCardIdentifier ? ` · ${selectedCard.identifier}` : ''}</p>
       </header>
       <nav className="uhcp-sos-tabs" aria-label={copy.workspaceEyebrow}>
-        {SOSCHAIN_SUBJECT_WORKSPACE_AREAS.map((area) => (
+        {(primaryAreas ?? SOSCHAIN_SUBJECT_WORKSPACE_AREAS).map((area) => (
           <a key={area} href={areaHrefs[area]} aria-current={activeArea === area ? 'page' : undefined}>
             {copy.areas[area]}
           </a>
         ))}
+        {primaryAreas ? <details className="uhcp-sos-more">
+          <summary>{moreLabel}</summary>
+          <div>{SOSCHAIN_SUBJECT_WORKSPACE_AREAS.filter((area) => !primaryAreas.includes(area)).map((area) => (
+            <a key={area} href={areaHrefs[area]} aria-current={activeArea === area ? 'page' : undefined}>{copy.areas[area]}</a>
+          ))}</div>
+        </details> : null}
       </nav>
       <div className="uhcp-sos-panel">
         <header>
@@ -243,14 +268,14 @@ export function SoschainWorkspace({
           {canManageAssociations && activeArea === 'places' && addPlaceHref && <a href={addPlaceHref}>{copy.addPlace}</a>}
           {canManageAssociations && activeArea === 'products' && addProductHref && <a href={addProductHref}>{copy.addProduct}</a>}
         </header>
-        {activeArea === 'overview' && (
+        {activeArea === 'overview' && (overviewContent ?? (
           <div className="uhcp-sos-overview-grid">
             <article><strong>{places.length}</strong><span>{copy.areas.places}</span></article>
             <article><strong>{products.length}</strong><span>{copy.areas.products}</span></article>
             <article><strong>{communications.length}</strong><span>{copy.areas.communications}</span></article>
             <article><strong>{careJourney.length}</strong><span>{copy.areas['care-journey']}</span></article>
           </div>
-        )}
+        ))}
         {activeArea === 'health-summary' && (healthSummary ?? <p className="uhcp-sos-empty">{copy.emptyHealthSummary}</p>)}
         {activeArea === 'care-journey' && (
           careJourney.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCareJourney}</p> : (
