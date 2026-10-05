@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## 0.1.41 - 2026-10-05
+
+- Add one brand-neutral professional access panel shared by Partner and Test
+  Network Google/email-OTP/passkey entry and by an isolated six-digit Demo
+  adapter. Demo presentation cannot switch shared GW or DataConv services into
+  an in-memory mode through a browser-authored header.
+- Hide passkey entry when the host has not supplied a real WebAuthn adapter;
+  an informational click is not represented as authentication.
+- Add a host-controlled animal controller attestation panel for pending
+  owner/caregiver invitations and privacy-safe accepted proof readback. The
+  component never replaces a controller, sends a notification or grants
+  clinical access on its own.
+- Add a shared current-subject registration provider so Personal and
+  Professional can render the selected person or animal in the common header
+  without duplicating portal state.
+- Add a browser speech-recognition adapter whose final transcript remains
+  editable and whose injected constructor is testable outside a browser.
+
 ## 0.1.40
 
 - Present subject Communications as an accessible bidirectional channel with

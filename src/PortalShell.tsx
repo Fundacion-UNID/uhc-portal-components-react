@@ -7,6 +7,7 @@ import {
   ProfileProtectionGate,
   type ProfileProtectionGateProps,
 } from './ProfileProtectionGate.js'
+import { PortalCurrentSubjectProvider } from './PortalCurrentSubject.js'
 
 export type PortalShellProps = Readonly<{
   header: PortalHeaderProps
@@ -40,7 +41,7 @@ export function PortalShell({
     : children
 
   return (
-    <div className="uhcp-shell" data-portal-family={header.brand.family} style={header.brand.variables}>
+    <PortalCurrentSubjectProvider><div className="uhcp-shell" data-portal-family={header.brand.family} style={header.brand.variables}>
       <PortalHeader {...header} />
       <main className="uhcp-main">{content}</main>
       {backAction && (
@@ -59,6 +60,6 @@ export function PortalShell({
           <span>{assistantAction.label}</span>
         </button>
       )}
-    </div>
+    </div></PortalCurrentSubjectProvider>
   )
 }

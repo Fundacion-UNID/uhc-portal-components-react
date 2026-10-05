@@ -18,6 +18,7 @@ import {
   resolveRenderedPortalTheme,
 } from './preferences.js'
 import { PortalBrandArtwork } from './PortalBrandArtwork.js'
+import { PortalCurrentSubjectSlot } from './PortalCurrentSubject.js'
 
 export type PortalHeaderProps = Readonly<{
   brand: PortalBrand
@@ -111,6 +112,7 @@ export function PortalHeader({
         <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
         <span><strong>{brand.productName}</strong><small>{brand.organizationName}</small></span>
       </a>
+      <PortalCurrentSubjectSlot />
       <div className="uhcp-account-menu" ref={ref}>
         <button
           type="button"
