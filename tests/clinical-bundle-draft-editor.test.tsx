@@ -35,7 +35,7 @@ const correctedConcept = 'Closed fracture'
 
 afterEach(cleanup)
 
-function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false) {
+function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false, resourceTypeLabel?: (resourceType: string) => string) {
   return render(<ClinicalBundleDraftEditor
     schemas={[{
       schema,
@@ -66,6 +66,7 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
       editor: { title: 'Condition', description: 'Add a condition', save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Draft unavailable', attachments: 'Documents', addAttachments: 'Add PDF or image', removeAttachment: 'Remove document' },
     }}
     fieldLabel={(claim) => claim === conceptClaim ? 'Clinical concept' : claim}
+    resourceTypeLabel={resourceTypeLabel}
     initialBundle={initialBundle}
     onSubmitDraft={onSubmitDraft}
   />)
@@ -83,6 +84,14 @@ describe('ClinicalBundleDraftEditor', () => {
     expect(screen.getByRole('option', { name: 'Immunization' }).selected).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
     expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
+  it('names the selected FHIR resource in the selector and entry dialog', () => {
+    renderDraft(undefined, undefined, true, (candidate) => candidate === resourceType ? 'Problem (Condition)' : 'Vaccination (Immunization)')
+
+    expect(screen.getByRole('option', { name: 'Problem (Condition)' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    expect(screen.getByText('FHIR resource: Problem (Condition)')).toBeTruthy()
   })
 
   it('hydrates claims-first resources from an imported document Bundle for editing before submit', async () => {

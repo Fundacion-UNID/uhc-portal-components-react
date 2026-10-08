@@ -69,6 +69,7 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
   timeZone?: string
   taxonomyId?: string
   fieldLabel: (claim: string) => string
+  resourceTypeLabel?: (resourceType: string) => string
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
   loadTerminologySources?: ClinicalTerminologySourceSearch
   /** Optional claims-first document Bundle loaded into the local draft; loading it never persists. */
@@ -101,6 +102,7 @@ export function ClinicalBundleDraftEditor({
   timeZone,
   taxonomyId,
   fieldLabel,
+  resourceTypeLabel,
   searchTerminology,
   loadTerminologySources,
   initialBundle,
@@ -160,7 +162,7 @@ export function ClinicalBundleDraftEditor({
         setSelectedSchemaKey(firstSchema ? schemaKey(firstSchema) : '')
       }}>{sections.map(section => <option key={section.label} value={section.label}>{section.label}</option>)}</select></label>
       <label>{copy.resourceType || 'Resource type'}<select value={selectedSchema ? schemaKey(selectedSchema) : ''} onChange={(event) => setSelectedSchemaKey(event.currentTarget.value)}>
-        {selectedSectionSchemas.map(candidate => <option key={schemaKey(candidate)} value={schemaKey(candidate)}>{candidate.artifactLabel}</option>)}
+        {selectedSectionSchemas.map(candidate => <option key={schemaKey(candidate)} value={schemaKey(candidate)}>{resourceTypeLabel?.(candidate.schema.resourceType) || candidate.artifactLabel}</option>)}
       </select></label>
       <button type="button" disabled={!selectedSchema} onClick={() => selectedSchema && setEditor({ schema: selectedSchema })}>+ {copy.addEntry || copy.add}</button>
     </div> : null}
@@ -194,6 +196,7 @@ export function ClinicalBundleDraftEditor({
       timeZone={timeZone}
       taxonomyId={taxonomyId}
       fieldLabel={fieldLabel}
+      resourceTypeLabel={resourceTypeLabel?.(editor.schema.schema.resourceType) || editor.schema.artifactLabel}
       searchTerminology={searchTerminology}
       loadTerminologySources={loadTerminologySources}
       saveArtifact={async (draft) => stageArtifact(draft)}

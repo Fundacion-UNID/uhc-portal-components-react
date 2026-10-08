@@ -107,6 +107,32 @@ describe('ClinicalArtifactEditor', () => {
     await waitFor(() => expect(immunizationSearch).toHaveBeenCalledWith(expect.objectContaining({ claim: ImmunizationClaim.VaccineCode, sources: ['ATCVET'] })))
   })
 
+  it('localizes the fixed Observation category and hides legacy split coding fields', () => {
+    const observationSchema = FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.Observation
+    render(<ClinicalArtifactEditor
+      request={{ resourceType: ResourceTypesFhirR4.Observation, sectionCode: observationSchema.sectionCode, mode: 'create' }}
+      schema={observationSchema}
+      operationSchema={MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Observation]}
+      authoringContext={{
+        subjectReference: REPOSITORY_SAFE_EXAMPLES.didWeb,
+        language: 'es',
+        createdAt: fhirDateTime,
+        dataAuthorReference: `PractitionerRole/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`,
+        attestationState: MultichannelAttestationState.Confirmed,
+      }}
+      locale="es"
+      copy={{ title: 'Añadir dato clínico', description: 'Añadir observación', resourceType: 'Recurso FHIR', save: 'Guardar', saving: 'Guardando', cancel: 'Cancelar', close: 'Cerrar', terminologyLoading: 'Buscando', terminologyUnavailable: 'No disponible', readbackMissing: 'Falta la lectura' }}
+      resourceTypeLabel="Signos vitales (Observation)"
+      fieldLabel={(claim) => claim === 'Observation.category' ? 'Categoría' : claim === 'Observation.code-text' ? 'Concepto clínico' : claim}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)} onCancel={() => undefined} onReadback={() => undefined}
+    />)
+
+    expect(screen.getByText('Recurso FHIR: Signos vitales (Observation)')).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Signos vitales (HL7|vital-signs)' })).toBeTruthy()
+    expect(screen.queryByLabelText('Observation.code-system')).toBeNull()
+    expect(screen.queryByLabelText('Observation.code-value')).toBeNull()
+  })
+
   it('shows governed coding systems, selects the default, and searches only selected sources', async () => {
     const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])
     render(<ClinicalArtifactEditor
