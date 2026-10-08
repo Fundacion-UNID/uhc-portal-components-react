@@ -5,8 +5,10 @@ import { BundleEditor, type CompositionAttesterInput } from 'gdc-common-utils-ts
 import { BundleTypes } from 'gdc-common-utils-ts/models/bundle-editor-types'
 import { HealthcareDocumentTypes } from 'gdc-common-utils-ts/constants/healthcare'
 import { ClinicalResourceEntryEditor } from 'gdc-common-utils-ts/utils/clinical-resource-entry-editor'
+import { buildDocumentReferenceFlatEntry } from 'fhir-data-utils-ts/flat-claim-resource-graph'
 import 'gdc-common-utils-ts/utils/allergy-intolerance-entry-editor'
 import 'gdc-common-utils-ts/utils/condition-entry-editor'
+import 'gdc-common-utils-ts/utils/document-reference-entry-editor'
 import 'gdc-common-utils-ts/utils/immunization-entry-editor'
 import 'gdc-common-utils-ts/utils/medication-statement-entry-editor'
 import 'gdc-common-utils-ts/utils/observation-entry-editor'
@@ -48,6 +50,9 @@ export type ClinicalBundleDraftEditorCopy = Readonly<{
   description: string
   empty: string
   add: string
+  section?: string
+  resourceType?: string
+  addEntry?: string
   edit: string
   remove: string
   submit: string
@@ -107,6 +112,10 @@ export function ClinicalBundleDraftEditor({
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const sections = useMemo(() => groupSchemas(schemas), [schemas])
+  const [selectedSection, setSelectedSection] = useState(() => groupSchemas(schemas)[0]?.label ?? '')
+  const [selectedSchemaKey, setSelectedSchemaKey] = useState(() => schemas[0] ? schemaKey(schemas[0]) : '')
+  const selectedSectionSchemas = sections.find(section => section.label === selectedSection)?.schemas ?? []
+  const selectedSchema = selectedSectionSchemas.find(candidate => schemaKey(candidate) === selectedSchemaKey) ?? selectedSectionSchemas[0]
 
   function stageArtifact(draft: ClinicalArtifactDraft) {
     if (!editor) throw new TypeError('clinical_bundle_draft_editor_schema_required')
@@ -143,18 +152,22 @@ export function ClinicalBundleDraftEditor({
     <header><h2>{copy.title}</h2><p>{copy.description}</p></header>
     {notice ? <p role="status">{notice}</p> : null}
     {error ? <p role="alert" className="uhcp-clinical-editor-error">{error}</p> : null}
-    {sections.map(({ label, schemas: sectionSchemas }) => {
+    {sections.length ? <div className="uhcp-clinical-bundle-draft-create">
+      <label>{copy.section || 'Section'}<select value={selectedSection} onChange={(event) => {
+        const nextSection = event.currentTarget.value
+        const firstSchema = sections.find(section => section.label === nextSection)?.schemas[0]
+        setSelectedSection(nextSection)
+        setSelectedSchemaKey(firstSchema ? schemaKey(firstSchema) : '')
+      }}>{sections.map(section => <option key={section.label} value={section.label}>{section.label}</option>)}</select></label>
+      <label>{copy.resourceType || 'Resource type'}<select value={selectedSchema ? schemaKey(selectedSchema) : ''} onChange={(event) => setSelectedSchemaKey(event.currentTarget.value)}>
+        {selectedSectionSchemas.map(candidate => <option key={schemaKey(candidate)} value={schemaKey(candidate)}>{candidate.artifactLabel}</option>)}
+      </select></label>
+      <button type="button" disabled={!selectedSchema} onClick={() => selectedSchema && setEditor({ schema: selectedSchema })}>+ {copy.addEntry || copy.add}</button>
+    </div> : null}
+    {sections.map(({ label }) => {
       const sectionArtifacts = artifacts.filter((artifact) => artifact.schema.sectionLabel === label)
       return <details key={label} open>
         <summary>{label} ({sectionArtifacts.length})</summary>
-        <div className="uhcp-clinical-bundle-draft-add">
-          {sectionSchemas.map((candidate) => <ClinicalActionButton
-            key={schemaKey(candidate)}
-            kind="add"
-            label={`${copy.add} ${candidate.artifactLabel}`}
-            onClick={() => setEditor({ schema: candidate })}
-          />)}
-        </div>
         {sectionArtifacts.length === 0 ? <p>{copy.empty}</p> : <ul>
           {sectionArtifacts.map((artifact) => {
             const title = artifactTitle(artifact.draft)
@@ -195,7 +208,7 @@ function editorRequest(editor: EditorState): ClinicalArtifactEditorRequest {
     resourceType: editor.schema.schema.resourceType,
     sectionCode: editor.schema.schema.sectionCode ?? '',
     mode: 'create',
-    ...(editor.draft ? { artifactId: editor.draft.id, initialClaims: editor.draft.claims } : { initialClaims: editor.schema.schema.initialClaims }),
+    ...(editor.draft ? { artifactId: editor.draft.id, initialClaims: editor.draft.claims, initialAttachments: editor.draft.attachments } : { initialClaims: editor.schema.schema.initialClaims }),
   }
 }
 
@@ -224,12 +237,31 @@ function combineDrafts(
   }
 
   for (const { draft } of artifacts) {
+    const attachments = draft.attachments ?? []
+    const claims = {
+      ...operationClaims(draft),
+      ...(attachments.length ? { [`${draft.resourceType}.contained-reference-list`]: attachments.map(attachment => `DocumentReference/${attachment.id}`).join(',') } : {}),
+    }
     const entry = editor.newEntryAs(draft.resourceType, draft.id)
-    for (const [claim, value] of Object.entries(operationClaims(draft))) entry.setClaim(claim, value)
+    for (const [claim, value] of Object.entries(claims)) entry.setClaim(claim, value)
     if (!(entry instanceof ClinicalResourceEntryEditor)) {
       throw new TypeError(`clinical_bundle_draft_resource_unsupported:${draft.resourceType}`)
     }
     entry.setSectionList([draft.sectionCode])
+    for (const attachment of attachments) {
+      const document = buildDocumentReferenceFlatEntry({
+        entryId: attachment.id,
+        identifier: attachment.id,
+        contentType: attachment.contentType,
+        contentHash: attachment.contentHash,
+        title: attachment.name,
+        dataBase64: attachment.dataBase64,
+      })
+      const documentEntry = editor.newEntryAs(document.resourceType, document.entryId)
+      for (const [claim, value] of Object.entries(document.claims)) documentEntry.setClaim(claim, value)
+      documentEntry.setClaim('DocumentReference.subject', authoringContext.subjectReference)
+      documentEntry.setClaim('DocumentReference.author', authoringContext.dataAuthorReference)
+    }
   }
 
   return editor.buildDocument() as ClinicalBundleDraft

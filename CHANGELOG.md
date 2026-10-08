@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.1.46 - 2026-10-08
+
+- Create clinical Bundle entries through explicit section and resource-type
+  selectors, followed by one accessible `+ Add entry` action. Keep the staged
+  entries grouped in collapsible sections with their existing edit and delete
+  actions.
+- Let every schema-driven clinical resource form stage several PDF, PNG or
+  JPEG documents. Each file becomes an independent claims-first
+  `DocumentReference` with SHA-256 content hash and is linked from the parent
+  resource through its canonical `contained-reference-list`; files remain
+  local until the final Bundle submission.
+
 ## 0.1.45 - 2026-10-07
 
 - Present governed terminology sources as a compact dropdown with checkboxes,
