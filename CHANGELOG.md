@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.1.45 - 2026-10-07
+
+- Present governed terminology sources as a compact dropdown with checkboxes,
+  retaining the server default while allowing several systems at once.
+
 ## 0.1.44 - 2026-10-07
 
 - Let the shared IPS editor hydrate claims-first resources from an imported

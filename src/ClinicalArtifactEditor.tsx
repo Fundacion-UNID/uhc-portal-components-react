@@ -308,6 +308,13 @@ export function ClinicalArtifactEditor({
     }
   }
 
+  function toggleTerminologySource(sourceId: string, selected: boolean) {
+    setSelectedTerminologySources(current => {
+      const next = selected ? [...new Set([...current, sourceId])] : current.filter(candidate => candidate !== sourceId)
+      return next.length ? next : current
+    })
+  }
+
   return <ClinicalEditorLayer onDismiss={onCancel}><section className="uhcp-clinical-editor" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
     <header>
       <div><h2 id={titleId}>{copy.title}</h2><p id={descriptionId}>{copy.description}</p></div>
@@ -359,11 +366,16 @@ export function ClinicalArtifactEditor({
           </select> : isMultiline(parameter) ? <textarea id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} rows={3} onChange={update}/>
             : <input id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} type={fieldInputType(parameter, operationSchema?.properties.claims?.properties?.[claim])} onChange={update}/>}
           {terminologyEnabled && activeTerminologyClaim === claim ? <div className="uhcp-terminology-results">
-            {terminologySources.length ? <label>{copy.terminologySources || 'Coding systems'}
-              <select multiple aria-label={copy.terminologySources || 'Coding systems'} value={[...selectedTerminologySources]} onChange={(event) => setSelectedTerminologySources([...event.currentTarget.selectedOptions].map(option => option.value))}>
-                {terminologySources.map(source => <option key={source.id} value={source.id}>{source.label || source.id}</option>)}
-              </select>
-            </label> : null}
+            {terminologySources.length ? <details className="uhcp-terminology-source-picker">
+              <summary>{copy.terminologySources || 'Coding systems'}: {terminologySources.filter(source => selectedTerminologySources.includes(source.id)).map(source => source.label || source.id).join(', ')}</summary>
+              <fieldset aria-label={copy.terminologySources || 'Coding systems'}>
+                <legend className="uhcp-sr-only">{copy.terminologySources || 'Coding systems'}</legend>
+                {terminologySources.map(source => <label key={source.id}>
+                  <input type="checkbox" checked={selectedTerminologySources.includes(source.id)} onChange={event => toggleTerminologySource(source.id, event.currentTarget.checked)} />
+                  <span>{source.label || source.id}</span>
+                </label>)}
+              </fieldset>
+            </details> : null}
             {terminologyBusy ? <small role="status">{copy.terminologyLoading}</small> : null}
             {terminologyError ? <small role="alert">{copy.terminologyUnavailable}</small> : null}
             {candidates.length ? <ul>{candidates.map((candidate) => <li key={`${candidate.system}|${candidate.code}`}><button type="button" onClick={() => {

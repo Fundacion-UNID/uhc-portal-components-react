@@ -237,6 +237,15 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-terminology-results ul { display:grid; gap:.35rem; list-style:none; margin:.25rem 0 0; padding:0; }
 .uhcp-terminology-results button { background:var(--uhcp-surface-muted); color:inherit; display:grid; text-align:start; width:100%; }
 .uhcp-terminology-results small { color:var(--uhcp-muted); display:block; font-weight:400; }
+.uhcp-terminology-source-picker { border:1px solid var(--uhcp-border); border-radius:.7rem; margin:.25rem 0; position:relative; }
+.uhcp-terminology-source-picker summary { cursor:pointer; font-weight:750; list-style:none; padding:.7rem .8rem; }
+.uhcp-terminology-source-picker summary::-webkit-details-marker { display:none; }
+.uhcp-terminology-source-picker summary::after { content:'▾'; float:inline-end; }
+.uhcp-terminology-source-picker[open] summary::after { content:'▴'; }
+.uhcp-terminology-source-picker fieldset { background:var(--uhcp-panel); border:0; border-top:1px solid var(--uhcp-border); display:grid; gap:.45rem; margin:0; padding:.7rem .8rem; }
+.uhcp-terminology-source-picker label { align-items:center; display:flex; gap:.55rem; }
+.uhcp-terminology-source-picker input { margin:0; width:auto; }
+.uhcp-sr-only { clip:rect(0,0,0,0); clip-path:inset(50%); height:1px; overflow:hidden; position:absolute; white-space:nowrap; width:1px; }
 @media (max-width:44rem) { .uhcp-clinical-editor form,.uhcp-emergency-contact-editor { grid-template-columns:1fr; } .uhcp-emergency-contact-directory>ul>li { align-items:stretch; flex-direction:column; } .uhcp-emergency-contact-directory nav { justify-content:flex-start; } }
 
 .uhcp-transfer-console { background:#fff; color:#102754; display:grid; font-family:Inter,ui-sans-serif,system-ui,sans-serif; grid-template-columns:minmax(16rem,23rem) minmax(0,1fr); min-height:calc(100vh - 4.5rem); }
