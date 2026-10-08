@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.1.43 - 2026-10-07
+
+- Require the `gdc-common-utils-ts` release that provides the Composition
+  attester-list editor used by the shared clinical Bundle draft.
+
 ## 0.1.42 - 2026-10-07
 
 - Add a product-neutral, JSON-Schema-driven IPS Bundle draft editor with local
