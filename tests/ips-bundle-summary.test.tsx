@@ -78,6 +78,22 @@ function resourceFor(resourceType: string): ClinicalResourceLike {
 }
 
 describe('IpsBundleSummary', () => {
+  it('can hide empty IPS sections while preserving sections that contain records', () => {
+    const bundle = {
+      resourceType: 'Bundle', type: 'document', entry: [{ resource: {
+        resourceType: 'Composition', section: [
+          { title: 'Empty problems', entry: [] },
+          { title: 'Immunizations', entry: [{ reference: 'Immunization/component-Immunization' }] },
+        ],
+      } }, { fullUrl: 'Immunization/component-Immunization', resource: resourceFor('Immunization') }],
+    }
+    const html = renderToStaticMarkup(<IpsBundleSummary bundle={bundle} locale="es" emptyLabel="Sin registros" hideEmptySections />)
+
+    expect(html).not.toContain('Empty problems')
+    expect(html).toContain('Immunizations')
+    expect(html).toContain('Texto local Immunization')
+  })
+
   it('maps section and resource actions to their distinct visual owners', () => {
     const bundle = {
       resourceType: 'Bundle',

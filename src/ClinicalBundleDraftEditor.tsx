@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { BundleEditor, type CompositionAttesterInput } from 'gdc-common-utils-ts/utils/bundle-editor-core'
 import { BundleTypes } from 'gdc-common-utils-ts/models/bundle-editor-types'
 import { HealthcareDocumentTypes } from 'gdc-common-utils-ts/constants/healthcare'
@@ -57,7 +57,9 @@ export type ClinicalBundleDraftEditorCopy = Readonly<{
   add: string
   section?: string
   resourceType?: string
+  addSection?: string
   addEntry?: string
+  chooseResource?: string
   edit: string
   remove: string
   submit: string
@@ -79,6 +81,8 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
   loadTerminologySources?: ClinicalTerminologySourceSearch
   /** Optional claims-first document Bundle loaded into the local draft; loading it never persists. */
   initialBundle?: ClinicalBundleDraft
+  /** Observes the local draft only; it does not persist or submit it. */
+  onDraftChange?: (bundle: ClinicalBundleDraft | undefined) => void
   onSubmitDraft: (bundle: ClinicalBundleDraft) => Promise<ClinicalBundleDraftSubmitOutcome>
   editorVersion?: 'v1' | 'v2'
   editorV2Copy?: ImmunizationArtifactEditorCopyV2
@@ -92,6 +96,11 @@ type StagedArtifact = Readonly<{
 type EditorState = Readonly<{
   schema: ClinicalBundleDraftSchema
   draft?: ClinicalArtifactDraft
+}>
+
+type ResourceChooserState = Readonly<{
+  sectionLabel: string
+  schemaKey: string
 }>
 
 /**
@@ -113,20 +122,25 @@ export function ClinicalBundleDraftEditor({
   searchTerminology,
   loadTerminologySources,
   initialBundle,
+  onDraftChange,
   onSubmitDraft,
   editorVersion = 'v1',
   editorV2Copy,
 }: ClinicalBundleDraftEditorProps) {
   const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>(() => importedArtifacts(initialBundle, schemas))
   const [editor, setEditor] = useState<EditorState>()
+  const [resourceChooser, setResourceChooser] = useState<ResourceChooserState>()
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const sections = useMemo(() => groupSchemas(schemas), [schemas])
+  const [activeSections, setActiveSections] = useState<readonly string[]>(() => [...new Set(importedArtifacts(initialBundle, schemas).map(artifact => artifact.schema.sectionLabel))])
   const [selectedSection, setSelectedSection] = useState(() => groupSchemas(schemas)[0]?.label ?? '')
-  const [selectedSchemaKey, setSelectedSchemaKey] = useState(() => schemas[0] ? schemaKey(schemas[0]) : '')
-  const selectedSectionSchemas = sections.find(section => section.label === selectedSection)?.schemas ?? []
-  const selectedSchema = selectedSectionSchemas.find(candidate => schemaKey(candidate) === selectedSchemaKey) ?? selectedSectionSchemas[0]
+  const availableSections = sections.filter(section => !activeSections.includes(section.label))
+
+  useEffect(() => {
+    onDraftChange?.(artifacts.length ? combineClinicalDrafts(artifacts, authoringContext, copy.title) : undefined)
+  }, [artifacts, authoringContext, copy.title, onDraftChange])
 
   function stageArtifact(draft: ClinicalArtifactDraft) {
     if (!editor) throw new TypeError('clinical_bundle_draft_editor_schema_required')
@@ -146,6 +160,7 @@ export function ClinicalBundleDraftEditor({
       const outcome = await onSubmitDraft(combineClinicalDrafts(artifacts, authoringContext, copy.title))
       if (outcome.state === 'confirmed') {
         setArtifacts([])
+        setActiveSections([])
         setNotice(outcome.message || '')
       } else if (outcome.state === 'rejected') {
         setError(outcome.message || copy.editor.readbackMissing)
@@ -163,22 +178,34 @@ export function ClinicalBundleDraftEditor({
     <header><h2>{copy.title}</h2><p>{copy.description}</p></header>
     {notice ? <p role="status">{notice}</p> : null}
     {error ? <p role="alert" className="uhcp-clinical-editor-error">{error}</p> : null}
-    {sections.length ? <div className="uhcp-clinical-bundle-draft-create">
-      <label>{copy.section || 'Section'}<select value={selectedSection} onChange={(event) => {
-        const nextSection = event.currentTarget.value
-        const firstSchema = sections.find(section => section.label === nextSection)?.schemas[0]
-        setSelectedSection(nextSection)
-        setSelectedSchemaKey(firstSchema ? schemaKey(firstSchema) : '')
-      }}>{sections.map(section => <option key={section.label} value={section.label}>{section.label}</option>)}</select></label>
-      <label>{copy.resourceType || 'Resource type'}<select value={selectedSchema ? schemaKey(selectedSchema) : ''} onChange={(event) => setSelectedSchemaKey(event.currentTarget.value)}>
-        {selectedSectionSchemas.map(candidate => <option key={schemaKey(candidate)} value={schemaKey(candidate)}>{resourceTypeLabel?.(candidate.schema.resourceType) || candidate.artifactLabel}</option>)}
-      </select></label>
-      <button type="button" disabled={!selectedSchema} onClick={() => selectedSchema && setEditor({ schema: selectedSchema })}>+ {copy.addEntry || copy.add}</button>
+    {availableSections.length ? <div className="uhcp-clinical-bundle-draft-create">
+      <label>{copy.section || 'Section'}<select value={availableSections.some(section => section.label === selectedSection) ? selectedSection : availableSections[0]?.label} onChange={(event) => setSelectedSection(event.currentTarget.value)}>{availableSections.map(section => <option key={section.label} value={section.label}>{section.label}</option>)}</select></label>
+      <button type="button" onClick={() => {
+        const label = availableSections.some(section => section.label === selectedSection) ? selectedSection : availableSections[0]?.label
+        if (!label) return
+        setActiveSections(current => [...current, label])
+        const nextAvailable = availableSections.find(section => section.label !== label)
+        setSelectedSection(nextAvailable?.label ?? '')
+      }}>+ {copy.addSection || copy.add}</button>
     </div> : null}
-    {sections.map(({ label }) => {
+    {sections.filter(section => activeSections.includes(section.label)).map(({ label, schemas: sectionSchemas }) => {
       const sectionArtifacts = artifacts.filter((artifact) => artifact.schema.sectionLabel === label)
       return <details key={label} open>
         <summary>{label} ({sectionArtifacts.length})</summary>
+        <button type="button" onClick={() => {
+          if (sectionSchemas.length === 1) setEditor({ schema: sectionSchemas[0] })
+          else setResourceChooser({ sectionLabel: label, schemaKey: schemaKey(sectionSchemas[0]) })
+        }}>+ {copy.addEntry || copy.add}</button>
+        {resourceChooser?.sectionLabel === label ? <div className="uhcp-clinical-bundle-resource-choice">
+          <label>{copy.resourceType || 'Resource type'}<select value={resourceChooser.schemaKey} onChange={event => setResourceChooser({ sectionLabel: label, schemaKey: event.currentTarget.value })}>
+            {sectionSchemas.map(candidate => <option key={schemaKey(candidate)} value={schemaKey(candidate)}>{resourceTypeLabel?.(candidate.schema.resourceType) || candidate.artifactLabel}</option>)}
+          </select></label>
+          <button type="button" onClick={() => {
+            const selected = sectionSchemas.find(candidate => schemaKey(candidate) === resourceChooser.schemaKey)
+            if (selected) setEditor({ schema: selected })
+            setResourceChooser(undefined)
+          }}>{copy.chooseResource || copy.add}</button>
+        </div> : null}
         {sectionArtifacts.length === 0 ? <p>{copy.empty}</p> : <ul>
           {sectionArtifacts.map((artifact) => {
             const title = artifactTitle(artifact.draft)
@@ -193,7 +220,7 @@ export function ClinicalBundleDraftEditor({
         </ul>}
       </details>
     })}
-    {artifacts.length === 0 && sections.length === 0 ? <p>{copy.empty}</p> : null}
+    {activeSections.length === 0 ? <p>{copy.empty}</p> : null}
     <footer><button type="button" disabled={artifacts.length === 0 || submitting} onClick={() => void submitDraft()}>{submitting ? copy.submitting : copy.submit}</button></footer>
     {editor && editorVersion === 'v2' && editor.schema.schema.resourceType === 'Immunization' && editorV2Copy ? <ImmunizationArtifactEditorV2
       request={editorRequest(editor)}
