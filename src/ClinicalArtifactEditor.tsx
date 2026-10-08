@@ -5,6 +5,7 @@ import type { ClinicalResourceBundleLike } from 'gdc-common-utils-ts/utils/clini
 import {
   clinicalArtifactEditorClaimsFromFhirR4,
   clinicalArtifactFhirR4ToFlat,
+  clinicalArtifactCodedOptionsForClaim,
   composeFhirDateTimeFromLocalParts,
   splitFhirDateTimeForInput,
   type LocalDateTimeParts,
@@ -327,6 +328,7 @@ export function ClinicalArtifactEditor({
         const terminologyEnabled = Boolean(searchTerminology && terminologyCodeClaim(request.resourceType, claim))
         const inputId = `${titleId}-${claim}`
         const value = claims[claim] ?? ''
+        const codedOptions = clinicalArtifactCodedOptionsForClaim(claim, locale)
         const schemaNode = operationSchema?.properties.claims?.properties?.[claim]
         const update = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
           setClaims((current) => ({ ...current, [claim]: event.target.value }))
@@ -352,7 +354,7 @@ export function ClinicalArtifactEditor({
         return <div key={claim} className={fieldClassName}>
           <span className="uhcp-clinical-editor-field-heading">
             <label htmlFor={inputId}>{label}{requiredClaims.has(claim) ? ' *' : ''}</label>
-            {isSpeechCompatibleField(parameter, schemaNode) ? <ClinicalSpeechInputButton
+            {isSpeechCompatibleField(parameter, schemaNode, codedOptions.length > 0) ? <ClinicalSpeechInputButton
               resourceType={request.resourceType}
               claim={claim}
               locale={locale}
@@ -360,9 +362,9 @@ export function ClinicalArtifactEditor({
               onTranscript={appendTranscript}
             /> : null}
           </span>
-          {statusOptions(request.resourceType, parameter) ? <select id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} onChange={update}>
+          {codedOptions.length ? <select id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} onChange={update}>
             {!requiredClaims.has(claim) ? <option value=""></option> : null}
-            {statusOptions(request.resourceType, parameter)!.map((option) => <option key={option} value={option}>{humanize(option)}</option>)}
+            {codedOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}
           </select> : isMultiline(parameter) ? <textarea id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} rows={3} onChange={update}/>
             : <input id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} type={fieldInputType(parameter, operationSchema?.properties.claims?.properties?.[claim])} onChange={update}/>}
           {terminologyEnabled && activeTerminologyClaim === claim ? <div className="uhcp-terminology-results">
@@ -439,8 +441,8 @@ function isDateTimeSchemaNode(schemaNode?: MultichannelOperationSchemaNode): boo
   return schemaNode?.format === 'date-time' || schemaNode?.format === 'fhir-date-time'
 }
 
-function isSpeechCompatibleField(parameter: string, schemaNode?: MultichannelOperationSchemaNode): boolean {
-  if (statusOptions('', parameter)) return false
+function isSpeechCompatibleField(parameter: string, schemaNode?: MultichannelOperationSchemaNode, hasCodedOptions = false): boolean {
+  if (hasCodedOptions) return false
   if (schemaNode?.type === 'number' || schemaNode?.type === 'integer' || schemaNode?.type === 'boolean') return false
   return fieldInputType(parameter, schemaNode) === 'text'
 }
@@ -498,13 +500,6 @@ function defaultClaims(resourceType: string): Record<string, string> {
   if (resourceType === 'Procedure') return { [`${resourceType}.status`]: 'completed' }
   if (resourceType === 'Condition' || resourceType === 'AllergyIntolerance') return { [`${resourceType}.clinical-status`]: 'active' }
   return {}
-}
-
-function statusOptions(resourceType: string, parameter: string): readonly string[] | undefined {
-  if (parameter !== 'status' && !parameter.endsWith('-status')) return undefined
-  if (resourceType === 'Immunization') return ['completed', 'not-done', 'entered-in-error']
-  if (resourceType === 'Observation' || resourceType === 'DiagnosticReport') return ['final', 'preliminary', 'amended', 'entered-in-error']
-  return ['active', 'completed', 'inactive', 'entered-in-error']
 }
 
 function terminologyCodeClaim(resourceType: string, inputClaim: string): string {

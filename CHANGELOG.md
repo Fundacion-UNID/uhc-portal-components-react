@@ -6,6 +6,10 @@
 
 - Present governed terminology sources as a compact dropdown with checkboxes,
   retaining the server default while allowing several systems at once.
+- Resolve each terminology default from the exact resource and coded claim;
+  no coding system is assumed globally. Render required FHIR R4 code bindings
+  from `fhir-data-utils-ts` with localized labels while persisting their
+  canonical codes.
 
 ## 0.1.44 - 2026-10-07
 

@@ -16,6 +16,7 @@ import {
   FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS,
   FhirIpsClinicalArtifactTypes,
 } from 'fhir-data-utils-ts'
+import { ConditionClaim, ImmunizationClaim } from 'fhir-data-utils-ts/claims'
 import {
   MULTICHANNEL_OPERATION_SCHEMAS,
   MultichannelAttestationState,
@@ -53,6 +54,59 @@ const providerReadback = Object.freeze({ resourceType: 'Bundle', type: 'document
 afterEach(cleanup)
 
 describe('ClinicalArtifactEditor', () => {
+  it('renders required FHIR codes as localized dropdown labels while saving the canonical code', async () => {
+    const saveArtifact = vi.fn().mockResolvedValue(providerReadback)
+    render(<ClinicalArtifactEditor
+      request={{ resourceType: FhirIpsClinicalArtifactTypes.Condition, sectionCode: '11450-4', mode: 'create' }}
+      schema={{
+        resourceType: FhirIpsClinicalArtifactTypes.Condition,
+        requiredClaims: [ConditionClaim.CodeText, ConditionClaim.ClinicalStatus],
+        optionalClaims: [ConditionClaim.VerificationStatus],
+      }}
+      locale="es-ES"
+      copy={{ title: 'Problema', description: 'Añadir problema', save: 'Guardar', saving: 'Guardando', cancel: 'Cancelar', close: 'Cerrar', terminologyLoading: 'Buscando', terminologyUnavailable: 'No disponible', readbackMissing: 'Falta la lectura' }}
+      fieldLabel={(claim) => claim === ConditionClaim.ClinicalStatus ? 'Estado clínico' : claim === ConditionClaim.VerificationStatus ? 'Verificación' : 'Concepto'}
+      saveArtifact={saveArtifact} onCancel={() => undefined} onReadback={() => undefined}
+    />)
+
+    expect(screen.getByRole('option', { name: 'Activo' })).toBeDefined()
+    expect(screen.getByRole('option', { name: 'Remisión' })).toBeDefined()
+    fireEvent.change(screen.getByLabelText('Estado clínico'), { target: { value: 'resolved' } })
+    fireEvent.change(screen.getByLabelText('Concepto'), { target: { value: 'Fractura' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar' }))
+    await waitFor(() => expect(saveArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      claims: expect.objectContaining({ [ConditionClaim.ClinicalStatus]: 'resolved' }),
+    })))
+  })
+
+  it('uses a separate governed terminology default for each exact resource claim', async () => {
+    const loadTerminologySources = vi.fn(async ({ claim }: { claim: string }) => claim === ConditionClaim.Code
+      ? [{ id: 'ICD10', label: 'ICD-10', default: true }, { id: 'SNOMED_GPS', label: 'SNOMED GPS' }]
+      : [{ id: 'ATCVET', label: 'ATCvet', default: true }, { id: 'SNOMEDCT_VET', label: 'SNOMED CT Veterinary' }])
+    const conditionSearch = vi.fn().mockResolvedValue([])
+    render(<ClinicalArtifactEditor
+      request={{ resourceType: FhirIpsClinicalArtifactTypes.Condition, sectionCode: '11450-4', mode: 'create' }}
+      schema={{ resourceType: FhirIpsClinicalArtifactTypes.Condition, requiredClaims: [ConditionClaim.CodeText], optionalClaims: [ConditionClaim.Code] }}
+      copy={{ title: 'Condition', description: 'Add condition', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', terminologySources: 'Coding systems', readbackMissing: 'Readback missing' }}
+      fieldLabel={() => 'Condition concept'} loadTerminologySources={loadTerminologySources} searchTerminology={conditionSearch}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)} onCancel={() => undefined} onReadback={() => undefined}
+    />)
+    fireEvent.change(screen.getByLabelText('Condition concept'), { target: { value: 'fracture' } })
+    await waitFor(() => expect(conditionSearch).toHaveBeenCalledWith(expect.objectContaining({ claim: ConditionClaim.Code, sources: ['ICD10'] })))
+
+    cleanup()
+    const immunizationSearch = vi.fn().mockResolvedValue([])
+    render(<ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'create' }}
+      schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [codeClaim] }}
+      copy={{ title: 'Vaccination', description: 'Add vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', terminologySources: 'Coding systems', readbackMissing: 'Readback missing' }}
+      fieldLabel={() => 'Vaccine'} loadTerminologySources={loadTerminologySources} searchTerminology={immunizationSearch}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)} onCancel={() => undefined} onReadback={() => undefined}
+    />)
+    fireEvent.change(screen.getByLabelText('Vaccine'), { target: { value: sourceText } })
+    await waitFor(() => expect(immunizationSearch).toHaveBeenCalledWith(expect.objectContaining({ claim: ImmunizationClaim.VaccineCode, sources: ['ATCVET'] })))
+  })
+
   it('shows governed coding systems, selects the default, and searches only selected sources', async () => {
     const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])
     render(<ClinicalArtifactEditor
