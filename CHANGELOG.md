@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.1.42 - 2026-10-07
+
+- Add a product-neutral, JSON-Schema-driven IPS Bundle draft editor with local
+  add/edit/remove staging, shared terminology and speech hooks, and one explicit
+  final document submission boundary. Typed ResearchSubject references and
+  professional author/attester provenance remain host-controlled.
+
 ## 0.1.41 - 2026-10-05
 
 - Add one brand-neutral professional access panel shared by Partner and Test
