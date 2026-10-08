@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.1.47 - 2026-10-08
+
+- Show the localized FHIR resource type in the shared Bundle selector and in
+  the clinical-entry dialog so users always know which resource they are
+  adding.
+- Keep terminology lookup on the human-readable clinical concept while hiding
+  the legacy split code-system and code-value inputs when the canonical coded
+  claim is available.
+- Render governed coded options, including Observation categories, with their
+  localized display and a compact system/code suffix while persisting the full
+  canonical token.
+
 ## 0.1.46 - 2026-10-08
 
 - Create clinical Bundle entries through explicit section and resource-type

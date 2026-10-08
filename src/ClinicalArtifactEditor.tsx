@@ -115,6 +115,7 @@ export type ClinicalTerminologySourceSearch = (input: Readonly<{
 export type ClinicalArtifactEditorCopy = Readonly<{
   title: string
   description: string
+  resourceType?: string
   save: string
   saving: string
   cancel: string
@@ -150,6 +151,7 @@ export type ClinicalArtifactEditorProps = Readonly<{
   timeZone?: string
   taxonomyId?: string
   fieldLabel: (claim: string) => string
+  resourceTypeLabel?: string
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
   loadTerminologySources?: ClinicalTerminologySourceSearch
   saveArtifact: (draft: ClinicalArtifactDraft) => Promise<ClinicalResourceBundleLike | ClinicalArtifactSaveOutcome | undefined>
@@ -172,6 +174,7 @@ export function ClinicalArtifactEditor({
   timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone,
   taxonomyId,
   fieldLabel,
+  resourceTypeLabel,
   searchTerminology,
   loadTerminologySources,
   saveArtifact,
@@ -335,7 +338,7 @@ export function ClinicalArtifactEditor({
 
   return <ClinicalEditorLayer onDismiss={onCancel}><section className="uhcp-clinical-editor" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
     <header>
-      <div><h2 id={titleId}>{copy.title}</h2><p id={descriptionId}>{copy.description}</p></div>
+      <div><h2 id={titleId}>{copy.title}</h2><p className="uhcp-clinical-editor-resource-type">{copy.resourceType || 'FHIR resource'}: {resourceTypeLabel || request.resourceType}</p><p id={descriptionId}>{copy.description}</p></div>
       <button type="button" onClick={onCancel} aria-label={copy.close}>×</button>
     </header>
     <form onSubmit={(event) => { event.preventDefault(); void submit() }}>
@@ -598,6 +601,8 @@ function terminologyCodeClaim(resourceType: string, inputClaim: string): string 
 function isHiddenCodingCompanion(resourceType: string, claim: string, acceptedClaims: readonly string[]): boolean {
   if (claim.endsWith('-display') && acceptedClaims.includes(`${claim.slice(0, -8)}-text`)) return true
   if (acceptedClaims.includes(`${claim}-text`)) return true
+  const canonicalCodingClaim = claim.replace(/-(?:system|value)$/, '')
+  if (canonicalCodingClaim !== claim && acceptedClaims.includes(canonicalCodingClaim) && acceptedClaims.includes(`${canonicalCodingClaim}-text`)) return true
   return resourceType === 'MedicationStatement' && claim === 'MedicationStatement.code'
     && acceptedClaims.includes('MedicationStatement.medication-text')
 }
