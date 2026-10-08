@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.1.50 - 2026-10-08
+
+- Add a reusable printable animal-card presentation whose host supplies the
+  canonical card number, DID and QR payload.
+- Let animal identity onboarding render a host-governed species dropdown while
+  preserving the numeric taxonomy input for existing consumers.
+
 ## 0.1.49 - 2026-10-08
 
 - Start new clinical documents without pre-rendered empty sections. Authors add
