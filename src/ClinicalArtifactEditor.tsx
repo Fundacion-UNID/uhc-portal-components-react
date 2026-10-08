@@ -438,7 +438,7 @@ export function ClinicalArtifactEditor({
   </section></ClinicalEditorLayer>
 }
 
-async function readClinicalAttachment(file: File): Promise<ClinicalArtifactAttachment> {
+export async function readClinicalAttachment(file: File): Promise<ClinicalArtifactAttachment> {
   const contentType = normalizeClinicalAttachmentType(file)
   const bytes = new Uint8Array(await readFileBytes(file))
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))

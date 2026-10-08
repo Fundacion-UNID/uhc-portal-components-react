@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.1.48 - 2026-10-08
+
+- Add an opt-in V2 clinical authoring shell without changing the existing V1
+  editor. Its reusable date/time, coded-concept, coded-select, positive-integer,
+  document-reference and progressive optional-field properties support
+  resource-specific editors.
+- Add `ImmunizationArtifactEditorV2` with a minimal initial form, explicit
+  terminology search and selection, locked canonical coding, removable
+  optional flat claims, dose-series validation and automatic next-dose
+  ImmunizationRecommendation staging.
+
 ## 0.1.47 - 2026-10-08
 
 - Show the localized FHIR resource type in the shared Bundle selector and in

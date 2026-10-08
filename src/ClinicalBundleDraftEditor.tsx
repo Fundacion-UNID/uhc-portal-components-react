@@ -26,6 +26,11 @@ import {
   type ClinicalTerminologySourceSearch,
 } from './ClinicalArtifactEditor.js'
 import { ClinicalActionButton } from './ClinicalActionButton.js'
+import {
+  ImmunizationArtifactEditorV2,
+  type ImmunizationArtifactEditorCopyV2,
+} from './ImmunizationArtifactEditorV2.js'
+import type { ClinicalArtifactDraftV2 } from './ClinicalArtifactEditorV2.js'
 
 export type ClinicalBundleDraftSchema = Readonly<{
   schema: ClinicalArtifactSchema
@@ -75,6 +80,8 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
   /** Optional claims-first document Bundle loaded into the local draft; loading it never persists. */
   initialBundle?: ClinicalBundleDraft
   onSubmitDraft: (bundle: ClinicalBundleDraft) => Promise<ClinicalBundleDraftSubmitOutcome>
+  editorVersion?: 'v1' | 'v2'
+  editorV2Copy?: ImmunizationArtifactEditorCopyV2
 }>
 
 type StagedArtifact = Readonly<{
@@ -107,6 +114,8 @@ export function ClinicalBundleDraftEditor({
   loadTerminologySources,
   initialBundle,
   onSubmitDraft,
+  editorVersion = 'v1',
+  editorV2Copy,
 }: ClinicalBundleDraftEditorProps) {
   const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>(() => importedArtifacts(initialBundle, schemas))
   const [editor, setEditor] = useState<EditorState>()
@@ -134,7 +143,7 @@ export function ClinicalBundleDraftEditor({
     setSubmitting(true)
     setError('')
     try {
-      const outcome = await onSubmitDraft(combineDrafts(artifacts, authoringContext, copy.title))
+      const outcome = await onSubmitDraft(combineClinicalDrafts(artifacts, authoringContext, copy.title))
       if (outcome.state === 'confirmed') {
         setArtifacts([])
         setNotice(outcome.message || '')
@@ -186,7 +195,21 @@ export function ClinicalBundleDraftEditor({
     })}
     {artifacts.length === 0 && sections.length === 0 ? <p>{copy.empty}</p> : null}
     <footer><button type="button" disabled={artifacts.length === 0 || submitting} onClick={() => void submitDraft()}>{submitting ? copy.submitting : copy.submit}</button></footer>
-    {editor ? <ClinicalArtifactEditor
+    {editor && editorVersion === 'v2' && editor.schema.schema.resourceType === 'Immunization' && editorV2Copy ? <ImmunizationArtifactEditorV2
+      request={editorRequest(editor)}
+      authoringContext={authoringContext}
+      copy={editorV2Copy}
+      locale={locale}
+      timeZone={timeZone}
+      taxonomyId={taxonomyId}
+      fieldLabel={fieldLabel}
+      resourceTypeLabel={resourceTypeLabel?.(editor.schema.schema.resourceType) || editor.schema.artifactLabel}
+      searchTerminology={searchTerminology}
+      loadTerminologySources={loadTerminologySources}
+      saveArtifact={async (draft) => stageArtifact(draft)}
+      onCancel={() => setEditor(undefined)}
+      onReadback={() => setEditor(undefined)}
+    /> : editor ? <ClinicalArtifactEditor
       request={editorRequest(editor)}
       schema={editor.schema.schema}
       operationSchema={editor.schema.operationSchema}
@@ -215,7 +238,7 @@ function editorRequest(editor: EditorState): ClinicalArtifactEditorRequest {
   }
 }
 
-function combineDrafts(
+export function combineClinicalDrafts(
   artifacts: readonly StagedArtifact[],
   authoringContext: ClinicalArtifactAuthoringContext,
   documentTitle: string,
@@ -242,7 +265,7 @@ function combineDrafts(
   for (const { draft } of artifacts) {
     const attachments = draft.attachments ?? []
     const claims = {
-      ...operationClaims(draft),
+      ...(draft.changesBundle ? operationClaims(draft) : draft.claims),
       ...(attachments.length ? { [`${draft.resourceType}.contained-reference-list`]: attachments.map(attachment => `DocumentReference/${attachment.id}`).join(',') } : {}),
     }
     const entry = editor.newEntryAs(draft.resourceType, draft.id)
@@ -265,9 +288,23 @@ function combineDrafts(
       documentEntry.setClaim('DocumentReference.subject', authoringContext.subjectReference)
       documentEntry.setClaim('DocumentReference.author', authoringContext.dataAuthorReference)
     }
+    for (const related of (draft as ClinicalArtifactDraftV2).relatedEntries ?? []) {
+      const relatedEntry = editor.newEntryAs(related.resourceType, related.entryId)
+      for (const [claim, value] of Object.entries(related.claims)) relatedEntry.setClaim(claim, value)
+      if (related.sectionCode && relatedEntry instanceof ClinicalResourceEntryEditor) relatedEntry.setSectionList([related.sectionCode])
+    }
   }
 
   return editor.buildDocument() as ClinicalBundleDraft
+}
+
+export type ClinicalBundleDraftEditorV2Props = Omit<ClinicalBundleDraftEditorProps, 'editorVersion' | 'editorV2Copy'> & Readonly<{
+  editorV2Copy: ImmunizationArtifactEditorCopyV2
+}>
+
+/** V2 opt-in wrapper; the original editor remains the default everywhere else. */
+export function ClinicalBundleDraftEditorV2(props: ClinicalBundleDraftEditorV2Props) {
+  return <ClinicalBundleDraftEditor {...props} editorVersion="v2" />
 }
 
 function operationClaims(draft: ClinicalArtifactDraft): Readonly<Record<string, unknown>> {
