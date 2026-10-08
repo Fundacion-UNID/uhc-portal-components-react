@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.1.49 - 2026-10-08
+
+- Start new clinical documents without pre-rendered empty sections. Authors add
+  a section first, then add resources from that section; a resource-type choice
+  appears only when the selected section supports more than one resource.
+- Expose each prepared local document Bundle to host-owned download or
+  credential actions without crossing the final submission boundary.
+- Allow the reusable IPS summary to omit sections that contain no records while
+  preserving localized terminology rendering for populated resource cards.
+
 ## 0.1.48 - 2026-10-08
 
 - Add an opt-in V2 clinical authoring shell without changing the existing V1

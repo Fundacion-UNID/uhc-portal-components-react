@@ -15,6 +15,8 @@ export type IpsBundleSummaryProps = Readonly<{
   translateCode?: (input: ClinicalTerminologyTranslationInput) => string | undefined
   emptyLabel: string
   noSectionsLabel?: string
+  /** Omits Composition sections that resolve to no resources. */
+  hideEmptySections?: boolean
   sectionTitle?: (section: ClinicalSectionView) => string
   resourceTypeLabel?: (resourceType: string) => string
   sectionActions?: (section: ClinicalSectionView) => ReactNode
@@ -43,6 +45,7 @@ export function IpsBundleSummary({
   translateCode,
   emptyLabel,
   noSectionsLabel = emptyLabel,
+  hideEmptySections = false,
   sectionTitle = (section) => section.title,
   resourceTypeLabel,
   sectionActions,
@@ -50,6 +53,7 @@ export function IpsBundleSummary({
   timeline,
 }: IpsBundleSummaryProps) {
   const sections = toClinicalSectionViews(bundle, { locale, translateCode })
+    .filter(section => !hideEmptySections || section.resources.length > 0)
   const nativeResources = new Map((bundle.entry ?? bundle.data ?? []).flatMap((entry) =>
     entry.fullUrl && entry.resource ? [[entry.fullUrl, entry.resource] as const] : [],
   ))
