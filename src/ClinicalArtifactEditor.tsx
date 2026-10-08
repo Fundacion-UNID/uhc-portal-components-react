@@ -46,6 +46,8 @@ export type ClinicalArtifactEditorRequest = Readonly<{
   initialResource?: Readonly<Record<string, unknown> & { resourceType: string }>
   /** Authoritative claims-first provider Bundle hydrated through BundleReader. */
   initialBundle?: Readonly<Record<string, unknown>>
+  /** Documents already staged with this local entry. */
+  initialAttachments?: readonly ClinicalArtifactAttachment[]
 }>
 
 export type ClinicalArtifactDraft = Readonly<{
@@ -58,6 +60,16 @@ export type ClinicalArtifactDraft = Readonly<{
   operationValues?: MultichannelOperationValues
   /** Claims-first batch produced by the shared BundleEditor. */
   changesBundle?: ClinicalArtifactChangesBundle
+  /** Local document evidence linked to this entry when the enclosing Bundle is built. */
+  attachments?: readonly ClinicalArtifactAttachment[]
+}>
+
+export type ClinicalArtifactAttachment = Readonly<{
+  id: string
+  name: string
+  contentType: 'application/pdf' | 'image/jpeg' | 'image/png'
+  contentHash: string
+  dataBase64: string
 }>
 
 export type ClinicalArtifactChangesBundle = Readonly<{
@@ -113,6 +125,9 @@ export type ClinicalArtifactEditorCopy = Readonly<{
   readbackMissing: string
   pending?: string
   retry?: string
+  attachments?: string
+  addAttachments?: string
+  removeAttachment?: string
   dateTime?: ClinicalDateTimeFieldLabels
 }>
 
@@ -221,6 +236,7 @@ export function ClinicalArtifactEditor({
   const [selectedTerminologySources, setSelectedTerminologySources] = useState<readonly string[]>([])
   const [terminologySourcesClaim, setTerminologySourcesClaim] = useState('')
   const [saving, setSaving] = useState(false)
+  const [attachments, setAttachments] = useState<readonly ClinicalArtifactAttachment[]>(request.initialAttachments ?? [])
   const [error, setError] = useState('')
   const [pending, setPending] = useState('')
   const draftId = useRef(request.artifactId ?? crypto.randomUUID())
@@ -281,6 +297,7 @@ export function ClinicalArtifactEditor({
         sectionCode: request.sectionCode,
         mode: request.mode,
         claims,
+        attachments,
         ...(operationSchema ? buildOperationDraft(
           operationSchema,
           authoringContext,
@@ -388,11 +405,75 @@ export function ClinicalArtifactEditor({
           </div> : null}
         </div>
       })}
+      <fieldset className="uhcp-clinical-editor-attachments">
+        <legend>{copy.attachments || 'Documents'}</legend>
+        <label>
+          <span>{copy.addAttachments || 'Add PDF or image'}</span>
+          <input
+            type="file"
+            multiple
+            accept="application/pdf,image/png,image/jpeg,.pdf,.png,.jpg,.jpeg"
+            aria-label={copy.addAttachments || 'Add PDF or image'}
+            onChange={(event) => {
+              const files = [...(event.currentTarget.files ?? [])]
+              event.currentTarget.value = ''
+              void Promise.all(files.map(readClinicalAttachment)).then((next) => {
+                setAttachments((current) => [...current, ...next])
+              }).catch((reason) => setError(reason instanceof Error ? reason.message : String(reason)))
+            }}
+          />
+        </label>
+        {attachments.length ? <ul>{attachments.map((attachment) => <li key={attachment.id}>
+          <span>{attachment.name}</span>
+          <button type="button" aria-label={`${copy.removeAttachment || 'Remove document'} ${attachment.name}`} onClick={() => setAttachments(current => current.filter(candidate => candidate.id !== attachment.id))}>×</button>
+        </li>)}</ul> : null}
+      </fieldset>
       {error ? <p className="uhcp-clinical-editor-error" role="alert">{error}</p> : null}
       {pending ? <p className="uhcp-clinical-editor-pending" role="status">{copy.pending || pending}</p> : null}
       <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : pending ? (copy.retry || copy.save) : copy.save}</button></footer>
     </form>
   </section></ClinicalEditorLayer>
+}
+
+async function readClinicalAttachment(file: File): Promise<ClinicalArtifactAttachment> {
+  const contentType = normalizeClinicalAttachmentType(file)
+  const bytes = new Uint8Array(await readFileBytes(file))
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))
+  return Object.freeze({
+    id: crypto.randomUUID(),
+    name: file.name,
+    contentType,
+    contentHash: `sha256:${hex(digest)}`,
+    dataBase64: bytesToBase64(bytes),
+  })
+}
+
+function normalizeClinicalAttachmentType(file: File): ClinicalArtifactAttachment['contentType'] {
+  if (file.type === 'application/pdf' || file.type === 'image/png' || file.type === 'image/jpeg') return file.type
+  const extension = file.name.toLowerCase().split('.').pop()
+  if (extension === 'pdf') return 'application/pdf'
+  if (extension === 'png') return 'image/png'
+  if (extension === 'jpg' || extension === 'jpeg') return 'image/jpeg'
+  throw new TypeError('clinical_attachment_type_unsupported')
+}
+
+function readFileBytes(file: File): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(reader.error ?? new Error('clinical_attachment_read_failed'))
+    reader.onload = () => reader.result instanceof ArrayBuffer ? resolve(reader.result) : reject(new Error('clinical_attachment_read_failed'))
+    reader.readAsArrayBuffer(file)
+  })
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = ''
+  for (let index = 0; index < bytes.length; index += 1) binary += String.fromCharCode(bytes[index] ?? 0)
+  return btoa(binary)
+}
+
+function hex(bytes: Uint8Array): string {
+  return [...bytes].map(value => value.toString(16).padStart(2, '0')).join('')
 }
 
 const DEFAULT_DATE_TIME_LABELS: ClinicalDateTimeFieldLabels = Object.freeze({

@@ -25,6 +25,8 @@ import { ClinicalBundleDraftEditor } from '../src/ClinicalBundleDraftEditor.js'
 
 const resourceType = FhirIpsClinicalArtifactTypes.Condition
 const schema = FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS[resourceType]
+const immunizationType = FhirIpsClinicalArtifactTypes.Immunization
+const immunizationSchema = FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS[immunizationType]
 const subjectReference = `ResearchSubject/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`
 const creatorReference = `PractitionerRole/${REPOSITORY_SAFE_EXAMPLES.resourceUuid}`
 const conceptClaim = `${resourceType}.code-text`
@@ -33,14 +35,19 @@ const correctedConcept = 'Closed fracture'
 
 afterEach(cleanup)
 
-function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any) {
+function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false) {
   return render(<ClinicalBundleDraftEditor
     schemas={[{
       schema,
       operationSchema: MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Condition],
       sectionLabel: 'Problems',
       artifactLabel: 'Condition',
-    }]}
+    }, ...(multipleSchemas ? [{
+      schema: immunizationSchema,
+      operationSchema: MULTICHANNEL_OPERATION_SCHEMAS[MultichannelOperationId.Immunization],
+      sectionLabel: 'Immunizations',
+      artifactLabel: 'Immunization',
+    }] : [])]}
     authoringContext={{
       subjectReference,
       language: 'en',
@@ -54,8 +61,9 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
     copy={{
       title: 'Add data', description: 'Build the Bundle before sending it.',
       empty: 'No draft data.', add: 'Add', edit: 'Edit', remove: 'Remove',
+      section: 'Section', resourceType: 'Resource type', addEntry: 'Add entry',
       submit: 'Send Bundle', submitting: 'Sending', drafted: 'Added to draft',
-      editor: { title: 'Condition', description: 'Add a condition', save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Draft unavailable' },
+      editor: { title: 'Condition', description: 'Add a condition', save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Draft unavailable', attachments: 'Documents', addAttachments: 'Add PDF or image', removeAttachment: 'Remove document' },
     }}
     fieldLabel={(claim) => claim === conceptClaim ? 'Clinical concept' : claim}
     initialBundle={initialBundle}
@@ -64,6 +72,19 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
 }
 
 describe('ClinicalBundleDraftEditor', () => {
+  it('chooses a section and resource type before opening one new entry form', () => {
+    renderDraft(undefined, undefined, true)
+
+    expect(screen.getByLabelText('Section')).toBeTruthy()
+    expect(screen.getByLabelText('Resource type')).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Condition' }).selected).toBe(true)
+
+    fireEvent.change(screen.getByLabelText('Section'), { target: { value: 'Immunizations' } })
+    expect(screen.getByRole('option', { name: 'Immunization' }).selected).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    expect(screen.getByRole('dialog')).toBeTruthy()
+  })
+
   it('hydrates claims-first resources from an imported document Bundle for editing before submit', async () => {
     renderDraft(undefined, {
       resourceType: 'Bundle', type: 'document', entry: [
@@ -80,7 +101,7 @@ describe('ClinicalBundleDraftEditor', () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
     renderDraft(onSubmitDraft)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add Condition' }))
+    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
     fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
 
@@ -101,7 +122,7 @@ describe('ClinicalBundleDraftEditor', () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
     renderDraft(onSubmitDraft)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add Condition' }))
+    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
     fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
     await screen.findByText(firstConcept)
@@ -130,5 +151,36 @@ describe('ClinicalBundleDraftEditor', () => {
       }) } }),
     })
     expect(screen.getByText('No draft data.')).toBeTruthy()
+  })
+
+  it('links several PDF or image DocumentReferences to the clinical entry only in the submitted draft', async () => {
+    const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
+    renderDraft(onSubmitDraft)
+
+    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
+    fireEvent.change(screen.getByLabelText('Add PDF or image'), { target: { files: [
+      new File(['pdf evidence'], 'report.pdf', { type: 'application/pdf' }),
+      new File(['image evidence'], 'scan.jpg', { type: 'image/jpeg' }),
+    ] } })
+    expect(await screen.findByText('report.pdf')).toBeTruthy()
+    expect(screen.getByText('scan.jpg')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
+    await screen.findByText(firstConcept)
+
+    expect(onSubmitDraft).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Send Bundle' }))
+    await waitFor(() => expect(onSubmitDraft).toHaveBeenCalledTimes(1))
+
+    const bundle = onSubmitDraft.mock.calls[0][0]
+    const condition = bundle.entry.find(({ resource }: any) => resource.resourceType === 'Condition').resource
+    const documents = bundle.entry.filter(({ resource }: any) => resource.resourceType === 'DocumentReference')
+    expect(documents).toHaveLength(2)
+    expect(condition.meta.claims['Condition.contained-reference-list']).toContain(`DocumentReference/${documents[0].resource.id}`)
+    expect(documents.map(({ resource }: any) => resource.meta.claims['DocumentReference.contenttype'])).toEqual([
+      'application/pdf', 'image/jpeg',
+    ])
+    expect(documents[0].resource.meta.claims['DocumentReference.contentdata']).toBeTruthy()
+    expect(documents[0].resource.meta.claims['DocumentReference.contenthash']).toMatch(/^sha256:/)
   })
 })
