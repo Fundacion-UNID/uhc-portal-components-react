@@ -9,7 +9,7 @@
  * Persistence invariant: local form state never counts as a successful clinical write.
  */
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { ResourceTypesFhirR4 } from 'gdc-common-utils-ts/constants/fhir-resource-types'
 import {
   FHIR_IPS_ALL_SECTIONS_DEMO_DATA,
@@ -65,8 +65,9 @@ describe('ClinicalArtifactEditor', () => {
       saveArtifact={vi.fn().mockResolvedValue(providerReadback)} onCancel={() => undefined} onReadback={() => undefined}
     />)
     fireEvent.change(screen.getByLabelText('Vaccine or product'), { target: { value: sourceText } })
-    const sources = await screen.findByLabelText('Coding systems') as HTMLSelectElement
-    expect([...sources.selectedOptions].map(option => option.value)).toEqual(['SNOMED_GPS'])
+    const sources = await screen.findByRole('group', { name: 'Coding systems' })
+    expect((within(sources).getByRole('checkbox', { name: 'SNOMED GPS' }) as HTMLInputElement).checked).toBe(true)
+    expect((within(sources).getByRole('checkbox', { name: 'ICD-10' }) as HTMLInputElement).checked).toBe(false)
     await waitFor(() => expect(searchTerminology).toHaveBeenCalledWith(expect.objectContaining({ sources: ['SNOMED_GPS'] })))
   })
   it('uses the portal speech capability to append an editable transcript and start terminology search', async () => {
