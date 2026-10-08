@@ -91,7 +91,13 @@ export type ClinicalTerminologySearch = Readonly<{
   text: string
   taxonomyId?: string
   limit: number
+  sources?: readonly string[]
 }>
+
+export type ClinicalTerminologySource = Readonly<{ id: string; label?: string; default?: boolean }>
+export type ClinicalTerminologySourceSearch = (input: Readonly<{
+  resourceType: string; claim: string; language: string; taxonomyId?: string
+}>) => Promise<readonly ClinicalTerminologySource[]>
 
 export type ClinicalArtifactEditorCopy = Readonly<{
   title: string
@@ -102,6 +108,7 @@ export type ClinicalArtifactEditorCopy = Readonly<{
   close: string
   terminologyLoading: string
   terminologyUnavailable: string
+  terminologySources?: string
   readbackMissing: string
   pending?: string
   retry?: string
@@ -128,6 +135,7 @@ export type ClinicalArtifactEditorProps = Readonly<{
   taxonomyId?: string
   fieldLabel: (claim: string) => string
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
+  loadTerminologySources?: ClinicalTerminologySourceSearch
   saveArtifact: (draft: ClinicalArtifactDraft) => Promise<ClinicalResourceBundleLike | ClinicalArtifactSaveOutcome | undefined>
   onCancel: () => void
   onReadback: (bundle: ClinicalResourceBundleLike) => void
@@ -149,6 +157,7 @@ export function ClinicalArtifactEditor({
   taxonomyId,
   fieldLabel,
   searchTerminology,
+  loadTerminologySources,
   saveArtifact,
   onCancel,
   onReadback,
@@ -207,13 +216,34 @@ export function ClinicalArtifactEditor({
   const [candidates, setCandidates] = useState<readonly ClinicalTerminologyCandidate[]>([])
   const [terminologyBusy, setTerminologyBusy] = useState(false)
   const [terminologyError, setTerminologyError] = useState(false)
+  const [terminologySources, setTerminologySources] = useState<readonly ClinicalTerminologySource[]>([])
+  const [selectedTerminologySources, setSelectedTerminologySources] = useState<readonly string[]>([])
+  const [terminologySourcesClaim, setTerminologySourcesClaim] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [pending, setPending] = useState('')
   const draftId = useRef(request.artifactId ?? crypto.randomUUID())
 
   useEffect(() => {
+    if (!activeTerminologyClaim || !loadTerminologySources) return
+    const codeClaim = terminologyCodeClaim(request.resourceType, activeTerminologyClaim)
+    let current = true
+    setTerminologySourcesClaim('')
+    void loadTerminologySources({ resourceType: request.resourceType, claim: codeClaim, language: locale, taxonomyId }).then((sources) => {
+      if (!current) return
+      setTerminologySources(sources)
+      const defaults = sources.filter(source => source.default).map(source => source.id)
+      setSelectedTerminologySources(defaults.length ? defaults : sources[0] ? [sources[0].id] : [])
+      setTerminologySourcesClaim(activeTerminologyClaim)
+    }).catch(() => {
+      if (current) { setTerminologySources([]); setSelectedTerminologySources([]); setTerminologySourcesClaim(activeTerminologyClaim) }
+    })
+    return () => { current = false }
+  }, [activeTerminologyClaim, loadTerminologySources, locale, request.resourceType, taxonomyId])
+
+  useEffect(() => {
     if (!activeTerminologyClaim || !searchTerminology) return
+    if (loadTerminologySources && terminologySourcesClaim !== activeTerminologyClaim) return
     const sourceText = claims[activeTerminologyClaim]?.trim() ?? ''
     if (sourceText.length < 2) { setCandidates([]); return }
     const codeClaim = terminologyCodeClaim(request.resourceType, activeTerminologyClaim)
@@ -228,6 +258,7 @@ export function ClinicalArtifactEditor({
         text: sourceText,
         taxonomyId,
         limit: 20,
+        ...(selectedTerminologySources.length ? { sources: selectedTerminologySources } : {}),
       }).then((nextCandidates) => {
         if (current) setCandidates(nextCandidates)
       }).catch(() => {
@@ -237,7 +268,7 @@ export function ClinicalArtifactEditor({
       })
     }, 250)
     return () => { current = false; window.clearTimeout(timer) }
-  }, [activeTerminologyClaim, claims, locale, request.resourceType, searchTerminology, taxonomyId])
+  }, [activeTerminologyClaim, claims, loadTerminologySources, locale, request.resourceType, searchTerminology, selectedTerminologySources, taxonomyId, terminologySourcesClaim])
 
   async function submit() {
     setSaving(true)
@@ -328,6 +359,11 @@ export function ClinicalArtifactEditor({
           </select> : isMultiline(parameter) ? <textarea id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} rows={3} onChange={update}/>
             : <input id={inputId} aria-label={label} value={value} required={requiredClaims.has(claim)} type={fieldInputType(parameter, operationSchema?.properties.claims?.properties?.[claim])} onChange={update}/>}
           {terminologyEnabled && activeTerminologyClaim === claim ? <div className="uhcp-terminology-results">
+            {terminologySources.length ? <label>{copy.terminologySources || 'Coding systems'}
+              <select multiple aria-label={copy.terminologySources || 'Coding systems'} value={[...selectedTerminologySources]} onChange={(event) => setSelectedTerminologySources([...event.currentTarget.selectedOptions].map(option => option.value))}>
+                {terminologySources.map(source => <option key={source.id} value={source.id}>{source.label || source.id}</option>)}
+              </select>
+            </label> : null}
             {terminologyBusy ? <small role="status">{copy.terminologyLoading}</small> : null}
             {terminologyError ? <small role="alert">{copy.terminologyUnavailable}</small> : null}
             {candidates.length ? <ul>{candidates.map((candidate) => <li key={`${candidate.system}|${candidate.code}`}><button type="button" onClick={() => {

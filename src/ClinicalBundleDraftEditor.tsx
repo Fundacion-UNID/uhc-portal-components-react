@@ -21,6 +21,7 @@ import {
   type ClinicalArtifactSchema,
   type ClinicalTerminologySearch,
   type ClinicalTerminologyCandidate,
+  type ClinicalTerminologySourceSearch,
 } from './ClinicalArtifactEditor.js'
 import { ClinicalActionButton } from './ClinicalActionButton.js'
 
@@ -64,6 +65,9 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
   taxonomyId?: string
   fieldLabel: (claim: string) => string
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
+  loadTerminologySources?: ClinicalTerminologySourceSearch
+  /** Optional claims-first document Bundle loaded into the local draft; loading it never persists. */
+  initialBundle?: ClinicalBundleDraft
   onSubmitDraft: (bundle: ClinicalBundleDraft) => Promise<ClinicalBundleDraftSubmitOutcome>
 }>
 
@@ -93,9 +97,11 @@ export function ClinicalBundleDraftEditor({
   taxonomyId,
   fieldLabel,
   searchTerminology,
+  loadTerminologySources,
+  initialBundle,
   onSubmitDraft,
 }: ClinicalBundleDraftEditorProps) {
-  const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>([])
+  const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>(() => importedArtifacts(initialBundle, schemas))
   const [editor, setEditor] = useState<EditorState>()
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
@@ -176,6 +182,7 @@ export function ClinicalBundleDraftEditor({
       taxonomyId={taxonomyId}
       fieldLabel={fieldLabel}
       searchTerminology={searchTerminology}
+      loadTerminologySources={loadTerminologySources}
       saveArtifact={async (draft) => stageArtifact(draft)}
       onCancel={() => setEditor(undefined)}
       onReadback={() => setEditor(undefined)}
@@ -260,4 +267,28 @@ function artifactTitle(draft: ClinicalArtifactDraft): string {
     typeof value === 'string' && value.trim() && (claim.endsWith('-text') || claim.endsWith('.note') || claim.endsWith('.description')),
   )?.[1]
   return typeof preferred === 'string' ? preferred : draft.resourceType
+}
+
+function importedArtifacts(bundle: ClinicalBundleDraft | undefined, schemas: readonly ClinicalBundleDraftSchema[]): readonly StagedArtifact[] {
+  if (!bundle || bundle.resourceType !== 'Bundle' || bundle.type !== 'document' || !Array.isArray(bundle.entry)) return []
+  return bundle.entry.flatMap((entry) => {
+    const resource = record(record(entry).resource)
+    const schema = schemas.find(candidate => candidate.schema.resourceType === resource.resourceType)
+    const claims = record(record(resource.meta).claims)
+    const id = String(resource.id || '').trim()
+    if (!schema || !id || Object.keys(claims).length === 0) return []
+    const stringValues = Object.fromEntries(Object.entries(claims).map(([claim, value]) => [claim, String(value ?? '')]))
+    return [{ schema, draft: {
+      resourceType: schema.schema.resourceType,
+      id,
+      sectionCode: schema.schema.sectionCode ?? '',
+      mode: 'update',
+      claims: stringValues,
+      changesBundle: { resourceType: 'Bundle', type: 'batch', data: [{ resource }] },
+    } satisfies ClinicalArtifactDraft }]
+  })
+}
+
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
 }
