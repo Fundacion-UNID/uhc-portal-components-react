@@ -86,6 +86,13 @@ The package deliberately exposes modules instead of a cloned application:
   terminology candidate preserves source text and adds only the confirmed
   `system|code` and display. Success requires a fresh provider readback Bundle;
   local form state is never presented as a persisted write.
+- `ClinicalArtifactEditorV2` is an explicit opt-in progressive shell; it does
+  not replace `ClinicalArtifactEditor`. Resource specializations such as
+  `ImmunizationArtifactEditorV2` compose reusable `DateTimePropertyV2`,
+  `CodedConceptPropertyV2`, `CodedSelectPropertyV2`,
+  `PositiveIntegerPropertyV2`, `DocumentReferencesPropertyV2` and
+  `OptionalFieldsV2` controls. `ClinicalBundleDraftEditorV2` uses a V2
+  specialization only when one exists and retains V1 for other resources.
 - `ClinicalSpeechInputProvider`: lets the owning portal publish one
   speech-recognition capability and model phase to every nested clinical
   editor. Compatible IPS text fields show an accessible microphone only when
