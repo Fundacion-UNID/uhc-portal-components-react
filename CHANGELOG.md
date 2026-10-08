@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-10-08
+
+- Promote the opt-in V2 clinical document authoring API to a minor release.
+  Existing V1 exports remain available; V2 adds progressive section/resource
+  creation, reusable property editors and `ImmunizationArtifactEditorV2`.
+- Include the cumulative reusable IPS summary and animal-card presentation
+  introduced while validating the V2 flows in VetChain Demo.
+
 ## 0.1.50 - 2026-10-08
 
 - Add a reusable printable animal-card presentation whose host supplies the
