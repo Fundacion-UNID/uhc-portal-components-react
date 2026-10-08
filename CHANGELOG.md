@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.1.44 - 2026-10-07
+
+- Let the shared IPS editor hydrate claims-first resources from an imported
+  document Bundle so they remain locally editable before the single final send.
+- Expose governed terminology source selection with the server default selected
+  and optional multi-source searches for typed or dictated clinical text.
+
 ## 0.1.43 - 2026-10-07
 
 - Require the `gdc-common-utils-ts` release that provides the Composition

@@ -53,6 +53,22 @@ const providerReadback = Object.freeze({ resourceType: 'Bundle', type: 'document
 afterEach(cleanup)
 
 describe('ClinicalArtifactEditor', () => {
+  it('shows governed coding systems, selects the default, and searches only selected sources', async () => {
+    const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])
+    render(<ClinicalArtifactEditor
+      request={{ resourceType, sectionCode: '11369-6', mode: 'create' }}
+      schema={{ resourceType, requiredClaims: [sourceTextClaim], optionalClaims: [codeClaim, displayClaim] }}
+      copy={{ title: 'Vaccination', description: 'Add a vaccination', save: 'Save', saving: 'Saving', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', terminologySources: 'Coding systems', readbackMissing: 'Readback missing' }}
+      fieldLabel={() => 'Vaccine or product'}
+      loadTerminologySources={vi.fn().mockResolvedValue([{ id: 'SNOMED_GPS', label: 'SNOMED GPS', default: true }, { id: 'ICD10', label: 'ICD-10' }])}
+      searchTerminology={searchTerminology}
+      saveArtifact={vi.fn().mockResolvedValue(providerReadback)} onCancel={() => undefined} onReadback={() => undefined}
+    />)
+    fireEvent.change(screen.getByLabelText('Vaccine or product'), { target: { value: sourceText } })
+    const sources = await screen.findByLabelText('Coding systems') as HTMLSelectElement
+    expect([...sources.selectedOptions].map(option => option.value)).toEqual(['SNOMED_GPS'])
+    await waitFor(() => expect(searchTerminology).toHaveBeenCalledWith(expect.objectContaining({ sources: ['SNOMED_GPS'] })))
+  })
   it('uses the portal speech capability to append an editable transcript and start terminology search', async () => {
     const transcribe = vi.fn().mockResolvedValue(sourceText)
     const searchTerminology = vi.fn().mockResolvedValue([terminologyCandidate])

@@ -33,7 +33,7 @@ const correctedConcept = 'Closed fracture'
 
 afterEach(cleanup)
 
-function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })) {
+function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any) {
   return render(<ClinicalBundleDraftEditor
     schemas={[{
       schema,
@@ -58,11 +58,24 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
       editor: { title: 'Condition', description: 'Add a condition', save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Draft unavailable' },
     }}
     fieldLabel={(claim) => claim === conceptClaim ? 'Clinical concept' : claim}
+    initialBundle={initialBundle}
     onSubmitDraft={onSubmitDraft}
   />)
 }
 
 describe('ClinicalBundleDraftEditor', () => {
+  it('hydrates claims-first resources from an imported document Bundle for editing before submit', async () => {
+    renderDraft(undefined, {
+      resourceType: 'Bundle', type: 'document', entry: [
+        { resource: { resourceType: 'Composition', subject: { reference: subjectReference } } },
+        { resource: { resourceType, id: 'condition-imported', meta: { claims: { [conceptClaim]: firstConcept } } } },
+      ],
+    })
+
+    expect(screen.getByText(firstConcept)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: `Edit ${firstConcept}` }))
+    expect((screen.getByLabelText('Clinical concept') as HTMLInputElement).value).toBe(firstConcept)
+  })
   it('stages, edits and removes one schema-backed ResearchSubject entry before submission', async () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
     renderDraft(onSubmitDraft)
