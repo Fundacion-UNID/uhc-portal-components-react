@@ -58,6 +58,16 @@ describe('shared animal identity onboarding', () => {
     })))
   })
 
+  it('renders a governed species selector when the host supplies species options', () => {
+    render(<AnimalIdentityOnboarding copy={copy} onSubmit={vi.fn()} speciesOptions={[
+      { taxonomyId: '9615', label: 'Dog' },
+      { taxonomyId: '9685', label: 'Cat' },
+    ]} />)
+    expect(screen.getByRole('option', { name: 'Dog' })).not.toBeNull()
+    expect(screen.getByRole('option', { name: 'Cat' })).not.toBeNull()
+    expect((screen.getByLabelText(copy.taxonomyId) as HTMLSelectElement).value).toBe('9615')
+  })
+
   it('renders authoritative identity readback with relationship and explicit capabilities', () => {
     const onEdit = vi.fn()
     render(<SubjectIdentityCard

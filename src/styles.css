@@ -731,6 +731,27 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-animal-onboarding-fields label { display: grid; gap: .35rem; }
 .uhcp-animal-onboarding-fields input, .uhcp-animal-onboarding-fields select { box-sizing: border-box; min-height: 2.8rem; width: 100%; }
 .uhcp-animal-onboarding-submit { justify-self: start; }
+.uhcp-animal-card { aspect-ratio: 1.586; background: linear-gradient(145deg, #0a4169 0%, #087f8d 60%, #18a4a6 100%); border: 1px solid color-mix(in srgb, #fff 32%, transparent); border-radius: 1.15rem; box-shadow: 0 1rem 2.5rem rgb(2 30 51 / 22%); box-sizing: border-box; color: #fff; display: grid; gap: .8rem; grid-template-rows: auto 1fr auto; max-width: 33.5rem; min-height: 18.25rem; overflow: hidden; padding: 1.25rem; position: relative; width: 100%; }
+.uhcp-animal-card::after { background: radial-gradient(circle, rgb(255 255 255 / 18%), transparent 68%); content: ''; height: 18rem; inset: -8rem -7rem auto auto; pointer-events: none; position: absolute; width: 18rem; }
+.uhcp-animal-card-header, .uhcp-animal-card-body, .uhcp-animal-card-brand { align-items: center; display: flex; }
+.uhcp-animal-card-header, .uhcp-animal-card-body { justify-content: space-between; }
+.uhcp-animal-card-brand { gap: .65rem; }
+.uhcp-animal-card-brand > img, .uhcp-animal-card-brand > span { align-items: center; background: #fff; border-radius: .55rem; color: #087f8d; display: flex; font-size: 1.15rem; font-weight: 900; height: 2.5rem; justify-content: center; object-fit: contain; width: 2.5rem; }
+.uhcp-animal-card-brand div { display: grid; }
+.uhcp-animal-card-brand strong { font-size: 1.05rem; }
+.uhcp-animal-card-brand small { opacity: .82; }
+.uhcp-animal-card-chip { background: linear-gradient(135deg, #f5d584, #b88a2c); border-radius: .35rem; height: 2rem; width: 2.65rem; }
+.uhcp-animal-card-body { gap: 1rem; min-width: 0; }
+.uhcp-animal-card-body > section { min-width: 0; }
+.uhcp-animal-card-body section > span { font-size: .82rem; opacity: .8; }
+.uhcp-animal-card h3 { font-size: clamp(1.5rem, 5vw, 2.15rem); margin: .1rem 0 .8rem; }
+.uhcp-animal-card dl { display: grid; gap: .45rem; margin: 0; }
+.uhcp-animal-card dt { font-size: .7rem; opacity: .72; text-transform: uppercase; }
+.uhcp-animal-card dd { font-size: .88rem; font-weight: 750; margin: .05rem 0 0; overflow-wrap: anywhere; }
+.uhcp-animal-card-qr { background: #fff; border: .45rem solid #fff; border-radius: .55rem; height: 7.5rem; object-fit: contain; width: 7.5rem; }
+.uhcp-animal-card footer { min-width: 0; }
+.uhcp-animal-card footer code { color: inherit; display: block; font-size: .68rem; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media(max-width: 480px) { .uhcp-animal-card { aspect-ratio: auto; min-height: 17rem; } .uhcp-animal-card-qr { height: 6.25rem; width: 6.25rem; } }
 .uhcp-animal-controller-attestation { border: 1px solid var(--uhcp-border, #d9dee7); border-radius: 1.25rem; display: grid; gap: 1rem; padding: 1rem; }
 .uhcp-animal-controller-attestation header h2, .uhcp-animal-controller-attestation header p { margin: 0; }
 .uhcp-animal-controller-attestation header p { color: var(--uhcp-muted, #5f6875); margin-top: .35rem; }

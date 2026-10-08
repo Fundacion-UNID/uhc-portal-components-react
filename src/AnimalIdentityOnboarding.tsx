@@ -56,10 +56,11 @@ export type AnimalIdentityOnboardingCopy = Readonly<{
  * the progressive VetChain Expo journey. The host persists and verifies the
  * result; this component never grants authority or marks evidence verified.
  */
-export function AnimalIdentityOnboarding({ copy, onSubmit, submitAction, busy = false }: Readonly<{
+export function AnimalIdentityOnboarding({ copy, onSubmit, submitAction, speciesOptions = [], busy = false }: Readonly<{
   copy: AnimalIdentityOnboardingCopy
   onSubmit: (input: AnimalIdentityOnboardingInput) => Promise<void> | void
   submitAction?: string
+  speciesOptions?: readonly Readonly<{ taxonomyId: string; label: string }>[]
   busy?: boolean
 }>) {
   const [submitting, setSubmitting] = useState(false)
@@ -106,7 +107,11 @@ export function AnimalIdentityOnboarding({ copy, onSubmit, submitAction, busy = 
         <legend><StepNumber value={1} /> {copy.animalStep}</legend>
         <div className="uhcp-animal-onboarding-fields">
           <label>{copy.animalName}<input name="animalName" required maxLength={80} /></label>
-          <label>{copy.taxonomyId}<input name="taxonomyId" required inputMode="numeric" pattern="[1-9][0-9]{0,6}" defaultValue="9615" /></label>
+          <label>{copy.taxonomyId}{speciesOptions.length > 0
+            ? <select name="taxonomyId" required defaultValue={speciesOptions[0]?.taxonomyId}>
+              {speciesOptions.map(option => <option key={option.taxonomyId} value={option.taxonomyId}>{option.label}</option>)}
+            </select>
+            : <input name="taxonomyId" required inputMode="numeric" pattern="[1-9][0-9]{0,6}" defaultValue="9615" />}</label>
           <label>{copy.birthDate}<input name="birthDate" type="date" /></label>
           <label>{copy.sex}<select name="sex" defaultValue="unknown">
             <option value="unknown">{copy.sexUnknown}</option>
