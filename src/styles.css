@@ -161,6 +161,23 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-profile-gate label { color: var(--uhcp-muted); display: grid; gap: .45rem; }
 .uhcp-profile-gate input { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: .75rem; color: var(--uhcp-text); padding: .8rem; }
 .uhcp-profile-gate button { background: linear-gradient(135deg, var(--uhcp-action-start), var(--uhcp-action-end)); border: 0; border-radius: .75rem; color: #fff; cursor: pointer; font: inherit; font-weight: 800; padding: .8rem 1rem; }
+.uhcp-profile-gate-v2 { gap: 1rem; }
+.uhcp-profile-target { background: var(--uhcp-soft); border: 1px solid var(--uhcp-border); border-radius: 1rem; display: grid; gap: .8rem; padding: 1rem; }
+.uhcp-profile-target > img { border-radius: .75rem; object-fit: contain; }
+.uhcp-profile-target-copy { display: grid; gap: .2rem; }
+.uhcp-profile-target-copy > strong { color: var(--uhcp-text); font-size: 1.2rem; }
+.uhcp-profile-target-copy > span:last-child { color: var(--uhcp-muted); }
+.uhcp-profile-target-eyebrow { color: var(--uhcp-muted); font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.uhcp-profile-target-badges { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; margin: 0; padding: 0; }
+.uhcp-profile-target-badges li { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: 999px; color: var(--uhcp-text); padding: .35rem .65rem; }
+.uhcp-profile-target-details { margin: 0; }
+.uhcp-profile-target-details > div { display: grid; gap: .2rem; grid-template-columns: minmax(8rem, auto) 1fr; }
+.uhcp-profile-target-details dt { color: var(--uhcp-muted); }
+.uhcp-profile-target-details dd { color: var(--uhcp-text); font-weight: 700; margin: 0; }
+.uhcp-profile-pin-fallback { border-top: 1px solid var(--uhcp-border); padding-top: .8rem; }
+.uhcp-profile-pin-fallback summary { color: var(--uhcp-text); cursor: pointer; font-weight: 700; }
+.uhcp-profile-pin-fallback form { margin-top: .8rem; }
+.uhcp-profile-gate-secondary { border-top: 1px solid var(--uhcp-border); display: grid; gap: .6rem; padding-top: .8rem; }
 .uhcp-error { color: #c64747 !important; }
 .uhcp-shell { background: var(--uhcp-surface); color: var(--uhcp-text); min-height: 100vh; }
 .uhcp-main { min-height: calc(100vh - 4.5rem); }

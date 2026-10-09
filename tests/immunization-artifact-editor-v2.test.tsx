@@ -20,6 +20,7 @@ const copy = {
   title: 'Add vaccination', description: 'Complete the essential vaccination data.', resourceType: 'FHIR resource',
   save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'No terminology results', terminologySources: 'Coding systems', readbackMissing: 'Draft unavailable',
   addField: 'Add another field', chooseField: 'Choose a field', addSelectedField: 'Add field', removeField: 'Remove field', searchTerminology: 'Search coding candidates', clearCoding: 'Clear selected code', selectCandidate: 'Select a code', canonicalCode: 'Coding system and code', canonicalDisplay: 'English display', documents: 'Certificate documents', addDocuments: 'Add PDF or image', removeDocument: 'Remove document',
+  codingRequired: 'Select a terminology code.',
   doseSequenceInvalid: 'Dose number must be greater than zero.', seriesDosesInvalid: 'Total series doses cannot be lower than dose number.',
   date: 'Date', time: 'Time', useToday: 'Today', useCurrentTime: 'Now',
 }

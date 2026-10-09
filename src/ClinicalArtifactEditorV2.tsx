@@ -51,6 +51,7 @@ export type ClinicalArtifactEditorCopyV2 = Readonly<{
   terminologyLoading: string; terminologyUnavailable: string; terminologySources: string; readbackMissing: string
   addField: string; chooseField: string; addSelectedField: string; removeField: string
   searchTerminology: string; clearCoding: string; selectCandidate: string; canonicalCode: string; canonicalDisplay: string
+  codingRequired: string
   documents: string; addDocuments: string; removeDocument: string
   date: string; time: string; useToday: string; useCurrentTime: string
 }>
@@ -92,6 +93,11 @@ export function ClinicalArtifactEditorV2({ request, authoringContext, copy, fiel
   async function submit() {
     setError('')
     try {
+      for (const field of fields) {
+        if (field.required && field.kind === 'coded-concept' && field.codeClaim && !claims[field.codeClaim]) {
+          throw new TypeError(copy.codingRequired)
+        }
+      }
       validate?.(claims)
       setSaving(true)
       const draft: ClinicalArtifactDraftV2 = {

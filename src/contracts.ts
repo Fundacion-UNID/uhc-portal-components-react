@@ -109,3 +109,18 @@ export type ProfileProtectionCopy = Readonly<{
   unlock: string
   retry: string
 }>
+
+/** Human-readable metadata for a host-authorized profile or subject target. */
+export type ProfileProtectionTargetV2 = Readonly<{
+  eyebrow: string
+  title: string
+  subtitle?: string
+  icon?: PortalBrandAsset
+  badges?: readonly string[]
+  details?: readonly Readonly<{ label: string; value: string }>[]
+}>
+
+export type ProfileProtectionCopyV2 = ProfileProtectionCopy & Readonly<{
+  unlockWithPasskey: string
+  usePinInstead: string
+}>

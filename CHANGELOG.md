@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Add the opt-in `ProfileProtectionGateV2`, which identifies the exact
+  host-authorized profile or subject with accessible human-readable metadata
+  before passkey or PIN unlock. V1 remains unchanged.
+- Route every schema-backed IPS resource through the progressive V2 clinical
+  editor, with schema-owned coded dropdowns, terminology-backed concepts,
+  date/time controls, optional-field selection and mandatory canonical coding.
+- Let hosts attach entry-level credential actions to a staged clinical record;
+  creation updates only the local draft and viewing does not cross the final
+  document submission boundary.
+
 ## 0.2.0 - 2026-10-08
 
 - Promote the opt-in V2 clinical document authoring API to a minor release.

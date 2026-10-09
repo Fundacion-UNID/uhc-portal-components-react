@@ -35,7 +35,7 @@ const correctedConcept = 'Closed fracture'
 
 afterEach(cleanup)
 
-function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false, resourceTypeLabel?: (resourceType: string) => string, onDraftChange?: (bundle: any) => void) {
+function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false, resourceTypeLabel?: (resourceType: string) => string, onDraftChange?: (bundle: any) => void, artifactCredentialAction?: any) {
   return render(<ClinicalBundleDraftEditor
     schemas={[{
       schema,
@@ -69,6 +69,7 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
     resourceTypeLabel={resourceTypeLabel}
     initialBundle={initialBundle}
     onDraftChange={onDraftChange}
+    artifactCredentialAction={artifactCredentialAction}
     onSubmitDraft={onSubmitDraft}
   />)
 }
@@ -128,13 +129,51 @@ describe('ClinicalBundleDraftEditor', () => {
     renderDraft(undefined, {
       resourceType: 'Bundle', type: 'document', entry: [
         { resource: { resourceType: 'Composition', subject: { reference: subjectReference } } },
-        { resource: { resourceType, id: 'condition-imported', meta: { claims: { [conceptClaim]: firstConcept } } } },
+        { resource: { resourceType, id: 'condition-imported', meta: { claims: {
+          [conceptClaim]: firstConcept,
+          'Condition.subject': subjectReference,
+          'Condition.recorder': creatorReference,
+        } } } },
       ],
     })
 
     expect(screen.getByText(firstConcept)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: `Edit ${firstConcept}` }))
     expect((screen.getByLabelText('Clinical concept') as HTMLInputElement).value).toBe(firstConcept)
+  })
+
+  it('creates and then views a per-entry credential without persisting the document', async () => {
+    const onCreate = vi.fn(async ({ draft }) => ({ ...draft, relatedEntries: [{
+      entryId: 'shc-condition', resourceType: 'DocumentReference',
+      claims: {
+        'DocumentReference.identifier': 'urn:uuid:shc-condition',
+        'DocumentReference.status': 'current',
+        'DocumentReference.contenttype': 'application/smart-health-card',
+        'DocumentReference.subject': subjectReference,
+        'DocumentReference.author': creatorReference,
+      },
+    }] }))
+    const onView = vi.fn()
+    const credentialAction = {
+      createLabel: 'Create SHC', viewLabel: 'View SHC',
+      isCreated: (draft: any) => draft.relatedEntries?.some((entry: any) => entry.claims['DocumentReference.contenttype'] === 'application/smart-health-card') ?? false,
+      onCreate, onView,
+    }
+    renderDraft(vi.fn(), {
+      resourceType: 'Bundle', type: 'document', entry: [
+        { resource: { resourceType: 'Composition', subject: { reference: subjectReference } } },
+        { resource: { resourceType, id: 'condition-imported', meta: { claims: {
+          [conceptClaim]: firstConcept,
+          'Condition.subject': subjectReference,
+          'Condition.recorder': creatorReference,
+        } } } },
+      ],
+    }, false, undefined, undefined, credentialAction)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create SHC' }))
+    await waitFor(() => expect(onCreate).toHaveBeenCalledTimes(1))
+    fireEvent.click(await screen.findByRole('button', { name: 'View SHC' }))
+    expect(onView).toHaveBeenCalledTimes(1)
   })
   it('stages, edits and removes one schema-backed ResearchSubject entry before submission', async () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
