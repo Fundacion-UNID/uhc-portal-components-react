@@ -2,7 +2,7 @@
 /**
  * Professional profile protection V2 contract:
  * 1. The host supplies the exact already-authorized profile target.
- * 2. The gate identifies that target before offering passkey or PIN unlock.
+ * 2. The gate leads with the unlock task, identifies the target without a redundant eyebrow, then offers passkey or PIN unlock.
  * 3. Changing presentation metadata never grants authority or selects another profile.
  *
  * Authorization invariant: only the host callback can unlock the selected profile.
@@ -39,7 +39,7 @@ describe('ProfileProtectionGateV2', () => {
       onPasskeyUnlock={() => undefined}
     ><p>Protected workspace</p></ProfileProtectionGateV2>)
 
-    expect(html).toContain('Profile to unlock')
+    expect(html).not.toContain('Profile to unlock')
     expect(html).toContain('Veterinarian')
     expect(html).toContain('Example Veterinary Organization')
     expect(html).toContain('Animal care')
@@ -48,6 +48,10 @@ describe('ProfileProtectionGateV2', () => {
     expect(html).toContain('BN · 704457076')
     expect(html).toContain('Use existing passkey')
     expect(html).toContain('Use PIN instead')
+    expect(html.indexOf('Unlock profile')).toBeLessThan(html.indexOf('Veterinarian'))
+    expect(html.indexOf('Animal care')).toBeLessThan(html.indexOf('Use existing passkey'))
+    expect(html).toContain('class="uhcp-profile-target-badges uhcp-profile-target-badges-centered"')
+    expect(html).toContain('class="uhcp-action-unlock"')
     expect(html).not.toMatch(/profileId|did:web|wallet/i)
     expect(html).not.toContain('Protected workspace')
   })

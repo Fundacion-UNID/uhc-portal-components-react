@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.2.4 - 2026-10-09
+
+- Lead the protected-profile card with the unlock task, center the selected
+  sector context and place passkey/PIN controls immediately after it without
+  repeating a visible "profile to unlock" eyebrow.
+- Add host-customizable selected, unlock and alternative action tokens so
+  portals can distinguish blue selection, orange unlock and recovery actions
+  consistently in light and dark themes.
+
 ## 0.2.3 - 2026-10-09
 
 - Keep the section-removal action at the far edge of its section while still
