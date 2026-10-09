@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.2.3 - 2026-10-09
+
+- Keep the section-removal action at the far edge of its section while still
+  exposing the same hover and keyboard-focus hint as other icon actions.
+
 ## 0.2.2 - 2026-10-09
 
 - Name the exact localized FHIR resource in the V2 editor heading without a
