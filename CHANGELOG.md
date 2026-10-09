@@ -12,6 +12,10 @@
 - Give the V2 profile-unlock panel an explicit light/dark accent surface and
   support PIN-recovery actions inside the PIN fallback only after a rejected
   PIN, while keeping unrelated profile actions separate.
+- Use compact, accessible add/remove section actions with destructive
+  confirmation, semantic action colours and matching hover/focus hints.
+- Let hosts place downloads, credential generation and update metadata in the
+  same responsive document footer as the final submit action.
 
 ## 0.2.1 - 2026-10-08
 

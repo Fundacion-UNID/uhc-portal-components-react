@@ -12,6 +12,7 @@ export function ClinicalActionButton({ kind, label, disabled = false, onClick }:
     className={`uhcp-clinical-icon-action uhcp-clinical-icon-action-${kind}`}
     aria-label={label}
     title={label}
+    data-tooltip={label}
     disabled={disabled}
     onClick={onClick}
   ><ActionIcon kind={kind}/></button>

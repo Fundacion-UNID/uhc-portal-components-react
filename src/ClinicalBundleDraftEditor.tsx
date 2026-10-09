@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { BundleEditor, type CompositionAttesterInput } from 'gdc-common-utils-ts/utils/bundle-editor-core'
 import { BundleTypes } from 'gdc-common-utils-ts/models/bundle-editor-types'
 import { HealthcareDocumentTypes } from 'gdc-common-utils-ts/constants/healthcare'
@@ -60,6 +60,8 @@ export type ClinicalBundleDraftEditorCopy = Readonly<{
   resourceType?: string
   addSection?: string
   addEntry?: string
+  removeSection?: string
+  removeSectionConfirm?: string
   chooseResource?: string
   edit: string
   remove: string
@@ -94,6 +96,8 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
     onCreate: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => ClinicalArtifactDraftV2 | Promise<ClinicalArtifactDraftV2>
     onView: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => void
   }>
+  /** Host-owned document actions rendered beside the final submit action. */
+  documentActions?: ReactNode
 }>
 
 type StagedArtifact = Readonly<{
@@ -135,6 +139,7 @@ export function ClinicalBundleDraftEditor({
   editorVersion = 'v1',
   editorV2Copy,
   artifactCredentialAction,
+  documentActions,
 }: ClinicalBundleDraftEditorProps) {
   const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>(() => importedArtifacts(initialBundle, schemas))
   const [editor, setEditor] = useState<EditorState>()
@@ -195,16 +200,23 @@ export function ClinicalBundleDraftEditor({
         setActiveSections(current => [...current, label])
         const nextAvailable = availableSections.find(section => section.label !== label)
         setSelectedSection(nextAvailable?.label ?? '')
-      }}>+ {copy.addSection || copy.add}</button>
+      }} className="uhcp-add-section-button">{copy.addSection || copy.add}</button>
     </div> : null}
     {sections.filter(section => activeSections.includes(section.label)).map(({ label, schemas: sectionSchemas }) => {
       const sectionArtifacts = artifacts.filter((artifact) => artifact.schema.sectionLabel === label)
       return <details key={label} open>
         <summary>{label} ({sectionArtifacts.length})</summary>
-        <button type="button" onClick={() => {
+        <button type="button" className="uhcp-remove-section-button" aria-label={`${copy.removeSection || copy.remove} ${label}`} title={`${copy.removeSection || copy.remove} ${label}`} data-tooltip={`${copy.removeSection || copy.remove} ${label}`} onClick={() => {
+          if (sectionArtifacts.length && !window.confirm(copy.removeSectionConfirm || `Removing this section will delete all its draft entries. Continue?`)) return
+          setArtifacts(current => current.filter(artifact => artifact.schema.sectionLabel !== label))
+          setActiveSections(current => current.filter(section => section !== label))
+          if (resourceChooser?.sectionLabel === label) setResourceChooser(undefined)
+          if (editor?.schema.sectionLabel === label) setEditor(undefined)
+        }}>−</button>
+        <button type="button" className="uhcp-add-entry-button" aria-label={copy.addEntry || copy.add} title={copy.addEntry || copy.add} data-tooltip={copy.addEntry || copy.add} onClick={() => {
           if (sectionSchemas.length === 1) setEditor({ schema: sectionSchemas[0] })
           else setResourceChooser({ sectionLabel: label, schemaKey: schemaKey(sectionSchemas[0]) })
-        }}>+ {copy.addEntry || copy.add}</button>
+        }}>+</button>
         {resourceChooser?.sectionLabel === label ? <div className="uhcp-clinical-bundle-resource-choice">
           <label>{copy.resourceType || 'Resource type'}<select value={resourceChooser.schemaKey} onChange={event => setResourceChooser({ sectionLabel: label, schemaKey: event.currentTarget.value })}>
             {sectionSchemas.map(candidate => <option key={schemaKey(candidate)} value={schemaKey(candidate)}>{resourceTypeLabel?.(candidate.schema.resourceType) || candidate.artifactLabel}</option>)}
@@ -241,7 +253,10 @@ export function ClinicalBundleDraftEditor({
       </details>
     })}
     {activeSections.length === 0 ? <p>{copy.empty}</p> : null}
-    <footer><button type="button" disabled={artifacts.length === 0 || submitting} onClick={() => void submitDraft()}>{submitting ? copy.submitting : copy.submit}</button></footer>
+    <footer data-testid="clinical-document-actions">
+      {documentActions ? <div className="uhcp-clinical-document-secondary-actions">{documentActions}</div> : null}
+      <button type="button" className="uhcp-clinical-document-submit" disabled={artifacts.length === 0 || submitting} onClick={() => void submitDraft()}>{submitting ? copy.submitting : copy.submit}</button>
+    </footer>
     {editor && editorVersion === 'v2' && editor.schema.schema.resourceType === 'Immunization' && editorV2Copy ? <ImmunizationArtifactEditorV2
       request={editorRequest(editor)}
       authoringContext={authoringContext}
