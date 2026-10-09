@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.1 - 2026-10-08
+
 - Add the opt-in `ProfileProtectionGateV2`, which identifies the exact
   host-authorized profile or subject with accessible human-readable metadata
   before passkey or PIN unlock. V1 remains unchanged.
