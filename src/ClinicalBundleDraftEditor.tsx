@@ -31,6 +31,7 @@ import {
   type ImmunizationArtifactEditorCopyV2,
 } from './ImmunizationArtifactEditorV2.js'
 import type { ClinicalArtifactDraftV2 } from './ClinicalArtifactEditorV2.js'
+import { SchemaClinicalArtifactEditorV2 } from './SchemaClinicalArtifactEditorV2.js'
 
 export type ClinicalBundleDraftSchema = Readonly<{
   schema: ClinicalArtifactSchema
@@ -86,6 +87,13 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
   onSubmitDraft: (bundle: ClinicalBundleDraft) => Promise<ClinicalBundleDraftSubmitOutcome>
   editorVersion?: 'v1' | 'v2'
   editorV2Copy?: ImmunizationArtifactEditorCopyV2
+  artifactCredentialAction?: Readonly<{
+    createLabel: string
+    viewLabel: string
+    isCreated: (draft: ClinicalArtifactDraftV2) => boolean
+    onCreate: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => ClinicalArtifactDraftV2 | Promise<ClinicalArtifactDraftV2>
+    onView: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => void
+  }>
 }>
 
 type StagedArtifact = Readonly<{
@@ -126,6 +134,7 @@ export function ClinicalBundleDraftEditor({
   onSubmitDraft,
   editorVersion = 'v1',
   editorV2Copy,
+  artifactCredentialAction,
 }: ClinicalBundleDraftEditorProps) {
   const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>(() => importedArtifacts(initialBundle, schemas))
   const [editor, setEditor] = useState<EditorState>()
@@ -212,6 +221,17 @@ export function ClinicalBundleDraftEditor({
             return <li key={artifact.draft.id}>
               <span><strong>{title}</strong><small>{artifact.draft.resourceType}</small></span>
               <span>
+                {artifactCredentialAction ? <button type="button" className="uhcp-clinical-entry-credential-action" onClick={() => {
+                  const draft = artifact.draft as ClinicalArtifactDraftV2
+                  const bundle = combineClinicalDrafts([artifact], authoringContext, copy.title)
+                  if (artifactCredentialAction.isCreated(draft)) {
+                    artifactCredentialAction.onView({ draft, bundle })
+                    return
+                  }
+                  void Promise.resolve(artifactCredentialAction.onCreate({ draft, bundle })).then(nextDraft => {
+                    setArtifacts(current => current.map(candidate => candidate.draft.id === draft.id ? { ...candidate, draft: nextDraft } : candidate))
+                  }).catch(reason => setError(reason instanceof Error ? reason.message : String(reason)))
+                }}>{artifactCredentialAction.isCreated(artifact.draft as ClinicalArtifactDraftV2) ? artifactCredentialAction.viewLabel : artifactCredentialAction.createLabel}</button> : null}
                 <ClinicalActionButton kind="edit" label={`${copy.edit} ${title}`} onClick={() => setEditor({ schema: artifact.schema, draft: artifact.draft })}/>
                 <ClinicalActionButton kind="delete" label={`${copy.remove} ${title}`} onClick={() => setArtifacts((current) => current.filter((candidate) => candidate.draft.id !== artifact.draft.id))}/>
               </span>
@@ -224,6 +244,21 @@ export function ClinicalBundleDraftEditor({
     <footer><button type="button" disabled={artifacts.length === 0 || submitting} onClick={() => void submitDraft()}>{submitting ? copy.submitting : copy.submit}</button></footer>
     {editor && editorVersion === 'v2' && editor.schema.schema.resourceType === 'Immunization' && editorV2Copy ? <ImmunizationArtifactEditorV2
       request={editorRequest(editor)}
+      authoringContext={authoringContext}
+      copy={editorV2Copy}
+      locale={locale}
+      timeZone={timeZone}
+      taxonomyId={taxonomyId}
+      fieldLabel={fieldLabel}
+      resourceTypeLabel={resourceTypeLabel?.(editor.schema.schema.resourceType) || editor.schema.artifactLabel}
+      searchTerminology={searchTerminology}
+      loadTerminologySources={loadTerminologySources}
+      saveArtifact={async (draft) => stageArtifact(draft)}
+      onCancel={() => setEditor(undefined)}
+      onReadback={() => setEditor(undefined)}
+    /> : editor && editorVersion === 'v2' && editorV2Copy ? <SchemaClinicalArtifactEditorV2
+      request={editorRequest(editor)}
+      schema={editor.schema.schema}
       authoringContext={authoringContext}
       copy={editorV2Copy}
       locale={locale}

@@ -50,6 +50,8 @@ The package deliberately exposes modules instead of a cloned application:
 - `PortalEntryHero`: identical product entry composition for every brand.
 - `PortalAccessChooser`: real-page navigation for professional access paths.
 - `ProfileProtectionGate`: fail-closed PIN unlock presentation.
+- `ProfileProtectionGateV2`: opt-in passkey/PIN gate that identifies the exact
+  host-authorized target without exposing or selecting its technical id.
 - `ClinicalSectionSummary`: brand-neutral rendering of already-resolved IPS
   cards for personal and professional portals. Advanced viewers can set
   `showHeader={false}` when they retain their own expandable heading.
