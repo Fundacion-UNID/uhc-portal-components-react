@@ -13,6 +13,12 @@
   /* Intentionally invariant across light/dark, matching UHC Personal. */
   --uhcp-action-start: hsl(184 74% 34% / .96);
   --uhcp-action-end: hsl(214 70% 42% / .9);
+  --uhcp-selected-start: var(--uhcp-action-start);
+  --uhcp-selected-end: var(--uhcp-action-end);
+  --uhcp-unlock-start: hsl(28 91% 57%);
+  --uhcp-unlock-end: hsl(21 86% 48%);
+  --uhcp-unlock-text: #fff;
+  --uhcp-alternative: color-mix(in srgb, var(--uhcp-attention) 22%, var(--uhcp-panel));
 }
 html[data-density='small'] { font-size: 15px; }
 html[data-density='medium'] { font-size: 16px; }
@@ -161,15 +167,21 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-profile-gate label { color: var(--uhcp-muted); display: grid; gap: .45rem; }
 .uhcp-profile-gate input { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: .75rem; color: var(--uhcp-text); padding: .8rem; }
 .uhcp-profile-gate button { background: linear-gradient(135deg, var(--uhcp-action-start), var(--uhcp-action-end)); border: 0; border-radius: .75rem; color: #fff; cursor: pointer; font: inherit; font-weight: 800; padding: .8rem 1rem; }
-.uhcp-profile-gate-v2 { background: linear-gradient(145deg, color-mix(in srgb, var(--uhcp-surface-accent) 76%, var(--uhcp-panel)), var(--uhcp-panel-muted)); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 30%, var(--uhcp-border)); border-radius: 1.5rem; box-shadow: 0 1.2rem 3rem color-mix(in srgb, var(--uhcp-text) 10%, transparent); gap: 1rem; }
+.uhcp-profile-gate-v2 { background: linear-gradient(145deg, color-mix(in srgb, var(--uhcp-surface-accent) 76%, var(--uhcp-panel)), var(--uhcp-panel-muted)); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 30%, var(--uhcp-border)); border-radius: 1.5rem; box-shadow: 0 1.2rem 3rem color-mix(in srgb, var(--uhcp-text) 10%, transparent); gap: 1rem; transition: background .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.uhcp-profile-gate-v2:is(:hover, :focus-within) { background: linear-gradient(145deg, color-mix(in srgb, var(--uhcp-surface-accent) 62%, var(--uhcp-panel)), color-mix(in srgb, var(--uhcp-selected-start) 12%, var(--uhcp-panel-muted))); border-color: color-mix(in srgb, var(--uhcp-selected-start) 50%, var(--uhcp-border)); box-shadow: 0 1.3rem 3.2rem color-mix(in srgb, var(--uhcp-selected-start) 18%, transparent); }
+.uhcp-profile-gate-copy { text-align: center; }
+.uhcp-profile-gate-copy h1, .uhcp-profile-gate-copy p { margin: 0; }
+.uhcp-profile-gate-copy p { margin-top: .45rem; }
 .uhcp-profile-target { background: linear-gradient(135deg, color-mix(in srgb, var(--uhcp-surface-accent) 80%, var(--uhcp-panel)), color-mix(in srgb, var(--uhcp-turquoise) 12%, var(--uhcp-panel))); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 38%, var(--uhcp-border)); border-radius: 1rem; display: grid; gap: .8rem; padding: 1rem; }
 .uhcp-profile-target > img { border-radius: .75rem; object-fit: contain; }
-.uhcp-profile-target-copy { display: grid; gap: .2rem; }
+.uhcp-profile-target-copy { display: grid; gap: .2rem; text-align: center; }
 .uhcp-profile-target-copy > strong { color: var(--uhcp-text); font-size: 1.2rem; }
 .uhcp-profile-target-copy > span:last-child { color: var(--uhcp-muted); }
 .uhcp-profile-target-eyebrow { color: var(--uhcp-muted); font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .uhcp-profile-target-badges { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; margin: 0; padding: 0; }
-.uhcp-profile-target-badges li { background: color-mix(in srgb, var(--uhcp-turquoise) 13%, var(--uhcp-panel)); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 36%, var(--uhcp-border)); border-radius: 999px; color: var(--uhcp-text); padding: .35rem .65rem; }
+.uhcp-profile-target-badges-centered { justify-content: center; }
+.uhcp-profile-target-badges li { background: linear-gradient(135deg, var(--uhcp-selected-start), var(--uhcp-selected-end)); border: 1px solid transparent; border-radius: 999px; color: #fff; padding: .35rem .65rem; }
+.uhcp-profile-gate .uhcp-action-unlock { background: linear-gradient(135deg, var(--uhcp-unlock-start), var(--uhcp-unlock-end)); color: var(--uhcp-unlock-text); }
 .uhcp-profile-target-details { margin: 0; }
 .uhcp-profile-target-details > div { display: grid; gap: .2rem; grid-template-columns: minmax(8rem, auto) 1fr; }
 .uhcp-profile-target-details dt { color: var(--uhcp-muted); }
@@ -178,7 +190,7 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-profile-pin-fallback summary { color: var(--uhcp-text); cursor: pointer; font-weight: 700; }
 .uhcp-profile-pin-fallback form { margin-top: .8rem; }
 .uhcp-profile-pin-recovery { display: flex; justify-content: flex-start; margin-top: .7rem; }
-.uhcp-profile-pin-recovery button { background: transparent; border: 1px solid var(--uhcp-border); color: var(--uhcp-text); }
+.uhcp-profile-pin-recovery button { background: var(--uhcp-alternative); border: 1px solid color-mix(in srgb, var(--uhcp-attention) 48%, var(--uhcp-border)); color: var(--uhcp-text); }
 .uhcp-profile-gate-secondary { border-top: 1px solid var(--uhcp-border); display: grid; gap: .6rem; padding-top: .8rem; }
 .uhcp-profile-gate-secondary .uhcp-add-profile-action { align-items: center; background: transparent; border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 35%, var(--uhcp-border)); color: var(--uhcp-text); display: inline-flex; gap: .65rem; justify-content: flex-start; }
 .uhcp-profile-gate-secondary .uhcp-add-profile-action::first-letter { color: var(--uhcp-turquoise); font-size: 1.25em; }

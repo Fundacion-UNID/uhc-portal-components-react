@@ -111,25 +111,24 @@ export function ProfileProtectionGateV2({
 
   return (
     <section className="uhcp-profile-gate uhcp-profile-gate-v2" aria-live="polite">
+      <div className="uhcp-profile-gate-copy">
+        <h1>{title}</h1>
+        <p>{body}</p>
+      </div>
       <div className="uhcp-profile-target">
         {target.icon && <img src={target.icon.src} alt={target.icon.alt} width={target.icon.width} height={target.icon.height} />}
         <div className="uhcp-profile-target-copy">
-          <span className="uhcp-profile-target-eyebrow">{target.eyebrow}</span>
           <strong>{target.title}</strong>
           {target.subtitle && <span>{target.subtitle}</span>}
         </div>
-        {target.badges?.length ? <ul className="uhcp-profile-target-badges" aria-label={target.eyebrow}>
+        {target.badges?.length ? <ul className="uhcp-profile-target-badges uhcp-profile-target-badges-centered" aria-label={target.title}>
           {target.badges.map(badge => <li key={badge}>{badge}</li>)}
         </ul> : null}
         {target.details?.length ? <dl className="uhcp-profile-target-details">
           {target.details.map(detail => <div key={`${detail.label}:${detail.value}`}><dt>{detail.label}</dt><dd>{detail.value}</dd></div>)}
         </dl> : null}
       </div>
-      <div className="uhcp-profile-gate-copy">
-        <h1>{title}</h1>
-        <p>{body}</p>
-      </div>
-      {state === 'locked' && onPasskeyUnlock && <button type="button" data-portal-action="unlock-profile-with-passkey" disabled={busy} onClick={unlockWithPasskey}>
+      {state === 'locked' && onPasskeyUnlock && <button type="button" className="uhcp-action-unlock" data-portal-action="unlock-profile-with-passkey" disabled={busy} onClick={unlockWithPasskey}>
         {copy.unlockWithPasskey}
       </button>}
       {state === 'locked' && <details className="uhcp-profile-pin-fallback" open={!onPasskeyUnlock}>
@@ -147,7 +146,7 @@ export function ProfileProtectionGateV2({
             />
           </label>
           {error && <p role="alert" className="uhcp-error">{error}</p>}
-          <button type="submit" data-portal-action="unlock-profile" disabled={busy}>{copy.unlock}</button>
+          <button type="submit" className="uhcp-action-unlock" data-portal-action="unlock-profile" disabled={busy}>{copy.unlock}</button>
         </form>
         {pinRejected && pinFailureActions ? <div className="uhcp-profile-pin-recovery">{pinFailureActions}</div> : null}
       </details>}
