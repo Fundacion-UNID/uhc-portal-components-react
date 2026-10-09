@@ -35,7 +35,7 @@ const correctedConcept = 'Closed fracture'
 
 afterEach(cleanup)
 
-function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false, resourceTypeLabel?: (resourceType: string) => string, onDraftChange?: (bundle: any) => void, artifactCredentialAction?: any) {
+function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' }), initialBundle?: any, multipleSchemas = false, resourceTypeLabel?: (resourceType: string) => string, onDraftChange?: (bundle: any) => void, artifactCredentialAction?: any, documentActions?: React.ReactNode) {
   return render(<ClinicalBundleDraftEditor
     schemas={[{
       schema,
@@ -61,7 +61,7 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
     copy={{
       title: 'Add data', description: 'Build the Bundle before sending it.',
       empty: 'No draft data.', add: 'Add', edit: 'Edit', remove: 'Remove',
-      section: 'Section', resourceType: 'Resource type', addSection: 'Add section', addEntry: 'Add entry', chooseResource: 'Choose resource',
+      section: 'Section', resourceType: 'Resource type', addSection: 'Add section', addEntry: 'Add entry', removeSection: 'Remove section', removeSectionConfirm: 'Removing this section will delete all its draft entries. Continue?', chooseResource: 'Choose resource',
       submit: 'Send Bundle', submitting: 'Sending', drafted: 'Added to draft',
       editor: { title: 'Condition', description: 'Add a condition', save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', readbackMissing: 'Draft unavailable', attachments: 'Documents', addAttachments: 'Add PDF or image', removeAttachment: 'Remove document' },
     }}
@@ -70,6 +70,7 @@ function renderDraft(onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirm
     initialBundle={initialBundle}
     onDraftChange={onDraftChange}
     artifactCredentialAction={artifactCredentialAction}
+    documentActions={documentActions}
     onSubmitDraft={onSubmitDraft}
   />)
 }
@@ -84,9 +85,11 @@ describe('ClinicalBundleDraftEditor', () => {
     expect(screen.queryByLabelText('Resource type')).toBeNull()
 
     fireEvent.change(screen.getByLabelText('Section'), { target: { value: 'Immunizations' } })
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
     expect(screen.getByText('Immunizations (0)')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    expect(screen.getByRole('button', { name: 'Remove section Immunizations' }).textContent).toBe('−')
+    expect(screen.getByRole('button', { name: 'Add entry' }).textContent).toBe('+')
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     expect(screen.getByRole('dialog')).toBeTruthy()
   })
 
@@ -109,8 +112,8 @@ describe('ClinicalBundleDraftEditor', () => {
       fieldLabel={(claim) => claim}
       onSubmitDraft={vi.fn()}
     />)
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     expect(screen.getByLabelText('Resource type')).toBeTruthy()
     expect(screen.queryByRole('dialog')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Choose resource' }))
@@ -120,8 +123,8 @@ describe('ClinicalBundleDraftEditor', () => {
   it('names the selected FHIR resource in the selector and entry dialog', () => {
     renderDraft(undefined, undefined, true, (candidate) => candidate === resourceType ? 'Problem (Condition)' : 'Vaccination (Immunization)')
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     expect(screen.getByText('FHIR resource: Problem (Condition)')).toBeTruthy()
   })
 
@@ -179,8 +182,8 @@ describe('ClinicalBundleDraftEditor', () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
     renderDraft(onSubmitDraft)
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
     fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
 
@@ -197,12 +200,32 @@ describe('ClinicalBundleDraftEditor', () => {
     expect(screen.getByText('No draft data.')).toBeTruthy()
   })
 
+  it('removes a section with one compact action and warns before deleting its staged resources', async () => {
+    const confirmRemoval = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    renderDraft(vi.fn())
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
+    fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
+    fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
+    await screen.findByText(firstConcept)
+
+    const removeSection = screen.getByRole('button', { name: 'Remove section Problems' })
+    expect(removeSection.textContent).toBe('−')
+    fireEvent.click(removeSection)
+    expect(confirmRemoval).toHaveBeenCalledWith('Removing this section will delete all its draft entries. Continue?')
+    expect(screen.getByText(firstConcept)).toBeTruthy()
+    confirmRemoval.mockReturnValue(true)
+    fireEvent.click(removeSection)
+    expect(screen.queryByText('Problems (1)')).toBeNull()
+    expect(screen.queryByText(firstConcept)).toBeNull()
+  })
+
   it('submits one Composition-first IPS document with typed subject, section and host-owned provenance', async () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
     renderDraft(onSubmitDraft)
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
     fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
     await screen.findByText(firstConcept)
@@ -238,8 +261,8 @@ describe('ClinicalBundleDraftEditor', () => {
     const onDraftChange = vi.fn()
     renderDraft(onSubmitDraft, undefined, false, undefined, onDraftChange)
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
     fireEvent.click(screen.getByRole('button', { name: 'Add to draft' }))
 
@@ -247,12 +270,26 @@ describe('ClinicalBundleDraftEditor', () => {
     expect(onSubmitDraft).not.toHaveBeenCalled()
   })
 
+  it('keeps document downloads, credential actions and update metadata in the compact submission footer', () => {
+    renderDraft(vi.fn(), undefined, false, undefined, undefined, undefined, <>
+      <button type="button" aria-label="Download FHIR Bundle">↓</button>
+      <button type="button" aria-label="Generate Smart Health Card">Card</button>
+      <time dateTime="2026-10-09T13:03:29Z">Last updated: 09/10/2026, 13:03</time>
+    </>)
+
+    const footer = screen.getByTestId('clinical-document-actions')
+    expect(footer.contains(screen.getByRole('button', { name: 'Download FHIR Bundle' }))).toBe(true)
+    expect(footer.contains(screen.getByRole('button', { name: 'Generate Smart Health Card' }))).toBe(true)
+    expect(footer.contains(screen.getByText('Last updated: 09/10/2026, 13:03'))).toBe(true)
+    expect(footer.contains(screen.getByRole('button', { name: 'Send Bundle' }))).toBe(true)
+  })
+
   it('links several PDF or image DocumentReferences to the clinical entry only in the submitted draft', async () => {
     const onSubmitDraft = vi.fn().mockResolvedValue({ state: 'confirmed' })
     renderDraft(onSubmitDraft)
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Add section' }))
-    fireEvent.click(screen.getByRole('button', { name: '+ Add entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add section' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Add entry' }))
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: firstConcept } })
     fireEvent.change(screen.getByLabelText('Add PDF or image'), { target: { files: [
       new File(['pdf evidence'], 'report.pdf', { type: 'application/pdf' }),

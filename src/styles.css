@@ -524,29 +524,35 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-clinical-bundle-draft { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:1.5rem; color:var(--uhcp-text); display:grid; gap:1rem; padding:1.25rem; }
 .uhcp-clinical-bundle-draft>header h2,.uhcp-clinical-bundle-draft>header p { margin:.15rem 0; }
 .uhcp-clinical-bundle-draft>header p,.uhcp-clinical-bundle-draft details>p { color:var(--uhcp-muted); }
-.uhcp-clinical-bundle-draft details { background:var(--uhcp-panel-muted); border:1px solid var(--uhcp-border); border-radius:1rem; padding:.85rem 1rem; }
+.uhcp-clinical-bundle-draft details { background:var(--uhcp-panel-muted); border:1px solid var(--uhcp-border); border-radius:1rem; padding:.85rem 1rem; position:relative; }
 .uhcp-clinical-bundle-draft summary { cursor:pointer; font-weight:800; }
 .uhcp-clinical-bundle-draft-create { align-items:end; background:var(--uhcp-panel-muted); border:1px solid var(--uhcp-border); border-radius:1rem; display:grid; gap:.8rem; grid-template-columns:minmax(10rem,1fr) minmax(10rem,1fr) auto; padding:1rem; }
 .uhcp-clinical-bundle-draft-create label { display:grid; gap:.35rem; font-weight:700; }
 .uhcp-clinical-bundle-draft-create select { background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:.7rem; color:var(--uhcp-text); font:inherit; min-height:2.75rem; padding:.55rem .7rem; }
-.uhcp-clinical-bundle-draft-create button { background:linear-gradient(135deg,var(--uhcp-action-start),var(--uhcp-action-end)); border:0; border-radius:.75rem; color:#fff; cursor:pointer; font:inherit; font-weight:800; min-height:2.75rem; padding:.65rem 1rem; }
+.uhcp-clinical-bundle-draft-create button.uhcp-add-section-button { background:color-mix(in srgb,var(--uhcp-turquoise) 13%,var(--uhcp-panel)); border:1px solid color-mix(in srgb,var(--uhcp-turquoise) 45%,var(--uhcp-border)); border-radius:.75rem; color:var(--uhcp-text); cursor:pointer; font:inherit; font-weight:800; min-height:2.75rem; padding:.65rem 1rem; }
 .uhcp-clinical-bundle-draft-create button:disabled { cursor:not-allowed; opacity:.5; }
+.uhcp-clinical-bundle-draft .uhcp-add-entry-button { background:var(--uhcp-emerald); border:0; border-radius:.65rem; color:#fff; cursor:pointer; font-size:1.3rem; font-weight:900; height:2.5rem; margin-top:.65rem; width:2.5rem; }
+.uhcp-clinical-bundle-draft .uhcp-remove-section-button { background:color-mix(in srgb,#c64747 12%,var(--uhcp-panel)); border:1px solid color-mix(in srgb,#c64747 42%,var(--uhcp-border)); border-radius:.6rem; color:#a72f2f; cursor:pointer; font-size:1.25rem; font-weight:900; height:2.25rem; position:absolute; right:.7rem; top:.55rem; width:2.25rem; }
 .uhcp-clinical-bundle-draft ul { display:grid; gap:.55rem; list-style:none; margin:.8rem 0 0; padding:0; }
 .uhcp-clinical-bundle-draft li { align-items:center; background:var(--uhcp-panel); border:1px solid var(--uhcp-border); border-radius:.8rem; display:flex; gap:1rem; justify-content:space-between; padding:.7rem; }
 .uhcp-clinical-bundle-draft li>span { display:flex; gap:.45rem; }
 .uhcp-clinical-bundle-draft li>span:first-child { align-items:flex-start; flex-direction:column; min-width:0; }
 .uhcp-clinical-bundle-draft li strong { overflow-wrap:anywhere; }
 .uhcp-clinical-bundle-draft li small { color:var(--uhcp-muted); }
-.uhcp-clinical-bundle-draft>footer { display:flex; justify-content:flex-end; }
-.uhcp-clinical-bundle-draft>footer button { background:linear-gradient(135deg,var(--uhcp-action-start),var(--uhcp-action-end)); border:0; border-radius:.75rem; color:#fff; cursor:pointer; font:inherit; font-weight:800; padding:.75rem 1rem; }
-.uhcp-clinical-bundle-draft>footer button:disabled { cursor:not-allowed; opacity:.5; }
+.uhcp-clinical-bundle-draft>footer { align-items:center; background:var(--uhcp-panel-muted); border:1px solid var(--uhcp-border); border-radius:1rem; display:flex; gap:.75rem; justify-content:space-between; padding:.7rem .8rem; }
+.uhcp-clinical-document-secondary-actions { align-items:center; display:flex; flex:1; flex-wrap:wrap; gap:.65rem; min-width:0; }
+.uhcp-clinical-bundle-draft>footer .uhcp-clinical-document-submit { background:var(--uhcp-emerald); border:0; border-radius:.75rem; color:#fff; cursor:pointer; flex:0 0 auto; font:inherit; font-weight:800; padding:.75rem 1rem; }
+.uhcp-clinical-bundle-draft>footer .uhcp-clinical-document-submit:disabled { cursor:not-allowed; opacity:.5; }
+.uhcp-clinical-bundle-draft .uhcp-clinical-entry-credential-action { background:color-mix(in srgb,var(--uhcp-attention) 24%,var(--uhcp-panel)); border:1px solid color-mix(in srgb,var(--uhcp-attention) 58%,var(--uhcp-border)); color:var(--uhcp-text); }
+.uhcp-clinical-bundle-draft button[data-tooltip],.uhcp-clinical-icon-action[data-tooltip] { position:relative; }
+.uhcp-clinical-bundle-draft button[data-tooltip]:is(:hover,:focus-visible)::after,.uhcp-clinical-icon-action[data-tooltip]:is(:hover,:focus-visible)::after { background:var(--uhcp-text); border-radius:.45rem; bottom:calc(100% + .45rem); color:var(--uhcp-panel); content:attr(data-tooltip); font-size:.78rem; font-weight:700; left:50%; max-width:16rem; padding:.35rem .5rem; pointer-events:none; position:absolute; transform:translateX(-50%); white-space:nowrap; z-index:50; }
 .uhcp-clinical-editor-attachments { border:1px solid var(--uhcp-border); border-radius:.85rem; display:grid; gap:.65rem; grid-column:1/-1; padding:.85rem; }
 .uhcp-clinical-editor-attachments label { display:grid; gap:.35rem; }
 .uhcp-clinical-editor-attachments input[type=file] { border:1px dashed var(--uhcp-border); border-radius:.7rem; padding:.65rem; }
 .uhcp-clinical-editor-attachments ul { display:grid; gap:.4rem; list-style:none; margin:0; padding:0; }
 .uhcp-clinical-editor-attachments li { align-items:center; background:var(--uhcp-panel-muted); border-radius:.65rem; display:flex; justify-content:space-between; padding:.5rem .65rem; }
 .uhcp-clinical-editor-attachments li button { background:transparent; border:0; color:var(--uhcp-text); cursor:pointer; font-size:1.2rem; }
-@media (max-width:720px) { .uhcp-clinical-bundle-draft-create { grid-template-columns:1fr; } }
+@media (max-width:720px) { .uhcp-clinical-bundle-draft-create { grid-template-columns:1fr; } .uhcp-clinical-bundle-draft>footer { align-items:stretch; flex-direction:column; } .uhcp-clinical-bundle-draft>footer .uhcp-clinical-document-submit { align-self:flex-end; } }
 .uhcp-clinical-title { font-weight: 800; margin: 0; }
 .uhcp-clinical-type { color: var(--uhcp-muted); font-size: .72rem; font-weight: 800; letter-spacing: .06em; margin: .35rem 0 0; text-transform: uppercase; }
 .uhcp-clinical-date, .uhcp-clinical-empty { color: var(--uhcp-muted); margin: .35rem 0 0; }

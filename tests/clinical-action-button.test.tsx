@@ -7,6 +7,7 @@ describe('ClinicalActionButton', () => {
   it('renders an icon-only action with an accessible label', () => {
     const html = renderToStaticMarkup(<ClinicalActionButton kind="edit" label="Edit allergy" onClick={() => undefined}/>)
     expect(html).toContain('aria-label="Edit allergy"')
+    expect(html).toContain('data-tooltip="Edit allergy"')
     expect(html).toContain('<svg')
     expect(html).not.toContain('>Edit allergy<')
   })
