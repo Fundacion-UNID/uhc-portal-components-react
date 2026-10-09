@@ -48,7 +48,7 @@ export type ClinicalArtifactFieldV2 = Readonly<{
 
 export type ClinicalArtifactEditorCopyV2 = Readonly<{
   title: string; description: string; resourceType?: string; save: string; saving: string; cancel: string; close: string
-  terminologyLoading: string; terminologyUnavailable: string; terminologySources: string; readbackMissing: string
+  terminologyLoading: string; terminologyUnavailable: string; terminologyEmpty?: string; terminologySources: string; readbackMissing: string
   addField: string; chooseField: string; addSelectedField: string; removeField: string
   searchTerminology: string; clearCoding: string; selectCandidate: string; canonicalCode: string; canonicalDisplay: string
   codingRequired: string
@@ -123,7 +123,7 @@ export function ClinicalArtifactEditorV2({ request, authoringContext, copy, fiel
   }
 
   return <ClinicalEditorLayer onDismiss={onCancel}><section className="uhcp-clinical-editor uhcp-clinical-editor-v2" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-    <header><div><h2 id={titleId}>{copy.title}</h2><p className="uhcp-clinical-editor-resource-type">{copy.resourceType || 'FHIR resource'}: {resourceTypeLabel || request.resourceType}</p><p>{copy.description}</p></div><button type="button" aria-label={copy.close} onClick={onCancel}>×</button></header>
+    <header><div><h2 id={titleId}>{copy.title} {resourceTypeLabel || request.resourceType}</h2><p>{copy.description}</p></div><button type="button" aria-label={copy.close} onClick={onCancel}>×</button></header>
     <form onSubmit={event => { event.preventDefault(); void submit() }}>
       {fields.filter(field => visibleClaims.includes(field.claim)).map(field => <div key={field.claim} className="uhcp-progressive-field-v2">
         {!field.required ? <button type="button" className="uhcp-remove-field-v2" aria-label={`${copy.removeField}: ${fieldLabel(field.claim)}`} onClick={() => { setVisibleClaims(current => current.filter(claim => claim !== field.claim)); if (field.kind === 'documents') setAttachments([]); setClaims(current => { const next = { ...current }; delete next[field.claim]; if (field.codeClaim) delete next[field.codeClaim]; if (field.displayClaim) delete next[field.displayClaim]; return next }) }}>×</button> : null}

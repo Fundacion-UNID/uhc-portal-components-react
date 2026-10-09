@@ -52,7 +52,7 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
   code: string
   display: string
   required?: boolean
-  copy: Readonly<{ searchTerminology: string; terminologyLoading: string; terminologyUnavailable: string; terminologySources: string; selectCandidate: string; clearCoding: string; canonicalCode: string; canonicalDisplay: string }>
+  copy: Readonly<{ searchTerminology: string; terminologyLoading: string; terminologyUnavailable: string; terminologyEmpty?: string; terminologySources: string; selectCandidate: string; clearCoding: string; canonicalCode: string; canonicalDisplay: string }>
   searchTerminology?: (input: ClinicalTerminologySearch) => Promise<readonly ClinicalTerminologyCandidate[]>
   loadTerminologySources?: ClinicalTerminologySourceSearch
   onChange: (value: Readonly<{ text: string; code: string; display: string }>) => void
@@ -63,6 +63,7 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
   const [candidates, setCandidates] = useState<readonly ClinicalTerminologyCandidate[]>([])
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [searched, setSearched] = useState(false)
   useEffect(() => {
     if (!loadTerminologySources) return
     let current = true
@@ -77,7 +78,7 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
   const selectedToken = useMemo(() => code, [code])
   const search = async () => {
     if (!searchTerminology || query.trim().length < 2 || busy) return
-    setBusy(true); setFailed(false)
+    setBusy(true); setFailed(false); setSearched(false)
     try {
       let governedSources = selectedSources
       if (!governedSources.length && loadTerminologySources) {
@@ -87,24 +88,26 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
         setSources(loaded); setSelectedSources(governedSources)
       }
       setCandidates(await searchTerminology({ resourceType, claim: codeClaim, language: locale, text: query.trim(), taxonomyId, limit: 20, ...(governedSources.length ? { sources: governedSources } : {}) }))
+      setSearched(true)
     } catch { setCandidates([]); setFailed(true) } finally { setBusy(false) }
   }
   return <div className="uhcp-clinical-property-v2 uhcp-coded-concept-property-v2">
     <span className="uhcp-clinical-editor-field-heading"><label htmlFor={`${codeClaim}-query`}>{label}{required ? ' *' : ''}</label>{textClaim ? <ClinicalSpeechInputButton resourceType={resourceType} claim={textClaim} locale={locale} fieldLabel={label} onTranscript={transcript => { setQuery(transcript); onChange({ text: transcript, code: '', display: '' }) }}/>: null}</span>
     <div className="uhcp-coded-concept-query-v2">
-      <input id={`${codeClaim}-query`} aria-label={label} required={required} readOnly={Boolean(code)} value={code ? (text || query || display) : query} onChange={event => { setQuery(event.currentTarget.value); onChange({ text: event.currentTarget.value, code: '', display: '' }) }}/>
+      <input id={`${codeClaim}-query`} aria-label={label} required={required} readOnly={Boolean(code)} value={code ? (text || query || display) : query} onChange={event => { setQuery(event.currentTarget.value); setCandidates([]); setSearched(false); setFailed(false); onChange({ text: event.currentTarget.value, code: '', display: '' }) }}/>
       <button type="button" className="uhcp-icon-button-v2" aria-label={copy.searchTerminology} title={copy.searchTerminology} disabled={Boolean(code) || busy || query.trim().length < 2} onClick={() => void search()}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
       {code ? <button type="button" className="uhcp-clear-code-v2" aria-label={copy.clearCoding} title={copy.clearCoding} onClick={() => { setQuery(''); setCandidates([]); onChange({ text: '', code: '', display: '' }) }}>×</button> : null}
     </div>
-    {sources.length ? <fieldset className="uhcp-coding-sources-v2"><legend>{copy.terminologySources}</legend>{sources.map(source => <label key={source.id}><input type="checkbox" checked={selectedSources.includes(source.id)} onChange={event => setSelectedSources(current => event.currentTarget.checked ? [...new Set([...current, source.id])] : current.filter(value => value !== source.id))}/>{source.label || source.id}</label>)}</fieldset> : null}
+    {sources.length ? <fieldset className="uhcp-coding-sources-v2"><legend>{copy.terminologySources}</legend>{sources.map(source => <label key={source.id}><input type="checkbox" checked={selectedSources.includes(source.id)} onChange={event => { const checked = event.currentTarget.checked; setSelectedSources(current => checked ? [...new Set([...current, source.id])] : current.filter(value => value !== source.id)); setCandidates([]); setSearched(false); setFailed(false) }}/>{source.label || source.id}</label>)}</fieldset> : null}
     {busy ? <small role="status">{copy.terminologyLoading}</small> : null}
     {failed ? <small role="alert">{copy.terminologyUnavailable}</small> : null}
+    {searched && !busy && !failed && candidates.length === 0 ? <small role="status">{copy.terminologyEmpty || copy.terminologyUnavailable}</small> : null}
     {candidates.length ? <label>{copy.selectCandidate}<select aria-label={copy.selectCandidate} value={selectedToken} onChange={event => {
       const candidate = candidates.find(value => `${value.system}|${value.code}` === event.currentTarget.value)
       if (!candidate) return
       const localText = candidate.text || query || candidate.display
       setQuery(localText); onChange({ text: localText, code: `${candidate.system}|${candidate.code}`, display: candidate.display }); setCandidates([])
-    }}><option value=""></option>{candidates.map(candidate => <option key={`${candidate.system}|${candidate.code}`} value={`${candidate.system}|${candidate.code}`}>{candidate.display} ({candidate.code})</option>)}</select></label> : null}
+    }}><option value=""></option>{candidates.map(candidate => <option key={`${candidate.system}|${candidate.code}`} value={`${candidate.system}|${candidate.code}`}>{candidate.text && candidate.text !== candidate.display ? `${candidate.text} — ${candidate.display}` : candidate.display} ({candidate.code})</option>)}</select></label> : null}
     {code ? <div className="uhcp-selected-code-v2"><label>{copy.canonicalCode}<input aria-label={copy.canonicalCode} readOnly value={code}/></label><label>{copy.canonicalDisplay}<input aria-label={copy.canonicalDisplay} readOnly value={display}/></label></div> : null}
   </div>
 }
