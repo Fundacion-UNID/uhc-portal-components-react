@@ -15,6 +15,7 @@ export type ProfileProtectionGateV2Props = Readonly<{
   onUnlock?: (pin: string) => ProfileUnlockResult | Promise<ProfileUnlockResult>
   onPasskeyUnlock?: () => void | Promise<void>
   onRetry?: () => void
+  pinFailureActions?: ReactNode
   secondaryActions?: ReactNode
   children: ReactNode
 }>
@@ -32,17 +33,20 @@ export function ProfileProtectionGateV2({
   onUnlock,
   onPasskeyUnlock,
   onRetry,
+  pinFailureActions,
   secondaryActions,
   children,
 }: ProfileProtectionGateV2Props) {
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [pinRejected, setPinRejected] = useState(false)
   const input = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setPin('')
     setError('')
+    setPinRejected(false)
   }, [state, target.title, target.subtitle])
 
   async function unlock(event: FormEvent) {
@@ -61,8 +65,10 @@ export function ProfileProtectionGateV2({
       if (result === 'unlocked') {
         setPin('')
         setError('')
+        setPinRejected(false)
         return
       }
+      setPinRejected(result === 'invalid-pin')
       setError(result === 'invalid-pin'
         ? copy.invalidPin
         : result === 'temporarily-locked'
@@ -143,6 +149,7 @@ export function ProfileProtectionGateV2({
           {error && <p role="alert" className="uhcp-error">{error}</p>}
           <button type="submit" data-portal-action="unlock-profile" disabled={busy}>{copy.unlock}</button>
         </form>
+        {pinRejected && pinFailureActions ? <div className="uhcp-profile-pin-recovery">{pinFailureActions}</div> : null}
       </details>}
       {state === 'unavailable' && onRetry && <button type="button" onClick={onRetry}>{copy.retry}</button>}
       {secondaryActions && <div className="uhcp-profile-gate-secondary">{secondaryActions}</div>}

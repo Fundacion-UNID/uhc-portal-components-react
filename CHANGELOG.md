@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.2.2 - 2026-10-09
+
+- Name the exact localized FHIR resource in the V2 editor heading without a
+  redundant resource-type subtitle.
+- Keep terminology candidates in the existing selection dropdown and report a
+  successful zero-result search explicitly, clearing stale results whenever
+  the query or governed coding-system selection changes.
+- Give the V2 profile-unlock panel an explicit light/dark accent surface and
+  support PIN-recovery actions inside the PIN fallback only after a rejected
+  PIN, while keeping unrelated profile actions separate.
+
 ## 0.2.1 - 2026-10-08
 
 - Add the opt-in `ProfileProtectionGateV2`, which identifies the exact

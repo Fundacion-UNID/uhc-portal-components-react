@@ -17,8 +17,8 @@ import { SchemaClinicalArtifactEditorV2 } from '../src/SchemaClinicalArtifactEdi
 afterEach(cleanup)
 
 const copy = {
-  title: 'Add clinical data', description: 'Only essential fields are shown.', resourceType: 'FHIR resource',
-  save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', terminologySources: 'Coding systems', readbackMissing: 'Draft unavailable',
+  title: 'Add', description: 'Only essential fields are shown.', resourceType: 'FHIR resource',
+  save: 'Add to draft', saving: 'Adding', cancel: 'Cancel', close: 'Close', terminologyLoading: 'Searching', terminologyUnavailable: 'Unavailable', terminologyEmpty: 'No terminology codes were found.', terminologySources: 'Coding systems', readbackMissing: 'Draft unavailable',
   addField: 'Add another field', chooseField: 'Choose a field', addSelectedField: 'Add field', removeField: 'Remove field', searchTerminology: 'Search codes', clearCoding: 'Clear selected code', selectCandidate: 'Select a code', canonicalCode: 'Coding system and code', canonicalDisplay: 'English display', documents: 'Documents', addDocuments: 'Add PDF or image', removeDocument: 'Remove document',
   codingRequired: 'Select a terminology code.',
   date: 'Date', time: 'Time', useToday: 'Today', useCurrentTime: 'Now',
@@ -47,10 +47,42 @@ describe('SchemaClinicalArtifactEditorV2', () => {
       onCancel={() => undefined}
       onReadback={() => undefined}
     />)
-    expect(screen.getByText(`FHIR resource: ${resourceType}`)).toBeTruthy()
+    expect(screen.getByRole('heading', { name: `Add ${resourceType}` })).toBeTruthy()
+    expect(screen.queryByText(`FHIR resource: ${resourceType}`)).toBeNull()
     expect(screen.getByLabelText(conceptClaim)).toBeTruthy()
     expect(screen.getByLabelText(statusClaim).tagName).toBe('SELECT')
     cleanup()
+  })
+
+  it('names the translated resource in the title and reports a completed empty terminology search', async () => {
+    const schema = FHIR_IPS_CLINICAL_ARTIFACT_SCHEMAS.AllergyIntolerance
+    render(<SchemaClinicalArtifactEditorV2
+      request={{ resourceType: 'AllergyIntolerance', sectionCode: schema.sectionCode ?? '', mode: 'create' }}
+      schema={schema}
+      authoringContext={context}
+      copy={{ ...copy, title: 'Añadir', terminologyEmpty: 'No se han encontrado códigos. Prueba con términos en inglés.' }}
+      locale="es"
+      resourceTypeLabel="Alergia o intolerancia (AllergyIntolerance)"
+      fieldLabel={claim => claim === 'AllergyIntolerance.code-text' ? 'Sustancia o producto' : claim}
+      loadTerminologySources={vi.fn().mockResolvedValue([
+        { id: 'SNOMED_GPS', label: 'SNOMED GPS', default: true },
+        { id: 'SNOMED_CT', label: 'SNOMED CT' },
+      ])}
+      searchTerminology={vi.fn().mockResolvedValue([])}
+      saveArtifact={vi.fn()}
+      onCancel={() => undefined}
+      onReadback={() => undefined}
+    />)
+
+    expect(screen.getByRole('heading', { name: 'Añadir Alergia o intolerancia (AllergyIntolerance)' })).toBeTruthy()
+    expect(screen.queryByText(/Tipo de recurso FHIR|FHIR resource/)).toBeNull()
+    fireEvent.change(screen.getByLabelText('Sustancia o producto'), { target: { value: 'penicilina' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Search codes' }))
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('No se han encontrado códigos. Prueba con términos en inglés.'))
+    expect(screen.queryByLabelText('Select a code')).toBeNull()
+    expect((screen.getByRole('checkbox', { name: 'SNOMED GPS' }) as HTMLInputElement).checked).toBe(true)
+    fireEvent.click(screen.getByRole('checkbox', { name: 'SNOMED CT' }))
+    expect(screen.queryByRole('status')).toBeNull()
   })
 
   it('uses the progressive V2 form for Condition with a coded status and terminology-backed concept', async () => {
@@ -76,6 +108,7 @@ describe('SchemaClinicalArtifactEditorV2', () => {
     expect(screen.queryByLabelText('Recorded date')).toBeNull()
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: 'Úlcera corneal' } })
     fireEvent.click(screen.getByRole('button', { name: 'Search codes' }))
+    expect(await screen.findByRole('option', { name: 'Úlcera corneal — Corneal ulcer (H16.0)' })).toBeTruthy()
     fireEvent.change(await screen.findByLabelText('Select a code'), { target: { value: 'http://hl7.org/fhir/sid/icd-10|H16.0' } })
     fireEvent.change(screen.getByLabelText('Choose a field'), { target: { value: 'Condition.recorded-date' } })
     fireEvent.click(screen.getByRole('button', { name: 'Add field' }))
