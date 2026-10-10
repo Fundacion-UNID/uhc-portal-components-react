@@ -28,6 +28,7 @@ export type AnimalIdentityOnboardingV2Copy = AnimalIdentityOnboardingCopy & Read
   supervisedRemote: string
   electronicId: string
   unsupervisedRemote: string
+  countryPlaceholder?: string
 }>
 
 type SelectOption = Readonly<{ value: string; label: string }>
@@ -37,7 +38,7 @@ const MAX_ANIMAL_PHOTO_BYTES = 2 * 1024 * 1024
  * Progressive animal onboarding presentation. It preserves the V1 payload so
  * hosts can adopt it without changing evidence, authorization or persistence.
  */
-export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speciesOptions = [], countryOptions = [], regionOptionsByCountry = {}, identifierTypeOptions, showHeader = true, busy = false }: Readonly<{
+export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speciesOptions = [], countryOptions = [], regionOptionsByCountry = {}, identifierTypeOptions, showHeader = true, requireEmail = false, requireTelephone = false, busy = false }: Readonly<{
   copy: AnimalIdentityOnboardingV2Copy
   onSubmit: (input: AnimalIdentityOnboardingInput) => Promise<void> | void
   submitAction?: string
@@ -46,6 +47,8 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
   regionOptionsByCountry?: Readonly<Record<string, readonly SelectOption[]>>
   identifierTypeOptions?: Readonly<{ person: readonly SelectOption[]; organization: readonly SelectOption[] }>
   showHeader?: boolean
+  requireEmail?: boolean
+  requireTelephone?: boolean
   busy?: boolean
 }>) {
   const [submitting, setSubmitting] = useState(false)
@@ -115,12 +118,10 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
         controllerRegion: optionalText(form, 'controllerRegion'),
         controllerEmail,
         controllerTelephone,
-        verificationMethod: requiredText(form, 'verificationMethod') as NonNullable<AnimalIdentityOnboardingInput['verificationMethod']>,
         relationship: requiredText(form, 'relationship') as AnimalControllerRelationship,
-        ownerDocument: requiredFile(formElement, 'ownerDocument'),
+        ownerDocument: optionalFile(formElement, 'ownerDocument'),
         animalDocument: animalDocument || requiredFile(formElement, 'animalDocument'),
-        relationshipDocument: requiredFile(formElement, 'relationshipDocument'),
-        controllerPin: requiredText(form, 'controllerPin'),
+        relationshipDocument: optionalFile(formElement, 'relationshipDocument'),
       })
     } finally {
       setSubmitting(false)
@@ -163,7 +164,7 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
       </details>
       <details aria-labelledby="animal-onboarding-v2-controller-step">
         <summary id="animal-onboarding-v2-controller-step"><StepNumber value={2}/> {copy.controllerStep}</summary>
-        <IdentityEntityEditorV2 mode="controller" countryOptions={countryOptions} regionOptionsByCountry={regionOptionsByCountry} identifierTypeOptions={identifierTypeOptions} contactError={contactError} copy={{
+        <IdentityEntityEditorV2 mode="controller" showEvidence={false} countryOptions={countryOptions} regionOptionsByCountry={regionOptionsByCountry} identifierTypeOptions={identifierTypeOptions} contactError={contactError} requireEmail={requireEmail} requireTelephone={requireTelephone} copy={{
           entityType: copy.ownerKind, personEntity: copy.personOwner, organizationEntity: copy.organizationOwner,
           fullLegalName: copy.controllerLegalName, country: copy.controllerCountry, regionalIdentifier: copy.regionalIdentifier,
           region: copy.controllerRegion, identifierType: copy.controllerIdentifierType, identifierValue: copy.controllerIdentifierValue,
@@ -171,8 +172,8 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
           responsibleParty: copy.responsibleParty ?? copy.owner, evidence: copy.evidenceStep,
           verificationMethod: copy.verificationMethod, physicalInPerson: copy.physicalInPerson,
           supervisedRemote: copy.supervisedRemote, electronicId: copy.electronicId, unsupervisedRemote: copy.unsupervisedRemote,
-          identityDocument: copy.ownerDocument, relationshipDocument: copy.relationshipDocument, pin: copy.controllerPin,
-          controllerConfirmation: copy.controllerIsLegalRepresentative,
+          identityDocument: copy.ownerDocument, relationshipDocument: copy.relationshipDocument,
+          countryPlaceholder: copy.countryPlaceholder, controllerConfirmation: copy.controllerIsLegalRepresentative,
         }}/>
       </details>
       <button type="submit" className="uhcp-animal-onboarding-submit" data-portal-action={submitAction} disabled={disabled}>{copy.submit}</button>
@@ -200,6 +201,12 @@ function requiredFile(form: HTMLFormElement, name: string): File {
   const value = input instanceof HTMLInputElement ? input.files?.[0] : undefined
   if (!value || value.size < 1) throw new Error(`animal_identity_${name}_required`)
   return value
+}
+
+function optionalFile(form: HTMLFormElement, name: string): File | undefined {
+  const input = form.elements.namedItem(name)
+  const value = input instanceof HTMLInputElement ? input.files?.[0] : undefined
+  return value && value.size > 0 ? value : undefined
 }
 
 async function readImageDimensions(file: File): Promise<Readonly<{ width: number; height: number }>> {

@@ -1,4 +1,4 @@
-// Flow contract: create one animal through progressive, collapsible identity blocks while preserving the typed evidence payload owned by the host portal.
+// Flow contract: reuse shared test fixtures and canonical types; do not introduce duplicated literals.
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -20,7 +20,7 @@ const copy: AnimalIdentityOnboardingV2Copy = {
   addAnimalPhoto: 'Add animal photo', removeAnimalPhoto: 'Remove animal photo', photoHelp: 'PNG or JPG, maximum 2 MiB, portrait 3:4, minimum 300 × 400 px.', photoTooLarge: 'The image must not exceed 2 MiB.', photoDimensionsInvalid: 'Use a portrait 3:4 image of at least 300 × 400 px.',
   ownerKind: 'Entity type', responsibleParty: 'Responsible party', personOwner: 'Person', organizationOwner: 'Organization', regionalIdentifier: 'Regional identifier',
   controllerRegion: 'Region', controllerEmail: 'Email', controllerTelephone: 'Telephone', contactRequired: 'Enter an email or telephone.',
-  verificationMethod: 'Verification method', physicalInPerson: 'Physical in-person', supervisedRemote: 'Supervised remote', electronicId: 'Electronic ID', unsupervisedRemote: 'Unsupervised remote',
+  verificationMethod: 'Verification method', physicalInPerson: 'Physical in-person', supervisedRemote: 'Supervised remote', electronicId: 'Electronic ID', unsupervisedRemote: 'Unsupervised remote', countryPlaceholder: 'Select a country',
 }
 
 describe('AnimalIdentityOnboardingV2', () => {
@@ -40,7 +40,7 @@ describe('AnimalIdentityOnboardingV2', () => {
     expect(blocks[0]?.hasAttribute('open')).toBe(true)
     expect(screen.getByRole('group', { name: 'Animal identity' })).toBeTruthy()
     expect(screen.getByRole('group', { name: 'Owner or caregiver' })).toBeTruthy()
-    expect(screen.getByRole('group', { name: 'Identity evidence' }).closest('details')).toBe(blocks[1])
+    expect(screen.queryByRole('group', { name: 'Identity evidence' })).toBeNull()
     expect((screen.getByRole('checkbox', { name: 'This person is the animal legal representative or controller' }) as HTMLInputElement).checked).toBe(true)
     expect(screen.getByRole('button', { name: 'Add animal photo' })).toBeTruthy()
     expect((screen.getByRole('radio', { name: 'Person' }) as HTMLInputElement).checked).toBe(true)
@@ -64,16 +64,12 @@ describe('AnimalIdentityOnboardingV2', () => {
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'alex@example.test' } })
     fireEvent.change(screen.getByLabelText('Identity number'), { target: { value: 'ID-123' } })
     fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'CA' } })
-    fireEvent.change(screen.getByLabelText('PIN'), { target: { value: '246810' } })
-    const evidence = new File(['evidence'], 'evidence.pdf', { type: 'application/pdf' })
-    fireEvent.change(screen.getByLabelText('Controller document'), { target: { files: [evidence] } })
-    fireEvent.change(screen.getByLabelText('Relationship document'), { target: { files: [evidence] } })
     fireEvent.submit(screen.getByRole('button', { name: 'Create animal' }).closest('form')!)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-      animalName: 'Pluto', animalDocument: photo, ownerDocument: evidence,
-      relationshipDocument: evidence, relationship: 'owner', controllerCountry: 'CA',
-      controllerKind: 'person', controllerEmail: 'alex@example.test', verificationMethod: 'pipp',
+      animalName: 'Pluto', animalDocument: photo, ownerDocument: undefined,
+      relationshipDocument: undefined, relationship: 'owner', controllerCountry: 'CA',
+      controllerKind: 'person', controllerEmail: 'alex@example.test',
     })))
   })
 
@@ -110,5 +106,22 @@ describe('AnimalIdentityOnboardingV2', () => {
     render(<AnimalIdentityOnboardingV2 copy={copy} onSubmit={vi.fn()} showHeader={false} />)
     expect(screen.queryByRole('heading', { name: 'Create animal' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Create animal' })).toBeTruthy()
+  })
+
+  it('allows supporting evidence to be omitted while web registration requires phone and email', async () => {
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue({ width: 600, height: 800, close: vi.fn() }))
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(<AnimalIdentityOnboardingV2 copy={copy} onSubmit={onSubmit} requireEmail requireTelephone countryOptions={[{ value: 'ES', label: 'Espana' }]}/>)
+    fireEvent.change(screen.getByLabelText('Animal name'), { target: { value: 'Luna' } })
+    fireEvent.change(screen.getByLabelText('Identifier'), { target: { value: '981020000123456' } })
+    fireEvent.change(screen.getByLabelText('Legal name'), { target: { value: 'Alex Example' } })
+    fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'ES' } })
+    fireEvent.change(screen.getByLabelText('Identity number'), { target: { value: '12345678Z' } })
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'alex@example.test' } })
+    fireEvent.change(screen.getByLabelText('Telephone'), { target: { value: '+34600111222' } })
+    const photo = new File(['photo'], 'luna.jpg', { type: 'image/jpeg' })
+    fireEvent.change(screen.getByRole('button', { name: 'Add animal photo' }).querySelector('input')!, { target: { files: [photo] } })
+    fireEvent.submit(screen.getByRole('button', { name: 'Create animal' }).closest('form')!)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ ownerDocument: undefined, relationshipDocument: undefined, controllerEmail: 'alex@example.test', controllerTelephone: '+34600111222' })))
   })
 })

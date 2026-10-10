@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.10 - 2026-10-10
+
+- Keep animal-controller creation focused on identity and contact data: the
+  controller channel already owns its unlock credential, so the form no longer
+  asks for a second PIN or requires identity-evidence uploads at creation time.
+- Let hosts require email and telephone independently, start country selection
+  without an implicit jurisdiction and keep optional evidence collection for a
+  later, explicit post-creation step.
+- Improve the reusable entity editor contrast and distinguish its edit action
+  with an accessible icon.
+
 ## 0.2.9 - 2026-10-10
 
 - Add one reusable identity entity editor for animal controllers and related

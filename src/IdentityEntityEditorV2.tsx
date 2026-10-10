@@ -24,8 +24,9 @@ export type IdentityEntityEditorV2Copy = Readonly<{
   unsupervisedRemote: string
   identityDocument: string
   relationshipDocument: string
-  pin: string
+  pin?: string
   controllerConfirmation: string
+  countryPlaceholder?: string
 }>
 
 /**
@@ -42,6 +43,9 @@ export function IdentityEntityEditorV2({
   relationshipOptions = [],
   fieldPrefix = '',
   contactError,
+  requireEmail = false,
+  requireTelephone = false,
+  showEvidence = true,
 }: Readonly<{
   copy: IdentityEntityEditorV2Copy
   mode: 'controller' | 'related'
@@ -51,9 +55,12 @@ export function IdentityEntityEditorV2({
   relationshipOptions?: readonly IdentityEntitySelectOption[]
   fieldPrefix?: string
   contactError?: string
+  requireEmail?: boolean
+  requireTelephone?: boolean
+  showEvidence?: boolean
 }>) {
   const [entityType, setEntityType] = useState<'person' | 'organization'>('person')
-  const [country, setCountry] = useState(countryOptions[0]?.value || '')
+  const [country, setCountry] = useState('')
   const [regional, setRegional] = useState(false)
   const regions = regionOptionsByCountry[country] ?? []
   const name = (value: string) => fieldPrefix ? `${fieldPrefix}.${value}` : value
@@ -73,24 +80,23 @@ export function IdentityEntityEditorV2({
     </div>
     <div className="uhcp-animal-onboarding-fields">
       <label className="uhcp-animal-owner-name">{copy.fullLegalName}<input name={name('controllerLegalName')} required maxLength={160} autoComplete={entityType === 'person' ? 'name' : 'organization'}/></label>
-      <label>{copy.country}{countryOptions.length ? <select name={name('controllerCountry')} required value={country} onChange={event => setCountry(event.currentTarget.value)}>{countryOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerCountry')} required pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country" onChange={event => setCountry(event.currentTarget.value.toUpperCase())}/>}</label>
+      <label>{copy.country}{countryOptions.length ? <select name={name('controllerCountry')} required value={country} onChange={event => setCountry(event.currentTarget.value)}><option value="" disabled>{copy.countryPlaceholder ?? copy.country}</option>{countryOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerCountry')} required pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country" onChange={event => setCountry(event.currentTarget.value.toUpperCase())}/>}</label>
       <label className="uhcp-animal-regional-identifier"><input type="checkbox" checked={regional} disabled={!regions.length} onChange={event => setRegional(event.currentTarget.checked)}/> {copy.regionalIdentifier}</label>
       <label>{copy.region}<select name={name('controllerRegion')} required={regional} disabled={!regional}><option value=""/>{regions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
       <label>{copy.identifierType}{identifierTypeOptions ? <select name={name('controllerIdentifierType')} required key={entityType}>{identifierTypeOptions[entityType].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerIdentifierType')} required defaultValue="national_identity_card" maxLength={80}/>}</label>
       <label>{copy.identifierValue}<input name={name('controllerIdentifierValue')} required maxLength={120} autoComplete="off"/></label>
-      <label>{copy.email}<input name={name('controllerEmail')} type="email" autoComplete="email"/></label>
-      <label>{copy.telephone}<input name={name('controllerTelephone')} type="tel" autoComplete="tel"/></label>
-      {mode === 'controller' ? <label className="uhcp-animal-controller-confirmation"><input type="checkbox" defaultChecked required/> {copy.controllerConfirmation}</label> : null}
+      <label className="uhcp-identity-entity-contact-wide">{copy.email}<input name={name('controllerEmail')} type="email" autoComplete="email" required={requireEmail}/></label>
+      <label>{copy.telephone}<input name={name('controllerTelephone')} type="tel" autoComplete="tel" required={requireTelephone}/></label>
+      {mode === 'controller' ? <label className="uhcp-animal-controller-confirmation"><input type="checkbox" checked disabled readOnly aria-disabled="true"/> {copy.controllerConfirmation}</label> : null}
       {contactError ? <p role="alert">{contactError}</p> : null}
     </div>
-    <fieldset className="uhcp-identity-entity-evidence">
+    {showEvidence ? <fieldset className="uhcp-identity-entity-evidence">
       <legend>{copy.evidence}</legend>
       <div className="uhcp-animal-onboarding-fields">
         <label>{copy.verificationMethod}<select name={name('verificationMethod')} defaultValue="pipp"><option value="pipp">{copy.physicalInPerson}</option><option value="sripp">{copy.supervisedRemote}</option><option value="eid">{copy.electronicId}</option><option value="uripp">{copy.unsupervisedRemote}</option></select></label>
-        <label>{copy.identityDocument}<input name={name('ownerDocument')} type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
-        <label>{copy.relationshipDocument}<input name={name('relationshipDocument')} type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
-        {mode === 'controller' ? <label>{copy.pin}<input name={name('controllerPin')} type="password" inputMode="numeric" pattern="[0-9]{6,12}" required autoComplete="new-password"/></label> : null}
+        <label>{copy.identityDocument}<input name={name('ownerDocument')} type="file" accept="application/pdf,image/jpeg,image/png"/></label>
+        <label>{copy.relationshipDocument}<input name={name('relationshipDocument')} type="file" accept="application/pdf,image/jpeg,image/png"/></label>
       </div>
-    </fieldset>
+    </fieldset> : null}
   </div>
 }
