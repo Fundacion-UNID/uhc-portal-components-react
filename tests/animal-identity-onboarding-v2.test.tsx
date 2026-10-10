@@ -18,7 +18,7 @@ const copy: AnimalIdentityOnboardingV2Copy = {
   controllerIsLegalRepresentative: 'This person is the animal legal representative or controller',
   animalPreview: '{name} preview',
   addAnimalPhoto: 'Add animal photo', removeAnimalPhoto: 'Remove animal photo', photoHelp: 'PNG or JPG, maximum 2 MiB, portrait 3:4, minimum 300 × 400 px.', photoTooLarge: 'The image must not exceed 2 MiB.', photoDimensionsInvalid: 'Use a portrait 3:4 image of at least 300 × 400 px.',
-  ownerKind: 'Owner type', personOwner: 'Person', organizationOwner: 'Organization', regionalIdentifier: 'Regional identifier',
+  ownerKind: 'Entity type', responsibleParty: 'Responsible party', personOwner: 'Person', organizationOwner: 'Organization', regionalIdentifier: 'Regional identifier',
   controllerRegion: 'Region', controllerEmail: 'Email', controllerTelephone: 'Telephone', contactRequired: 'Enter an email or telephone.',
   verificationMethod: 'Verification method', physicalInPerson: 'Physical in-person', supervisedRemote: 'Supervised remote', electronicId: 'Electronic ID', unsupervisedRemote: 'Unsupervised remote',
 }
@@ -36,14 +36,20 @@ describe('AnimalIdentityOnboardingV2', () => {
     />)
 
     const blocks = container.querySelectorAll('details')
-    expect(blocks).toHaveLength(3)
+    expect(blocks).toHaveLength(2)
     expect(blocks[0]?.hasAttribute('open')).toBe(true)
     expect(screen.getByRole('group', { name: 'Animal identity' })).toBeTruthy()
     expect(screen.getByRole('group', { name: 'Owner or caregiver' })).toBeTruthy()
-    expect(screen.getByRole('group', { name: 'Identity evidence' })).toBeTruthy()
+    expect(screen.getByRole('group', { name: 'Identity evidence' }).closest('details')).toBe(blocks[1])
     expect((screen.getByRole('checkbox', { name: 'This person is the animal legal representative or controller' }) as HTMLInputElement).checked).toBe(true)
     expect(screen.getByRole('button', { name: 'Add animal photo' })).toBeTruthy()
     expect((screen.getByRole('radio', { name: 'Person' }) as HTMLInputElement).checked).toBe(true)
+    expect(screen.getByText('Responsible party')).toBeTruthy()
+    expect(screen.queryByRole('combobox', { name: 'Relationship' })).toBeNull()
+    expect((screen.getByRole('combobox', { name: 'Region' }) as HTMLSelectElement).disabled).toBe(true)
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Regional identifier' }))
+    expect((screen.getByRole('combobox', { name: 'Region' }) as HTMLSelectElement).disabled).toBe(false)
 
     fireEvent.change(screen.getByLabelText('Animal name'), { target: { value: 'Pluto' } })
     const photo = new File(['photo'], 'pluto.jpg', { type: 'image/jpeg' })
