@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.2.7 - 2026-10-09
+
+- Give every V2 animal-onboarding disclosure an accessible group name derived
+  from its localized summary.
+
 ## 0.2.6 - 2026-10-09
 
 - Add the opt-in `AnimalIdentityOnboardingV2` with responsive animal imagery,

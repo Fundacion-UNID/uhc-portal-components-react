@@ -29,6 +29,9 @@ describe('AnimalIdentityOnboardingV2', () => {
     const blocks = container.querySelectorAll('details')
     expect(blocks).toHaveLength(3)
     expect(blocks[0]?.hasAttribute('open')).toBe(true)
+    expect(screen.getByRole('group', { name: 'Animal identity' })).toBeTruthy()
+    expect(screen.getByRole('group', { name: 'Owner or caregiver' })).toBeTruthy()
+    expect(screen.getByRole('group', { name: 'Identity evidence' })).toBeTruthy()
     expect((screen.getByRole('checkbox', { name: 'This person is the animal legal representative or controller' }) as HTMLInputElement).checked).toBe(true)
 
     fireEvent.change(screen.getByLabelText('Animal name'), { target: { value: 'Pluto' } })
