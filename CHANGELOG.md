@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.5 - 2026-10-09
+
+- Render the protected organization target on a neutral light/dark panel with
+  its logo at the left and its role, legal context and selectable sector badge
+  in one readable stack at the right.
+
 ## 0.2.4 - 2026-10-09
 
 - Lead the protected-profile card with the unlock task, center the selected
