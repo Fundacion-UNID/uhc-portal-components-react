@@ -8,40 +8,97 @@ import type {
 export type AnimalIdentityOnboardingV2Copy = AnimalIdentityOnboardingCopy & Readonly<{
   controllerIsLegalRepresentative: string
   animalPreview: string
+  addAnimalPhoto: string
+  removeAnimalPhoto: string
+  photoHelp: string
+  photoTooLarge: string
+  photoDimensionsInvalid: string
+  ownerKind: string
+  personOwner: string
+  organizationOwner: string
+  regionalIdentifier: string
+  controllerRegion: string
+  controllerEmail: string
+  controllerTelephone: string
+  contactRequired: string
+  verificationMethod: string
+  physicalInPerson: string
+  supervisedRemote: string
+  electronicId: string
+  unsupervisedRemote: string
 }>
+
+type SelectOption = Readonly<{ value: string; label: string }>
+const MAX_ANIMAL_PHOTO_BYTES = 2 * 1024 * 1024
 
 /**
  * Progressive animal onboarding presentation. It preserves the V1 payload so
  * hosts can adopt it without changing evidence, authorization or persistence.
  */
-export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speciesOptions = [], busy = false }: Readonly<{
+export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speciesOptions = [], countryOptions = [], regionOptionsByCountry = {}, identifierTypeOptions, showHeader = true, busy = false }: Readonly<{
   copy: AnimalIdentityOnboardingV2Copy
   onSubmit: (input: AnimalIdentityOnboardingInput) => Promise<void> | void
   submitAction?: string
   speciesOptions?: readonly Readonly<{ taxonomyId: string; label: string }>[]
+  countryOptions?: readonly SelectOption[]
+  regionOptionsByCountry?: Readonly<Record<string, readonly SelectOption[]>>
+  identifierTypeOptions?: Readonly<{ person: readonly SelectOption[]; organization: readonly SelectOption[] }>
+  showHeader?: boolean
   busy?: boolean
 }>) {
   const [submitting, setSubmitting] = useState(false)
   const [animalName, setAnimalName] = useState('')
   const [previewUrl, setPreviewUrl] = useState('')
+  const [animalDocument, setAnimalDocument] = useState<File>()
+  const [photoError, setPhotoError] = useState('')
+  const [contactError, setContactError] = useState('')
+  const [controllerKind, setControllerKind] = useState<'person' | 'organization'>('person')
+  const [controllerCountry, setControllerCountry] = useState(countryOptions[0]?.value || '')
+  const [regionalIdentifier, setRegionalIdentifier] = useState(false)
 
   useEffect(() => () => {
     if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
   }, [previewUrl])
 
-  function previewAnimal(file?: File) {
+  async function previewAnimal(file?: File) {
     if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
-    if (!file?.type.startsWith('image/')) return setPreviewUrl('')
+    setPhotoError('')
+    if (!file?.type.startsWith('image/')) { setAnimalDocument(undefined); return setPreviewUrl('') }
+    if (file.size > MAX_ANIMAL_PHOTO_BYTES) { setAnimalDocument(undefined); setPreviewUrl(''); return setPhotoError(copy.photoTooLarge) }
+    try {
+      const dimensions = await readImageDimensions(file)
+      if (!hasAcceptedPhotoDimensions(dimensions.width, dimensions.height)) {
+        setAnimalDocument(undefined)
+        setPreviewUrl('')
+        return setPhotoError(copy.photoDimensionsInvalid)
+      }
+    } catch {
+      setAnimalDocument(undefined)
+      setPreviewUrl('')
+      return setPhotoError(copy.photoDimensionsInvalid)
+    }
+    setAnimalDocument(file)
     if (typeof URL.createObjectURL === 'function') return setPreviewUrl(URL.createObjectURL(file))
     const reader = new FileReader()
     reader.onload = () => setPreviewUrl(typeof reader.result === 'string' ? reader.result : '')
     reader.readAsDataURL(file)
   }
 
+  function removeAnimalPhoto() {
+    if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
+    setAnimalDocument(undefined)
+    setPreviewUrl('')
+    setPhotoError('')
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formElement = event.currentTarget
     const form = new FormData(formElement)
+    const controllerEmail = optionalText(form, 'controllerEmail')
+    const controllerTelephone = optionalText(form, 'controllerTelephone')
+    if (!controllerEmail && !controllerTelephone) { setContactError(copy.contactRequired); return }
+    setContactError('')
     setSubmitting(true)
     try {
       await onSubmit({
@@ -55,9 +112,14 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
         controllerIdentifierType: requiredText(form, 'controllerIdentifierType'),
         controllerIdentifierValue: requiredText(form, 'controllerIdentifierValue'),
         controllerCountry: requiredText(form, 'controllerCountry').toUpperCase(),
+        controllerKind,
+        controllerRegion: optionalText(form, 'controllerRegion'),
+        controllerEmail,
+        controllerTelephone,
+        verificationMethod: requiredText(form, 'verificationMethod') as NonNullable<AnimalIdentityOnboardingInput['verificationMethod']>,
         relationship: requiredText(form, 'relationship') as AnimalControllerRelationship,
         ownerDocument: requiredFile(formElement, 'ownerDocument'),
-        animalDocument: requiredFile(formElement, 'animalDocument'),
+        animalDocument: animalDocument || requiredFile(formElement, 'animalDocument'),
         relationshipDocument: requiredFile(formElement, 'relationshipDocument'),
         controllerPin: requiredText(form, 'controllerPin'),
       })
@@ -67,20 +129,26 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
   }
 
   const disabled = busy || submitting
-  return <section className="uhcp-animal-onboarding uhcp-animal-onboarding-v2" aria-labelledby="animal-identity-onboarding-v2-title">
-    <header>
+  return <section className="uhcp-animal-onboarding uhcp-animal-onboarding-v2" aria-labelledby={showHeader ? 'animal-identity-onboarding-v2-title' : undefined} aria-label={showHeader ? undefined : copy.title}>
+    {showHeader ? <header>
       <h2 id="animal-identity-onboarding-v2-title">{copy.title}</h2>
       <p>{copy.intro}</p>
-    </header>
+    </header> : null}
     <form onSubmit={submit}>
       <details open aria-labelledby="animal-onboarding-v2-animal-step">
         <summary id="animal-onboarding-v2-animal-step"><StepNumber value={1}/> {copy.animalStep}</summary>
         <div className="uhcp-animal-onboarding-primary">
           <div className="uhcp-animal-photo">
-            {previewUrl
-              ? <img src={previewUrl} alt={copy.animalPreview.replace('{name}', animalName || copy.animalName)}/>
-              : <span aria-hidden="true">{animalName.trim().slice(0, 1).toLocaleUpperCase() || '＋'}</span>}
-            <label>{copy.animalDocument}<input name="animalDocument" type="file" accept="application/pdf,image/jpeg,image/png" required onChange={event => previewAnimal(event.currentTarget.files?.[0])}/></label>
+            <label className="uhcp-animal-photo-dropzone" role="button" aria-label={copy.addAnimalPhoto}
+              onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); void previewAnimal(event.dataTransfer.files?.[0]) }}>
+              {previewUrl
+                ? <img src={previewUrl} alt={copy.animalPreview.replace('{name}', animalName || copy.animalName)}/>
+                : <span aria-hidden="true">＋</span>}
+              <input name="animalDocument" type="file" accept="image/jpeg,image/png" required={!animalDocument} aria-label={copy.addAnimalPhoto} onChange={event => void previewAnimal(event.currentTarget.files?.[0])}/>
+            </label>
+            {previewUrl ? <button type="button" className="uhcp-animal-photo-remove" aria-label={copy.removeAnimalPhoto} title={copy.removeAnimalPhoto} onClick={removeAnimalPhoto}>×</button> : null}
+            <small>{copy.photoHelp}</small>
+            {photoError ? <p role="alert">{photoError}</p> : null}
           </div>
           <div className="uhcp-animal-onboarding-fields">
             <label>{copy.animalName}<input name="animalName" required maxLength={80} value={animalName} onChange={event => setAnimalName(event.currentTarget.value)}/></label>
@@ -97,17 +165,24 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
       <details aria-labelledby="animal-onboarding-v2-controller-step">
         <summary id="animal-onboarding-v2-controller-step"><StepNumber value={2}/> {copy.controllerStep}</summary>
         <div className="uhcp-animal-onboarding-fields">
-          <label>{copy.controllerLegalName}<input name="controllerLegalName" required maxLength={160} autoComplete="name"/></label>
-          <label>{copy.controllerIdentifierType}<input name="controllerIdentifierType" required defaultValue="national_identity_card" maxLength={80}/></label>
+          <fieldset className="uhcp-animal-owner-kind"><legend>{copy.ownerKind}</legend><label><input type="radio" name="controllerKind" value="person" checked={controllerKind === 'person'} onChange={() => setControllerKind('person')}/> {copy.personOwner}</label><label><input type="radio" name="controllerKind" value="organization" checked={controllerKind === 'organization'} onChange={() => setControllerKind('organization')}/> {copy.organizationOwner}</label></fieldset>
+          <label className="uhcp-animal-owner-name">{copy.controllerLegalName}<input name="controllerLegalName" required maxLength={160} autoComplete={controllerKind === 'person' ? 'name' : 'organization'}/></label>
+          <label>{copy.controllerCountry}{countryOptions.length ? <select name="controllerCountry" required value={controllerCountry} onChange={event => { setControllerCountry(event.currentTarget.value); setRegionalIdentifier(false) }}>{countryOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name="controllerCountry" required pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country" onChange={event => setControllerCountry(event.currentTarget.value.toUpperCase())}/>}</label>
+          <label className="uhcp-animal-regional-identifier"><input type="checkbox" checked={regionalIdentifier} disabled={!regionOptionsByCountry[controllerCountry]?.length} onChange={event => setRegionalIdentifier(event.currentTarget.checked)}/> {copy.regionalIdentifier}</label>
+          {regionalIdentifier ? <label>{copy.controllerRegion}<select name="controllerRegion" required>{(regionOptionsByCountry[controllerCountry] || []).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label> : null}
+          <label>{copy.controllerIdentifierType}{identifierTypeOptions ? <select name="controllerIdentifierType" required key={controllerKind}>{identifierTypeOptions[controllerKind].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name="controllerIdentifierType" required defaultValue="national_identity_card" maxLength={80}/>}</label>
           <label>{copy.controllerIdentifierValue}<input name="controllerIdentifierValue" required maxLength={120} autoComplete="off"/></label>
-          <label>{copy.controllerCountry}<input name="controllerCountry" required pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country"/></label>
+          <label>{copy.controllerEmail}<input name="controllerEmail" type="email" autoComplete="email"/></label>
+          <label>{copy.controllerTelephone}<input name="controllerTelephone" type="tel" autoComplete="tel"/></label>
           <label>{copy.relationship}<select name="relationship" defaultValue="owner"><option value="owner">{copy.owner}</option><option value="caregiver">{copy.caregiver}</option></select></label>
           <label className="uhcp-animal-controller-confirmation"><input type="checkbox" defaultChecked required/> {copy.controllerIsLegalRepresentative}</label>
+          {contactError ? <p role="alert">{contactError}</p> : null}
         </div>
       </details>
       <details aria-labelledby="animal-onboarding-v2-evidence-step">
         <summary id="animal-onboarding-v2-evidence-step"><StepNumber value={3}/> {copy.evidenceStep}</summary>
         <div className="uhcp-animal-onboarding-fields">
+          <label>{copy.verificationMethod}<select name="verificationMethod" defaultValue="pipp"><option value="pipp">{copy.physicalInPerson}</option><option value="sripp">{copy.supervisedRemote}</option><option value="eid">{copy.electronicId}</option><option value="uripp">{copy.unsupervisedRemote}</option></select></label>
           <label>{copy.ownerDocument}<input name="ownerDocument" type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
           <label>{copy.relationshipDocument}<input name="relationshipDocument" type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
           <label>{copy.controllerPin}<input name="controllerPin" type="password" inputMode="numeric" pattern="[0-9]{6,12}" required autoComplete="new-password"/></label>
@@ -138,4 +213,29 @@ function requiredFile(form: HTMLFormElement, name: string): File {
   const value = input instanceof HTMLInputElement ? input.files?.[0] : undefined
   if (!value || value.size < 1) throw new Error(`animal_identity_${name}_required`)
   return value
+}
+
+async function readImageDimensions(file: File): Promise<Readonly<{ width: number; height: number }>> {
+  if (typeof createImageBitmap === 'function') {
+    const bitmap = await createImageBitmap(file)
+    const dimensions = { width: bitmap.width, height: bitmap.height }
+    bitmap.close()
+    return dimensions
+  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('animal_photo_unreadable'))
+    reader.onload = () => {
+      const image = new Image()
+      image.onerror = () => reject(new Error('animal_photo_unreadable'))
+      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight })
+      image.src = String(reader.result || '')
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+function hasAcceptedPhotoDimensions(width: number, height: number): boolean {
+  const ratio = width / height
+  return width >= 300 && height >= 400 && Math.abs(ratio - 3 / 4) <= 0.06
 }

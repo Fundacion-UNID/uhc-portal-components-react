@@ -784,9 +784,17 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-animal-onboarding-v2 details > .uhcp-animal-onboarding-fields,
 .uhcp-animal-onboarding-v2 details > .uhcp-animal-onboarding-primary { border-top:1px solid var(--uhcp-border, #d9dee7); padding:1rem; }
 .uhcp-animal-onboarding-primary { align-items:start; display:grid; gap:1rem; grid-template-columns:minmax(10rem, 14rem) minmax(0, 1fr); }
-.uhcp-animal-photo { display:grid; gap:.65rem; }
-.uhcp-animal-photo > img,.uhcp-animal-photo > span { align-items:center; aspect-ratio:1; background:var(--uhcp-accent-soft, #e9f3ff); border:2px solid color-mix(in srgb, var(--uhcp-turquoise, #1597a6) 42%, var(--uhcp-border, #d9dee7)); border-radius:1.25rem; display:flex; font-size:3rem; font-weight:850; justify-content:center; object-fit:cover; overflow:hidden; width:100%; }
-.uhcp-animal-photo label { display:grid; font-size:.88rem; gap:.35rem; }
+.uhcp-animal-photo { display:grid; gap:.45rem; position:relative; }
+.uhcp-animal-photo-dropzone { align-items:center; aspect-ratio:1; background:var(--uhcp-accent-soft, #e9f3ff); border:2px dashed color-mix(in srgb, var(--uhcp-turquoise, #1597a6) 58%, var(--uhcp-border, #d9dee7)); border-radius:1.25rem; cursor:pointer; display:flex; font-size:4rem; font-weight:850; justify-content:center; overflow:hidden; width:100%; }
+.uhcp-animal-photo-dropzone:hover,.uhcp-animal-photo-dropzone:focus-within { background:color-mix(in srgb, var(--uhcp-accent-soft, #e9f3ff) 70%, var(--uhcp-turquoise, #1597a6)); border-style:solid; }
+.uhcp-animal-photo-dropzone img { height:100%; object-fit:cover; width:100%; }
+.uhcp-animal-photo-dropzone input { height:1px; opacity:0; overflow:hidden; position:absolute; width:1px; }
+.uhcp-animal-photo-remove { background:#b42318; border:2px solid #fff; border-radius:999px; block-size:2.25rem; color:#fff; cursor:pointer; font-size:1.45rem; inline-size:2.25rem; inset-block-start:.65rem; inset-inline-end:.65rem; line-height:1; position:absolute; }
+.uhcp-animal-photo small { color:var(--uhcp-muted, #5f6875); }
+.uhcp-animal-owner-kind { border:0!important; display:flex; gap:1rem; grid-column:1/-1; padding:0!important; }
+.uhcp-animal-owner-kind label,.uhcp-animal-regional-identifier { align-items:center; display:flex!important; gap:.45rem; }
+.uhcp-animal-owner-kind input,.uhcp-animal-regional-identifier input { min-height:auto!important; width:auto!important; }
+.uhcp-animal-owner-name { grid-column:1/-1; }
 .uhcp-animal-controller-confirmation { align-items:center; background:var(--uhcp-accent-soft, #e9f3ff); border-radius:.75rem; display:flex !important; grid-column:1 / -1; padding:.75rem; }
 .uhcp-animal-controller-confirmation input { min-height:auto !important; width:auto !important; }
 @media (max-width: 42rem) { .uhcp-animal-onboarding-primary { grid-template-columns:1fr; } .uhcp-animal-photo { justify-self:center; max-width:15rem; width:100%; } }
