@@ -14,6 +14,11 @@ export type AnimalIdentityOnboardingInput = Readonly<{
   controllerIdentifierType: string
   controllerIdentifierValue: string
   controllerCountry: string
+  controllerKind?: 'person' | 'organization'
+  controllerRegion?: string
+  controllerEmail?: string
+  controllerTelephone?: string
+  verificationMethod?: 'pipp' | 'sripp' | 'eid' | 'uripp'
   relationship: AnimalControllerRelationship
   ownerDocument: File
   animalDocument: File

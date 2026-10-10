@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.2.8 - 2026-10-10
+
+- Restore the visual animal-photo picker from the earlier VetChain Expo flow:
+  click or drop a PNG/JPG, preview it, remove it in place, and enforce the
+  documented 2 MiB maximum and portrait 3:4 minimum of 300 by 400 pixels.
+- Extend the opt-in animal identity flow with person/organization ownership,
+  country and optional regional jurisdiction, governed identifier choices,
+  email-or-telephone contact and OIDC4IDA verification method selection.
 
 ## 0.2.7 - 2026-10-09
 
