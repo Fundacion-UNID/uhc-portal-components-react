@@ -20,10 +20,10 @@ export type AnimalIdentityOnboardingInput = Readonly<{
   controllerTelephone?: string
   verificationMethod?: 'pipp' | 'sripp' | 'eid' | 'uripp'
   relationship: AnimalControllerRelationship
-  ownerDocument: File
+  ownerDocument?: File
   animalDocument: File
-  relationshipDocument: File
-  controllerPin: string
+  relationshipDocument?: File
+  controllerPin?: string
 }>
 
 export type AnimalIdentityOnboardingCopy = Readonly<{
@@ -52,7 +52,7 @@ export type AnimalIdentityOnboardingCopy = Readonly<{
   ownerDocument: string
   animalDocument: string
   relationshipDocument: string
-  controllerPin: string
+  controllerPin?: string
   submit: string
 }>
 
@@ -182,7 +182,7 @@ export function SubjectIdentityCard({ subject, relationship, statusLabels, editL
         ? <img src={subject.imageUrl} alt="" />
         : <span className="uhcp-subject-identity-avatar" aria-hidden="true">{initial}</span>}
       <div><small>{subject.kind}</small><h3>{subject.displayName}</h3></div>
-      {canEdit && onEdit && editLabel ? <button type="button" onClick={onEdit}>{editLabel}</button> : null}
+      {canEdit && onEdit && editLabel ? <button className="uhcp-subject-identity-edit" type="button" aria-label={editLabel} title={editLabel} onClick={onEdit}><span aria-hidden="true">✎</span></button> : null}
     </header>
     <dl>{subject.facts.map(fact => <div key={`${fact.label}:${fact.value}`}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>
     {relationship ? <section className="uhcp-subject-identity-relationship">
