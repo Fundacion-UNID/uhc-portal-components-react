@@ -50,6 +50,7 @@ describe('ProfileProtectionGateV2', () => {
     expect(html).toContain('Use PIN instead')
     expect(html.indexOf('Unlock profile')).toBeLessThan(html.indexOf('Veterinarian'))
     expect(html.indexOf('Animal care')).toBeLessThan(html.indexOf('Use existing passkey'))
+    expect(html).toContain('class="uhcp-profile-target-content"')
     expect(html).toContain('class="uhcp-profile-target-badges uhcp-profile-target-badges-centered"')
     expect(html).toContain('class="uhcp-action-unlock"')
     expect(html).not.toMatch(/profileId|did:web|wallet/i)

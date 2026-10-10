@@ -172,20 +172,26 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-profile-gate-copy { text-align: center; }
 .uhcp-profile-gate-copy h1, .uhcp-profile-gate-copy p { margin: 0; }
 .uhcp-profile-gate-copy p { margin-top: .45rem; }
-.uhcp-profile-target { background: linear-gradient(135deg, color-mix(in srgb, var(--uhcp-surface-accent) 80%, var(--uhcp-panel)), color-mix(in srgb, var(--uhcp-turquoise) 12%, var(--uhcp-panel))); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 38%, var(--uhcp-border)); border-radius: 1rem; display: grid; gap: .8rem; padding: 1rem; }
-.uhcp-profile-target > img { border-radius: .75rem; object-fit: contain; }
-.uhcp-profile-target-copy { display: grid; gap: .2rem; text-align: center; }
+.uhcp-profile-target { align-items: center; background: var(--uhcp-panel); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 32%, var(--uhcp-border)); border-radius: 1rem; display: grid; gap: 1rem; grid-template-columns: auto minmax(0, 1fr); padding: 1rem; }
+.uhcp-profile-target > img { background: var(--uhcp-panel); border-radius: .75rem; object-fit: contain; }
+.uhcp-profile-target-content { display: grid; gap: .65rem; min-width: 0; }
+.uhcp-profile-target-copy { display: grid; gap: .2rem; text-align: left; }
 .uhcp-profile-target-copy > strong { color: var(--uhcp-text); font-size: 1.2rem; }
 .uhcp-profile-target-copy > span:last-child { color: var(--uhcp-muted); }
 .uhcp-profile-target-eyebrow { color: var(--uhcp-muted); font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .uhcp-profile-target-badges { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; margin: 0; padding: 0; }
-.uhcp-profile-target-badges-centered { justify-content: center; }
+.uhcp-profile-target-badges-centered { justify-content: flex-start; }
 .uhcp-profile-target-badges li { background: linear-gradient(135deg, var(--uhcp-selected-start), var(--uhcp-selected-end)); border: 1px solid transparent; border-radius: 999px; color: #fff; padding: .35rem .65rem; }
 .uhcp-profile-gate .uhcp-action-unlock { background: linear-gradient(135deg, var(--uhcp-unlock-start), var(--uhcp-unlock-end)); color: var(--uhcp-unlock-text); }
 .uhcp-profile-target-details { margin: 0; }
 .uhcp-profile-target-details > div { display: grid; gap: .2rem; grid-template-columns: minmax(8rem, auto) 1fr; }
 .uhcp-profile-target-details dt { color: var(--uhcp-muted); }
 .uhcp-profile-target-details dd { color: var(--uhcp-text); font-weight: 700; margin: 0; }
+@media (max-width: 34rem) {
+  .uhcp-profile-target { grid-template-columns: 1fr; justify-items: center; }
+  .uhcp-profile-target-content, .uhcp-profile-target-copy { text-align: center; width: 100%; }
+  .uhcp-profile-target-badges-centered { justify-content: center; }
+}
 .uhcp-profile-pin-fallback { border-top: 1px solid var(--uhcp-border); padding-top: .8rem; }
 .uhcp-profile-pin-fallback summary { color: var(--uhcp-text); cursor: pointer; font-weight: 700; }
 .uhcp-profile-pin-fallback form { margin-top: .8rem; }
