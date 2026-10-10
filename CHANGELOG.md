@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.6 - 2026-10-09
+
+- Add the opt-in `AnimalIdentityOnboardingV2` with responsive animal imagery,
+  collapsible identity/controller/evidence blocks and an explicit single legal
+  representative or controller confirmation while preserving the V1 payload.
+
 ## 0.2.5 - 2026-10-09
 
 - Render the protected organization target on a neutral light/dark panel with
