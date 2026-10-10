@@ -4,6 +4,7 @@ import type {
   AnimalIdentityOnboardingCopy,
   AnimalIdentityOnboardingInput,
 } from './AnimalIdentityOnboarding.js'
+import { IdentityEntityEditorV2 } from './IdentityEntityEditorV2.js'
 
 export type AnimalIdentityOnboardingV2Copy = AnimalIdentityOnboardingCopy & Readonly<{
   controllerIsLegalRepresentative: string
@@ -14,6 +15,7 @@ export type AnimalIdentityOnboardingV2Copy = AnimalIdentityOnboardingCopy & Read
   photoTooLarge: string
   photoDimensionsInvalid: string
   ownerKind: string
+  responsibleParty?: string
   personOwner: string
   organizationOwner: string
   regionalIdentifier: string
@@ -52,9 +54,6 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
   const [animalDocument, setAnimalDocument] = useState<File>()
   const [photoError, setPhotoError] = useState('')
   const [contactError, setContactError] = useState('')
-  const [controllerKind, setControllerKind] = useState<'person' | 'organization'>('person')
-  const [controllerCountry, setControllerCountry] = useState(countryOptions[0]?.value || '')
-  const [regionalIdentifier, setRegionalIdentifier] = useState(false)
 
   useEffect(() => () => {
     if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
@@ -112,7 +111,7 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
         controllerIdentifierType: requiredText(form, 'controllerIdentifierType'),
         controllerIdentifierValue: requiredText(form, 'controllerIdentifierValue'),
         controllerCountry: requiredText(form, 'controllerCountry').toUpperCase(),
-        controllerKind,
+        controllerKind: requiredText(form, 'controllerKind') as 'person' | 'organization',
         controllerRegion: optionalText(form, 'controllerRegion'),
         controllerEmail,
         controllerTelephone,
@@ -164,29 +163,17 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
       </details>
       <details aria-labelledby="animal-onboarding-v2-controller-step">
         <summary id="animal-onboarding-v2-controller-step"><StepNumber value={2}/> {copy.controllerStep}</summary>
-        <div className="uhcp-animal-onboarding-fields">
-          <fieldset className="uhcp-animal-owner-kind"><legend>{copy.ownerKind}</legend><label><input type="radio" name="controllerKind" value="person" checked={controllerKind === 'person'} onChange={() => setControllerKind('person')}/> {copy.personOwner}</label><label><input type="radio" name="controllerKind" value="organization" checked={controllerKind === 'organization'} onChange={() => setControllerKind('organization')}/> {copy.organizationOwner}</label></fieldset>
-          <label className="uhcp-animal-owner-name">{copy.controllerLegalName}<input name="controllerLegalName" required maxLength={160} autoComplete={controllerKind === 'person' ? 'name' : 'organization'}/></label>
-          <label>{copy.controllerCountry}{countryOptions.length ? <select name="controllerCountry" required value={controllerCountry} onChange={event => { setControllerCountry(event.currentTarget.value); setRegionalIdentifier(false) }}>{countryOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name="controllerCountry" required pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country" onChange={event => setControllerCountry(event.currentTarget.value.toUpperCase())}/>}</label>
-          <label className="uhcp-animal-regional-identifier"><input type="checkbox" checked={regionalIdentifier} disabled={!regionOptionsByCountry[controllerCountry]?.length} onChange={event => setRegionalIdentifier(event.currentTarget.checked)}/> {copy.regionalIdentifier}</label>
-          {regionalIdentifier ? <label>{copy.controllerRegion}<select name="controllerRegion" required>{(regionOptionsByCountry[controllerCountry] || []).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label> : null}
-          <label>{copy.controllerIdentifierType}{identifierTypeOptions ? <select name="controllerIdentifierType" required key={controllerKind}>{identifierTypeOptions[controllerKind].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name="controllerIdentifierType" required defaultValue="national_identity_card" maxLength={80}/>}</label>
-          <label>{copy.controllerIdentifierValue}<input name="controllerIdentifierValue" required maxLength={120} autoComplete="off"/></label>
-          <label>{copy.controllerEmail}<input name="controllerEmail" type="email" autoComplete="email"/></label>
-          <label>{copy.controllerTelephone}<input name="controllerTelephone" type="tel" autoComplete="tel"/></label>
-          <label>{copy.relationship}<select name="relationship" defaultValue="owner"><option value="owner">{copy.owner}</option><option value="caregiver">{copy.caregiver}</option></select></label>
-          <label className="uhcp-animal-controller-confirmation"><input type="checkbox" defaultChecked required/> {copy.controllerIsLegalRepresentative}</label>
-          {contactError ? <p role="alert">{contactError}</p> : null}
-        </div>
-      </details>
-      <details aria-labelledby="animal-onboarding-v2-evidence-step">
-        <summary id="animal-onboarding-v2-evidence-step"><StepNumber value={3}/> {copy.evidenceStep}</summary>
-        <div className="uhcp-animal-onboarding-fields">
-          <label>{copy.verificationMethod}<select name="verificationMethod" defaultValue="pipp"><option value="pipp">{copy.physicalInPerson}</option><option value="sripp">{copy.supervisedRemote}</option><option value="eid">{copy.electronicId}</option><option value="uripp">{copy.unsupervisedRemote}</option></select></label>
-          <label>{copy.ownerDocument}<input name="ownerDocument" type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
-          <label>{copy.relationshipDocument}<input name="relationshipDocument" type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
-          <label>{copy.controllerPin}<input name="controllerPin" type="password" inputMode="numeric" pattern="[0-9]{6,12}" required autoComplete="new-password"/></label>
-        </div>
+        <IdentityEntityEditorV2 mode="controller" countryOptions={countryOptions} regionOptionsByCountry={regionOptionsByCountry} identifierTypeOptions={identifierTypeOptions} contactError={contactError} copy={{
+          entityType: copy.ownerKind, personEntity: copy.personOwner, organizationEntity: copy.organizationOwner,
+          fullLegalName: copy.controllerLegalName, country: copy.controllerCountry, regionalIdentifier: copy.regionalIdentifier,
+          region: copy.controllerRegion, identifierType: copy.controllerIdentifierType, identifierValue: copy.controllerIdentifierValue,
+          email: copy.controllerEmail, telephone: copy.controllerTelephone, relationship: copy.relationship,
+          responsibleParty: copy.responsibleParty ?? copy.owner, evidence: copy.evidenceStep,
+          verificationMethod: copy.verificationMethod, physicalInPerson: copy.physicalInPerson,
+          supervisedRemote: copy.supervisedRemote, electronicId: copy.electronicId, unsupervisedRemote: copy.unsupervisedRemote,
+          identityDocument: copy.ownerDocument, relationshipDocument: copy.relationshipDocument, pin: copy.controllerPin,
+          controllerConfirmation: copy.controllerIsLegalRepresentative,
+        }}/>
       </details>
       <button type="submit" className="uhcp-animal-onboarding-submit" data-portal-action={submitAction} disabled={disabled}>{copy.submit}</button>
     </form>

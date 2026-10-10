@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.9 - 2026-10-10
+
+- Add one reusable identity entity editor for animal controllers and related
+  parties, with a fixed responsible-party relationship for the controller and
+  host-governed relationship choices for additional entities.
+- Keep identity evidence inside the entity it supports and keep the regional
+  identifier control in a stable layout while enabling its region only when
+  applicable.
+
 ## 0.2.8 - 2026-10-10
 
 - Restore the visual animal-photo picker from the earlier VetChain Expo flow:
