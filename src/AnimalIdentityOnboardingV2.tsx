@@ -73,8 +73,8 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
       <p>{copy.intro}</p>
     </header>
     <form onSubmit={submit}>
-      <details open>
-        <summary><StepNumber value={1}/> {copy.animalStep}</summary>
+      <details open aria-labelledby="animal-onboarding-v2-animal-step">
+        <summary id="animal-onboarding-v2-animal-step"><StepNumber value={1}/> {copy.animalStep}</summary>
         <div className="uhcp-animal-onboarding-primary">
           <div className="uhcp-animal-photo">
             {previewUrl
@@ -94,8 +94,8 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
           </div>
         </div>
       </details>
-      <details>
-        <summary><StepNumber value={2}/> {copy.controllerStep}</summary>
+      <details aria-labelledby="animal-onboarding-v2-controller-step">
+        <summary id="animal-onboarding-v2-controller-step"><StepNumber value={2}/> {copy.controllerStep}</summary>
         <div className="uhcp-animal-onboarding-fields">
           <label>{copy.controllerLegalName}<input name="controllerLegalName" required maxLength={160} autoComplete="name"/></label>
           <label>{copy.controllerIdentifierType}<input name="controllerIdentifierType" required defaultValue="national_identity_card" maxLength={80}/></label>
@@ -105,8 +105,8 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
           <label className="uhcp-animal-controller-confirmation"><input type="checkbox" defaultChecked required/> {copy.controllerIsLegalRepresentative}</label>
         </div>
       </details>
-      <details>
-        <summary><StepNumber value={3}/> {copy.evidenceStep}</summary>
+      <details aria-labelledby="animal-onboarding-v2-evidence-step">
+        <summary id="animal-onboarding-v2-evidence-step"><StepNumber value={3}/> {copy.evidenceStep}</summary>
         <div className="uhcp-animal-onboarding-fields">
           <label>{copy.ownerDocument}<input name="ownerDocument" type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
           <label>{copy.relationshipDocument}<input name="relationshipDocument" type="file" accept="application/pdf,image/jpeg,image/png" required/></label>
