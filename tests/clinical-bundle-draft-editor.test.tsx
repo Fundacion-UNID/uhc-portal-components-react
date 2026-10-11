@@ -1,4 +1,5 @@
-// Flow contract: reuse shared test fixtures and canonical types; do not introduce duplicated literals.
+// Copyright 2026 Connecting Solution & Applications Ltd under the Apache License, Version 2.0.
+// Flow contract: never use duplicated literals; reuse canonical test data and standard coding systems and values exported by their owning fhir-data-utils, gdc-common-utils, sos-data-utils, or vet-data-utils package.
 /**
  * Journey:
  * 1. An authorized professional opens one shared IPS Bundle draft for a typed subject.
@@ -161,6 +162,7 @@ describe('ClinicalBundleDraftEditor', () => {
       createLabel: 'Create SHC', viewLabel: 'View SHC',
       isCreated: (draft: any) => draft.relatedEntries?.some((entry: any) => entry.claims['DocumentReference.contenttype'] === 'application/smart-health-card') ?? false,
       onCreate, onView,
+      renderCreated: () => <section aria-label="Printable SHC label">Printable PDF label</section>,
     }
     renderDraft(vi.fn(), {
       resourceType: 'Bundle', type: 'document', entry: [
@@ -175,6 +177,8 @@ describe('ClinicalBundleDraftEditor', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Create SHC' }))
     await waitFor(() => expect(onCreate).toHaveBeenCalledTimes(1))
+    const entry = screen.getByText(firstConcept).closest('li')!
+    expect(entry.contains(screen.getByRole('region', { name: 'Printable SHC label' }))).toBe(true)
     fireEvent.click(await screen.findByRole('button', { name: 'View SHC' }))
     expect(onView).toHaveBeenCalledTimes(1)
   })

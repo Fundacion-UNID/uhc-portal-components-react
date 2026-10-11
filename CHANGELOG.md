@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.12 - 2026-10-11
+
+- Show the animal portrait and optional public legal-organization owner data,
+  including jurisdiction, legal identifier, official address, telephone,
+  email and public-profile provenance, in the shared read-only identity view.
+- Keep per-resource credential content inside its owning clinical draft entry.
+- Place the constructive V2 editor action first with the shared green action
+  treatment and keep cancellation visually distinct.
+
 ## 0.2.11 - 2026-10-11
 
 - Add a reusable read-only identity projection matching the progressive
