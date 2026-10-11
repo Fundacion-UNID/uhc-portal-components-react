@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Add a reusable read-only identity projection matching the progressive
+  onboarding sections.
+- Start both onboarding sections collapsed, disable submission until required
+  identity, contact and image fields are valid, and support host actions in the
+  same footer row.
+- Document the UHC Professional newborn-role variation without creating a
+  separate component flow.
+
 ## 0.2.10 - 2026-10-10
 
 - Keep animal-controller creation focused on identity and contact data: the

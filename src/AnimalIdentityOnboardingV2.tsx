@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
+// Copyright 2026 Connecting Solution & Applications Ltd under the Apache License, Version 2.0.
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import type {
   AnimalControllerRelationship,
   AnimalIdentityOnboardingCopy,
@@ -38,7 +39,7 @@ const MAX_ANIMAL_PHOTO_BYTES = 2 * 1024 * 1024
  * Progressive animal onboarding presentation. It preserves the V1 payload so
  * hosts can adopt it without changing evidence, authorization or persistence.
  */
-export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speciesOptions = [], countryOptions = [], regionOptionsByCountry = {}, identifierTypeOptions, showHeader = true, requireEmail = false, requireTelephone = false, busy = false }: Readonly<{
+export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speciesOptions = [], countryOptions = [], regionOptionsByCountry = {}, identifierTypeOptions, showHeader = true, requireEmail = false, requireTelephone = false, busy = false, footerActions }: Readonly<{
   copy: AnimalIdentityOnboardingV2Copy
   onSubmit: (input: AnimalIdentityOnboardingInput) => Promise<void> | void
   submitAction?: string
@@ -50,13 +51,25 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
   requireEmail?: boolean
   requireTelephone?: boolean
   busy?: boolean
+  footerActions?: ReactNode
 }>) {
+  const formRef = useRef<HTMLFormElement>(null)
   const [submitting, setSubmitting] = useState(false)
   const [animalName, setAnimalName] = useState('')
   const [previewUrl, setPreviewUrl] = useState('')
   const [animalDocument, setAnimalDocument] = useState<File>()
   const [photoError, setPhotoError] = useState('')
   const [contactError, setContactError] = useState('')
+  const [formReady, setFormReady] = useState(false)
+
+  function refreshFormReady(formElement = formRef.current) {
+    if (!formElement) return setFormReady(false)
+    const form = new FormData(formElement)
+    const hasContact = Boolean(optionalText(form, 'controllerEmail') || optionalText(form, 'controllerTelephone'))
+    setFormReady(formElement.checkValidity() && hasContact && Boolean(animalDocument))
+  }
+
+  useEffect(() => { refreshFormReady() }, [animalDocument])
 
   useEffect(() => () => {
     if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
@@ -128,14 +141,14 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
     }
   }
 
-  const disabled = busy || submitting
+  const disabled = busy || submitting || !formReady
   return <section className="uhcp-animal-onboarding uhcp-animal-onboarding-v2" aria-labelledby={showHeader ? 'animal-identity-onboarding-v2-title' : undefined} aria-label={showHeader ? undefined : copy.title}>
     {showHeader ? <header>
       <h2 id="animal-identity-onboarding-v2-title">{copy.title}</h2>
       <p>{copy.intro}</p>
     </header> : null}
-    <form onSubmit={submit}>
-      <details open aria-labelledby="animal-onboarding-v2-animal-step">
+    <form ref={formRef} onInput={event => refreshFormReady(event.currentTarget)} onChange={event => refreshFormReady(event.currentTarget)} onSubmit={submit}>
+      <details aria-labelledby="animal-onboarding-v2-animal-step">
         <summary id="animal-onboarding-v2-animal-step"><StepNumber value={1}/> {copy.animalStep}</summary>
         <div className="uhcp-animal-onboarding-primary">
           <div className="uhcp-animal-photo">
@@ -176,7 +189,7 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
           countryPlaceholder: copy.countryPlaceholder, controllerConfirmation: copy.controllerIsLegalRepresentative,
         }}/>
       </details>
-      <button type="submit" className="uhcp-animal-onboarding-submit" data-portal-action={submitAction} disabled={disabled}>{copy.submit}</button>
+      <div className="uhcp-animal-onboarding-actions">{footerActions}<button type="submit" className="uhcp-animal-onboarding-submit" data-portal-action={submitAction} disabled={disabled}>{copy.submit}</button></div>
     </form>
   </section>
 }

@@ -14,6 +14,15 @@ The package owns visual shell behavior only. Authentication, protected-profile
 storage, PIN verification and actor authorization remain in the host portal
 through `ProfileRuntime`, `LoadedProfileWorkspace` and actor-scoped SDK facades.
 
+`AnimalIdentityOnboardingV2` and `AnimalIdentityDetailsV2` define one shared
+progressive create/read pattern. VetChain uses it for an animal and responsible
+party. UHC Professional must reuse the same contract for a newborn and
+responsible person, changing only governed role policy and copy: an attending
+physician, midwife, nurse or paramedic may prepare the identity and default
+permission proposal where the jurisdiction authorizes that occupation. The
+proposal remains pending until the responsible authority confirms it; showing
+or submitting the UI never grants access by itself.
+
 ```tsx
 import {
   PortalShell,

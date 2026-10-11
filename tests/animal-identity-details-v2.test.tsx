@@ -1,0 +1,7 @@
+// Copyright 2026 Connecting Solution & Applications Ltd under the Apache License, Version 2.0.
+// Flow contract: never use duplicated literals; reuse canonical test data and standard coding systems and values exported by their owning fhir-data-utils, gdc-common-utils, sos-data-utils, or vet-data-utils package.
+// @vitest-environment jsdom
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { AnimalIdentityDetailsV2 } from '../src/AnimalIdentityDetailsV2.js'
+describe('AnimalIdentityDetailsV2',()=>{ afterEach(cleanup); it('reuses onboarding sections in read-only mode',()=>{ const onEdit=vi.fn(); const {container}=render(<AnimalIdentityDetailsV2 copy={{animalStep:'Animal identity',controllerStep:'Responsible party',animalName:'Name',species:'Species',identifierType:'Identifier type',identifierValue:'Identifier',controllerName:'Legal name',relationship:'Relationship',edit:'Edit identity'}} value={{animalName:'Luna',species:'Dog',identifierType:'ISO 11784/11785',identifierValue:'985141000000001',controllerName:'Alex Example',relationship:'Responsible party'}} onEdit={onEdit}/>); expect(container.querySelectorAll('details')).toHaveLength(2); expect(container.querySelector('input')).toBeNull(); fireEvent.click(screen.getByRole('button',{name:'Edit identity'})); expect(onEdit).toHaveBeenCalledOnce() }) })
