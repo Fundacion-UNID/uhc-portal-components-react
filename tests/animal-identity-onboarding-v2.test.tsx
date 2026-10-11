@@ -1,4 +1,5 @@
-// Flow contract: reuse shared test fixtures and canonical types; do not introduce duplicated literals.
+// Copyright 2026 Connecting Solution & Applications Ltd under the Apache License, Version 2.0.
+// Flow contract: never use duplicated literals; reuse canonical test data and standard coding systems and values exported by their owning fhir-data-utils, gdc-common-utils, sos-data-utils, or vet-data-utils package.
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -37,7 +38,9 @@ describe('AnimalIdentityOnboardingV2', () => {
 
     const blocks = container.querySelectorAll('details')
     expect(blocks).toHaveLength(2)
-    expect(blocks[0]?.hasAttribute('open')).toBe(true)
+    expect(blocks[0]?.hasAttribute('open')).toBe(false)
+    expect(blocks[1]?.hasAttribute('open')).toBe(false)
+    expect((screen.getByRole('button', { name: 'Create animal' }) as HTMLButtonElement).disabled).toBe(true)
     expect(screen.getByRole('group', { name: 'Animal identity' })).toBeTruthy()
     expect(screen.getByRole('group', { name: 'Owner or caregiver' })).toBeTruthy()
     expect(screen.queryByRole('group', { name: 'Identity evidence' })).toBeNull()
@@ -64,6 +67,8 @@ describe('AnimalIdentityOnboardingV2', () => {
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'alex@example.test' } })
     fireEvent.change(screen.getByLabelText('Identity number'), { target: { value: 'ID-123' } })
     fireEvent.change(screen.getByLabelText('Country'), { target: { value: 'CA' } })
+    fireEvent.change(screen.getByLabelText('Region'), { target: { value: 'CA-BC' } })
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Create animal' }) as HTMLButtonElement).disabled).toBe(false))
     fireEvent.submit(screen.getByRole('button', { name: 'Create animal' }).closest('form')!)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
@@ -103,9 +108,10 @@ describe('AnimalIdentityOnboardingV2', () => {
   })
 
   it('can be embedded in a host collapsible without repeating its heading', () => {
-    render(<AnimalIdentityOnboardingV2 copy={copy} onSubmit={vi.fn()} showHeader={false} />)
+    render(<AnimalIdentityOnboardingV2 copy={copy} onSubmit={vi.fn()} showHeader={false} footerActions={<button type="button">Cancel</button>} />)
     expect(screen.queryByRole('heading', { name: 'Create animal' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Create animal' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Cancel' }).parentElement).toBe(screen.getByRole('button', { name: 'Create animal' }).parentElement)
   })
 
   it('allows supporting evidence to be omitted while web registration requires phone and email', async () => {
