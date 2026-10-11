@@ -95,6 +95,8 @@ export type ClinicalBundleDraftEditorProps = Readonly<{
     isCreated: (draft: ClinicalArtifactDraftV2) => boolean
     onCreate: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => ClinicalArtifactDraftV2 | Promise<ClinicalArtifactDraftV2>
     onView: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => void
+    /** Renders the created credential inside its owning clinical entry. */
+    renderCreated?: (input: Readonly<{ draft: ClinicalArtifactDraftV2; bundle: ClinicalBundleDraft }>) => ReactNode
   }>
   /** Host-owned document actions rendered beside the final submit action. */
   documentActions?: ReactNode
@@ -143,6 +145,7 @@ export function ClinicalBundleDraftEditor({
 }: ClinicalBundleDraftEditorProps) {
   const [artifacts, setArtifacts] = useState<readonly StagedArtifact[]>(() => importedArtifacts(initialBundle, schemas))
   const [editor, setEditor] = useState<EditorState>()
+  const [expandedCredentialId, setExpandedCredentialId] = useState<string>()
   const [resourceChooser, setResourceChooser] = useState<ResourceChooserState>()
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
@@ -230,23 +233,30 @@ export function ClinicalBundleDraftEditor({
         {sectionArtifacts.length === 0 ? <p>{copy.empty}</p> : <ul>
           {sectionArtifacts.map((artifact) => {
             const title = artifactTitle(artifact.draft)
+            const credentialDraft = artifact.draft as ClinicalArtifactDraftV2
+            const credentialBundle = combineClinicalDrafts([artifact], authoringContext, copy.title)
             return <li key={artifact.draft.id}>
               <span><strong>{title}</strong><small>{artifact.draft.resourceType}</small></span>
               <span>
                 {artifactCredentialAction ? <button type="button" className="uhcp-clinical-entry-credential-action" onClick={() => {
-                  const draft = artifact.draft as ClinicalArtifactDraftV2
-                  const bundle = combineClinicalDrafts([artifact], authoringContext, copy.title)
+                  const draft = credentialDraft
+                  const bundle = credentialBundle
                   if (artifactCredentialAction.isCreated(draft)) {
                     artifactCredentialAction.onView({ draft, bundle })
+                    setExpandedCredentialId(current => current === draft.id ? undefined : draft.id)
                     return
                   }
                   void Promise.resolve(artifactCredentialAction.onCreate({ draft, bundle })).then(nextDraft => {
                     setArtifacts(current => current.map(candidate => candidate.draft.id === draft.id ? { ...candidate, draft: nextDraft } : candidate))
+                    setExpandedCredentialId(nextDraft.id)
                   }).catch(reason => setError(reason instanceof Error ? reason.message : String(reason)))
-                }}>{artifactCredentialAction.isCreated(artifact.draft as ClinicalArtifactDraftV2) ? artifactCredentialAction.viewLabel : artifactCredentialAction.createLabel}</button> : null}
+                }}>{artifactCredentialAction.isCreated(credentialDraft) ? artifactCredentialAction.viewLabel : artifactCredentialAction.createLabel}</button> : null}
                 <ClinicalActionButton kind="edit" label={`${copy.edit} ${title}`} onClick={() => setEditor({ schema: artifact.schema, draft: artifact.draft })}/>
                 <ClinicalActionButton kind="delete" label={`${copy.remove} ${title}`} onClick={() => setArtifacts((current) => current.filter((candidate) => candidate.draft.id !== artifact.draft.id))}/>
               </span>
+              {artifactCredentialAction?.renderCreated && artifactCredentialAction.isCreated(credentialDraft) && expandedCredentialId === credentialDraft.id
+                ? <div className="uhcp-clinical-entry-credential-panel">{artifactCredentialAction.renderCreated({ draft: credentialDraft, bundle: credentialBundle })}</div>
+                : null}
             </li>
           })}
         </ul>}

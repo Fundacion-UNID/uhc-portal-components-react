@@ -132,7 +132,7 @@ export function ClinicalArtifactEditorV2({ request, authoringContext, copy, fiel
       </div>)}
       <OptionalFieldsV2 label={copy.addField} choose={copy.chooseField} add={copy.addSelectedField} options={optional} value={selectedOptional} onValueChange={setSelectedOptional} onAdd={() => { if (!selectedOptional) return; setVisibleClaims(current => [...current, selectedOptional]); setSelectedOptional('') }}/>
       {error ? <p className="uhcp-clinical-editor-error" role="alert">{error}</p> : null}
-      <footer><button type="button" onClick={onCancel}>{copy.cancel}</button><button type="submit" disabled={saving}>{saving ? copy.saving : copy.save}</button></footer>
+      <footer><button className="uhcp-clinical-editor-submit" type="submit" disabled={saving}>{saving ? copy.saving : copy.save}</button><button className="uhcp-clinical-editor-cancel" type="button" onClick={onCancel}>{copy.cancel}</button></footer>
     </form>
   </section></ClinicalEditorLayer>
 }
