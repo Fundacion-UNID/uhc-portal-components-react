@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Present the animal identifier as `Microchip (ISO 11784/11785)` in both
+  onboarding generations so the user-facing concept comes before its standard.
+
 ## 0.2.12 - 2026-10-11
 
 - Show the animal portrait and optional public legal-organization owner data,

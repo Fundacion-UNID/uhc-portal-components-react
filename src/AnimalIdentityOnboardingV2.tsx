@@ -170,7 +170,7 @@ export function AnimalIdentityOnboardingV2({ copy, onSubmit, submitAction, speci
               : <input name="taxonomyId" required inputMode="numeric" pattern="[1-9][0-9]{0,6}" defaultValue="9615"/>}</label>
             <label>{copy.birthDate}<input name="birthDate" type="date"/></label>
             <label>{copy.sex}<select name="sex" defaultValue="unknown"><option value="unknown">{copy.sexUnknown}</option><option value="female">{copy.sexFemale}</option><option value="male">{copy.sexMale}</option><option value="other">{copy.sexOther}</option></select></label>
-            <label>{copy.identifierSystem}<select name="identifierSystem" defaultValue="urn:iso:std:iso:11784:11785"><option value="urn:iso:std:iso:11784:11785">ISO 11784/11785</option><option value="https://europa.eu/pet-passport">EU pet passport</option><option value="https://vetchain.app/identifier/tattoo">Tattoo</option></select></label>
+            <label>{copy.identifierSystem}<select name="identifierSystem" defaultValue="urn:iso:std:iso:11784:11785"><option value="urn:iso:std:iso:11784:11785">Microchip (ISO 11784/11785)</option><option value="https://europa.eu/pet-passport">EU pet passport</option><option value="https://vetchain.app/identifier/tattoo">Tattoo</option></select></label>
             <label>{copy.identifierValue}<input name="identifierValue" required maxLength={80} autoComplete="off"/></label>
           </div>
         </div>
