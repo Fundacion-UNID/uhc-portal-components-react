@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.13 - 2026-10-11
+
 - Present the animal identifier as `Microchip (ISO 11784/11785)` in both
   onboarding generations so the user-facing concept comes before its standard.
 
