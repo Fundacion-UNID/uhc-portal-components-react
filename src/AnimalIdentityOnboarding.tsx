@@ -125,7 +125,7 @@ export function AnimalIdentityOnboarding({ copy, onSubmit, submitAction, species
             <option value="other">{copy.sexOther}</option>
           </select></label>
           <label>{copy.identifierSystem}<select name="identifierSystem" defaultValue="urn:iso:std:iso:11784:11785">
-            <option value="urn:iso:std:iso:11784:11785">ISO 11784/11785</option>
+            <option value="urn:iso:std:iso:11784:11785">Microchip (ISO 11784/11785)</option>
             <option value="https://europa.eu/pet-passport">EU pet passport</option>
             <option value="https://vetchain.app/identifier/tattoo">Tattoo</option>
           </select></label>

@@ -42,6 +42,7 @@ describe('AnimalIdentityOnboardingV2', () => {
     expect(blocks[1]?.hasAttribute('open')).toBe(false)
     expect((screen.getByRole('button', { name: 'Create animal' }) as HTMLButtonElement).disabled).toBe(true)
     expect(screen.getByRole('group', { name: 'Animal identity' })).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Microchip (ISO 11784/11785)' })).toBeTruthy()
     expect(screen.getByRole('group', { name: 'Owner or caregiver' })).toBeTruthy()
     expect(screen.queryByRole('group', { name: 'Identity evidence' })).toBeNull()
     expect((screen.getByRole('checkbox', { name: 'This person is the animal legal representative or controller' }) as HTMLInputElement).checked).toBe(true)
