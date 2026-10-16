@@ -833,30 +833,28 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-animal-card footer { min-width: 0; }
 .uhcp-animal-card footer code { color: inherit; display: block; font-size: .68rem; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media(max-width: 480px) { .uhcp-animal-card { aspect-ratio: auto; min-height: 17rem; } .uhcp-animal-card-qr { height: 6.25rem; width: 6.25rem; } }
-.uhcp-smart-id-card-set { display: grid; gap: 1rem; width: min(100%, 33.7rem); }
-.uhcp-smart-id-card { aspect-ratio: 1.586; border: 1px solid #cbd5e1; border-radius: 1.15rem; box-shadow: 0 1rem 2.5rem rgb(2 30 51 / 18%); box-sizing: border-box; overflow: hidden; padding: .75rem; position: relative; width: 100%; }
-.uhcp-smart-id-card-front { background: linear-gradient(145deg, #061c35 0%, #0a4169 58%, #087f8d 100%); color: #fff; display: grid; gap: .35rem; grid-template-rows: auto 1fr auto; }
+.uhcp-smart-id-card-set { display: grid; gap: 1rem; width: min(100%, 19rem); }
+.uhcp-smart-id-card { aspect-ratio: 5 / 8; border: 1px solid #cbd5e1; border-radius: 1.15rem; box-shadow: 0 1rem 2.5rem rgb(2 30 51 / 18%); box-sizing: border-box; overflow: hidden; padding: .75rem; position: relative; width: 100%; }
+.uhcp-smart-id-card-front { background: linear-gradient(145deg, #061c35 0%, #0a4169 58%, #087f8d 100%); color: #fff; display: grid; gap: .75rem; grid-template-rows: auto 1fr; }
 .uhcp-smart-id-card-front::after { background: radial-gradient(circle, rgb(255 255 255 / 16%), transparent 70%); content: ''; height: 18rem; inset: -8rem -7rem auto auto; pointer-events: none; position: absolute; width: 18rem; }
 .uhcp-smart-id-brand { align-items: center; display: grid; gap: .45rem; grid-template-columns: 2rem auto 1fr; position: relative; z-index: 1; }
 .uhcp-smart-id-brand img { background: #fff; border-radius: .48rem; box-sizing: border-box; height: 2rem; object-fit: contain; padding: .16rem; width: 2rem; }
 .uhcp-smart-id-brand strong { font-size: .85rem; letter-spacing: .08em; }
 .uhcp-smart-id-brand span { font-size: .72rem; font-weight: 800; justify-self: end; text-align: end; }
-.uhcp-smart-id-front-qr { align-self: center; background: #fff; border: .35rem solid #fff; border-radius: .55rem; box-sizing: border-box; height: 7rem; justify-self: center; width: 7rem; }
+.uhcp-smart-id-front-qr { align-self: center; aspect-ratio: 1; background: #fff; border: .35rem solid #fff; border-radius: .7rem; box-sizing: border-box; justify-self: center; width: calc(100% - .5rem); }
 .uhcp-smart-id-front-qr > * { display: block; height: 100%; width: 100%; }
-.uhcp-smart-id-card-front code { color: inherit; display: block; font-size: .5rem; opacity: .82; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 .uhcp-smart-id-card-back { background: #fff; color: #0f2942; display: grid; gap: .5rem; grid-template-rows: auto 1fr; }
 .uhcp-smart-id-card-back > header { align-items: baseline; border-bottom: 2px solid #0f9ca8; display: flex; gap: .5rem; justify-content: space-between; padding-bottom: .35rem; }
 .uhcp-smart-id-card-back > header strong { font-size: .68rem; letter-spacing: .08em; }
 .uhcp-smart-id-card-back > header span { color: #087f8d; font-size: .68rem; font-weight: 850; text-align: end; }
-.uhcp-smart-id-back-body { align-items: center; display: grid; gap: .65rem; grid-template-columns: minmax(0, 1fr) 7rem; min-height: 0; }
-.uhcp-smart-id-back-body dl { display: grid; gap: .5rem; margin: 0; }
+.uhcp-smart-id-back-body { align-items: center; display: grid; gap: .7rem; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
+.uhcp-smart-id-back-body dl { display: grid; gap: .5rem; margin: 0; order: 2; }
 .uhcp-smart-id-back-body dt { color: #526174; font-size: .55rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .uhcp-smart-id-back-body dd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .72rem; font-weight: 850; margin: .12rem 0 0; overflow-wrap: anywhere; }
-.uhcp-smart-id-identity-qr { background: #fff; box-sizing: border-box; height: 7rem; width: 7rem; }
+.uhcp-smart-id-identity-qr { align-self: center; aspect-ratio: 1; background: #fff; box-sizing: border-box; justify-self: center; order: 1; width: calc(100% - .5rem); }
 .uhcp-smart-id-identity-qr > * { display: block; height: 100%; width: 100%; }
-.uhcp-smart-id-unavailable { align-items: center; background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: .6rem; box-sizing: border-box; color: #526174; display: flex; font-size: .62rem; height: 7rem; justify-content: center; margin: 0; padding: .4rem; text-align: center; width: 7rem; }
-@media(max-width: 480px) { .uhcp-smart-id-back-body { grid-template-columns: 1fr 6.5rem; } .uhcp-smart-id-identity-qr, .uhcp-smart-id-unavailable { height: 6.5rem; width: 6.5rem; } }
-@media print { .uhcp-smart-id-card-set { gap: 0; } .uhcp-smart-id-card { break-after: page; box-shadow: none; height: 53.98mm; width: 85.6mm; } .uhcp-smart-id-card:last-child { break-after: auto; } }
+.uhcp-smart-id-unavailable { align-items: center; align-self: center; aspect-ratio: 1; background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: .7rem; box-sizing: border-box; color: #526174; display: flex; font-size: .72rem; justify-content: center; justify-self: center; margin: 0; order: 1; padding: 1rem; text-align: center; width: calc(100% - .5rem); }
+@media print { .uhcp-smart-id-card-set { gap: 0; width: 50mm; } .uhcp-smart-id-card { break-after: page; border-radius: 3mm; box-shadow: none; height: 80mm; padding: 2mm; width: 50mm; } .uhcp-smart-id-front-qr, .uhcp-smart-id-identity-qr, .uhcp-smart-id-unavailable { width: 46mm; } .uhcp-smart-id-card:last-child { break-after: auto; } }
 .uhcp-animal-controller-attestation { border: 1px solid var(--uhcp-border, #d9dee7); border-radius: 1.25rem; display: grid; gap: 1rem; padding: 1rem; }
 .uhcp-animal-controller-attestation header h2, .uhcp-animal-controller-attestation header p { margin: 0; }
 .uhcp-animal-controller-attestation header p { color: var(--uhcp-muted, #5f6875); margin-top: .35rem; }

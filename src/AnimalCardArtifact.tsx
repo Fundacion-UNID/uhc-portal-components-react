@@ -99,7 +99,6 @@ export function SoschainSmartIdentityCardArtifact({
         <span>{publicLabel}</span>
       </header>
       <div className="uhcp-smart-id-front-qr" aria-label="DID QR code">{didQr}</div>
-      <code>{cardDid}</code>
     </article>
 
     <article className="uhcp-smart-id-card uhcp-smart-id-card-back" data-card-face="back">
