@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.2.14 - 2026-10-15
+
+- Compose the existing coded-concept V2 field from the neutral
+  `TerminologyCodePickerV2` while preserving its public props, CSS classes,
+  explicit-search behavior and selected flat claims.
+- Keep the original editor path unchanged.
+
 ## 0.2.13 - 2026-10-11
 
 - Present the animal identifier as `Microchip (ISO 11784/11785)` in both

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { TerminologyCodePickerV2 } from 'terminology-components-react/code-picker-v2'
 import {
   composeFhirDateTimeFromLocalParts,
   splitFhirDateTimeForInput,
@@ -57,59 +58,23 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
   loadTerminologySources?: ClinicalTerminologySourceSearch
   onChange: (value: Readonly<{ text: string; code: string; display: string }>) => void
 }>) {
-  const [query, setQuery] = useState(text || display)
-  const [sources, setSources] = useState<readonly Readonly<{ id: string; label?: string; default?: boolean }>[]>([])
-  const [selectedSources, setSelectedSources] = useState<readonly string[]>([])
-  const [candidates, setCandidates] = useState<readonly ClinicalTerminologyCandidate[]>([])
-  const [busy, setBusy] = useState(false)
-  const [failed, setFailed] = useState(false)
-  const [searched, setSearched] = useState(false)
-  useEffect(() => {
-    if (!loadTerminologySources) return
-    let current = true
-    void loadTerminologySources({ resourceType, claim: codeClaim, language: locale, taxonomyId }).then(next => {
-      if (!current) return
-      setSources(next)
-      const defaults = next.filter(source => source.default).map(source => source.id)
-      setSelectedSources(defaults.length ? defaults : next[0] ? [next[0].id] : [])
-    }).catch(() => current && setSources([]))
-    return () => { current = false }
-  }, [codeClaim, loadTerminologySources, locale, resourceType, taxonomyId])
-  const selectedToken = useMemo(() => code, [code])
-  const search = async () => {
-    if (!searchTerminology || query.trim().length < 2 || busy) return
-    setBusy(true); setFailed(false); setSearched(false)
-    try {
-      let governedSources = selectedSources
-      if (!governedSources.length && loadTerminologySources) {
-        const loaded = await loadTerminologySources({ resourceType, claim: codeClaim, language: locale, taxonomyId })
-        const defaults = loaded.filter(source => source.default).map(source => source.id)
-        governedSources = defaults.length ? defaults : loaded[0] ? [loaded[0].id] : []
-        setSources(loaded); setSelectedSources(governedSources)
-      }
-      setCandidates(await searchTerminology({ resourceType, claim: codeClaim, language: locale, text: query.trim(), taxonomyId, limit: 20, ...(governedSources.length ? { sources: governedSources } : {}) }))
-      setSearched(true)
-    } catch { setCandidates([]); setFailed(true) } finally { setBusy(false) }
-  }
-  return <div className="uhcp-clinical-property-v2 uhcp-coded-concept-property-v2">
-    <span className="uhcp-clinical-editor-field-heading"><label htmlFor={`${codeClaim}-query`}>{label}{required ? ' *' : ''}</label>{textClaim ? <ClinicalSpeechInputButton resourceType={resourceType} claim={textClaim} locale={locale} fieldLabel={label} onTranscript={transcript => { setQuery(transcript); onChange({ text: transcript, code: '', display: '' }) }}/>: null}</span>
-    <div className="uhcp-coded-concept-query-v2">
-      <input id={`${codeClaim}-query`} aria-label={label} required={required} readOnly={Boolean(code)} value={code ? (text || query || display) : query} onChange={event => { setQuery(event.currentTarget.value); setCandidates([]); setSearched(false); setFailed(false); onChange({ text: event.currentTarget.value, code: '', display: '' }) }}/>
-      <button type="button" className="uhcp-icon-button-v2" aria-label={copy.searchTerminology} title={copy.searchTerminology} disabled={Boolean(code) || busy || query.trim().length < 2} onClick={() => void search()}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg></button>
-      {code ? <button type="button" className="uhcp-clear-code-v2" aria-label={copy.clearCoding} title={copy.clearCoding} onClick={() => { setQuery(''); setCandidates([]); onChange({ text: '', code: '', display: '' }) }}>×</button> : null}
-    </div>
-    {sources.length ? <fieldset className="uhcp-coding-sources-v2"><legend>{copy.terminologySources}</legend>{sources.map(source => <label key={source.id}><input type="checkbox" checked={selectedSources.includes(source.id)} onChange={event => { const checked = event.currentTarget.checked; setSelectedSources(current => checked ? [...new Set([...current, source.id])] : current.filter(value => value !== source.id)); setCandidates([]); setSearched(false); setFailed(false) }}/>{source.label || source.id}</label>)}</fieldset> : null}
-    {busy ? <small role="status">{copy.terminologyLoading}</small> : null}
-    {failed ? <small role="alert">{copy.terminologyUnavailable}</small> : null}
-    {searched && !busy && !failed && candidates.length === 0 ? <small role="status">{copy.terminologyEmpty || copy.terminologyUnavailable}</small> : null}
-    {candidates.length ? <label>{copy.selectCandidate}<select aria-label={copy.selectCandidate} value={selectedToken} onChange={event => {
-      const candidate = candidates.find(value => `${value.system}|${value.code}` === event.currentTarget.value)
-      if (!candidate) return
-      const localText = candidate.text || query || candidate.display
-      setQuery(localText); onChange({ text: localText, code: `${candidate.system}|${candidate.code}`, display: candidate.display }); setCandidates([])
-    }}><option value=""></option>{candidates.map(candidate => <option key={`${candidate.system}|${candidate.code}`} value={`${candidate.system}|${candidate.code}`}>{candidate.text && candidate.text !== candidate.display ? `${candidate.text} — ${candidate.display}` : candidate.display} ({candidate.code})</option>)}</select></label> : null}
-    {code ? <div className="uhcp-selected-code-v2"><label>{copy.canonicalCode}<input aria-label={copy.canonicalCode} readOnly value={code}/></label><label>{copy.canonicalDisplay}<input aria-label={copy.canonicalDisplay} readOnly value={display}/></label></div> : null}
-  </div>
+  return <TerminologyCodePickerV2
+    resourceType={resourceType}
+    param={codeClaim}
+    language={locale}
+    {...(taxonomyId ? { taxonomyId } : {})}
+    label={label}
+    text={text}
+    code={code}
+    display={display}
+    required={required}
+    copy={{ search: copy.searchTerminology, loading: copy.terminologyLoading, unavailable: copy.terminologyUnavailable, empty: copy.terminologyEmpty, sources: copy.terminologySources, select: copy.selectCandidate, clear: copy.clearCoding, canonicalCode: copy.canonicalCode, canonicalDisplay: copy.canonicalDisplay }}
+    {...(searchTerminology ? { search: async input => (await searchTerminology({ resourceType: input.resourceType, claim: input.param, language: input.language, text: input.text, limit: input.limit, ...(input.taxonomyId ? { taxonomyId: input.taxonomyId } : {}), ...(input.sources ? { sources: input.sources } : {}) })).map(candidate => ({ ...candidate, text: candidate.text || candidate.display, language: input.language })) } : {})}
+    {...(loadTerminologySources ? { loadSources: input => loadTerminologySources({ resourceType: input.resourceType, claim: input.param, language: input.language, ...(input.taxonomyId ? { taxonomyId: input.taxonomyId } : {}) }) } : {})}
+    onChange={onChange}
+    headingAction={textClaim ? <ClinicalSpeechInputButton resourceType={resourceType} claim={textClaim} locale={locale} fieldLabel={label} onTranscript={transcript => onChange({ text: transcript, code: '', display: '' })}/>: null}
+    classNames={{ root: 'uhcp-clinical-property-v2 uhcp-coded-concept-property-v2', heading: 'uhcp-clinical-editor-field-heading', query: 'uhcp-coded-concept-query-v2', searchButton: 'uhcp-icon-button-v2', clearButton: 'uhcp-clear-code-v2', sources: 'uhcp-coding-sources-v2', selected: 'uhcp-selected-code-v2' }}
+  />
 }
 
 export function CodedSelectPropertyV2({ label, value, required, options, onChange }: Readonly<{ label: string; value: string; required?: boolean; options: readonly ClinicalPropertyOptionV2[]; onChange: (value: string) => void }>) {
