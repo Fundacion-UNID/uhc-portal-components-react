@@ -105,6 +105,7 @@ describe('SchemaClinicalArtifactEditorV2', () => {
 
     expect(screen.getByLabelText('Clinical status').tagName).toBe('SELECT')
     expect(screen.getByLabelText('Clinical concept')).toBeTruthy()
+    expect(document.querySelector('[data-terminology-code-picker-v2]')).toBeTruthy()
     expect(screen.queryByLabelText('Recorded date')).toBeNull()
     fireEvent.change(screen.getByLabelText('Clinical concept'), { target: { value: 'Úlcera corneal' } })
     fireEvent.click(screen.getByRole('button', { name: 'Search codes' }))
