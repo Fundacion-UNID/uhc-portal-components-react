@@ -197,3 +197,11 @@ route destinations; it must not fork shared flow or authorization behavior.
 See [`docs/PERSONAL_FLOW_EXTRACTION.md`](docs/PERSONAL_FLOW_EXTRACTION.md) and
 the canonical cross-portal
 [`docs/HISTORICAL_PORTAL_COMPONENT_RECOVERY_MATRIX.md`](docs/HISTORICAL_PORTAL_COMPONENT_RECOVERY_MATRIX.md).
+### Two-sided SOSCHAIN identity card
+
+`SoschainSmartIdentityCardArtifact` renders the common printable card used by
+SOSChain, PetChain and VetChain. The host supplies both QR nodes: face A must
+encode only the canonical card `did:web`; face B may encode only an already
+signed provider-issued identity credential. Presentation code never issues or
+signs the credential. When no signed value is available, the reverse side
+fails closed with an explicit unavailable state.

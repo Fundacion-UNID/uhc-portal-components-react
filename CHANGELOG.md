@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add the shared two-sided SOSCHAIN Smart Identity Card artifact. Face A keeps
+  a DID-only QR and localized subject label; face B formats the seven-digit
+  animal species context and 21-digit telephone identifier and renders an
+  SHC-like identity QR only when the owning provider supplies it already
+  signed.
+
 ## 0.2.14 - 2026-10-15
 
 - Compose the existing coded-concept V2 field from the neutral
