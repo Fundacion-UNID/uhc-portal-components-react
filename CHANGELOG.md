@@ -7,6 +7,9 @@
   animal species context and 21-digit telephone identifier and renders an
   SHC-like identity QR only when the owning provider supplies it already
   signed.
+- Print both faces vertically at 50 x 80 mm, enlarge each QR to the usable
+  card width and remove the unreadable printed DID while preserving it as the
+  exact face-A QR payload.
 
 ## 0.2.14 - 2026-10-15
 

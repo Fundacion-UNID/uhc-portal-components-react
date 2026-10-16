@@ -204,4 +204,6 @@ SOSChain, PetChain and VetChain. The host supplies both QR nodes: face A must
 encode only the canonical card `did:web`; face B may encode only an already
 signed provider-issued identity credential. Presentation code never issues or
 signs the credential. When no signed value is available, the reverse side
-fails closed with an explicit unavailable state.
+fails closed with an explicit unavailable state. Both faces use the vertical
+50 x 80 mm label format. The QR fills the usable width; the long `did:web` is
+not repeated as unreadable microtext.
