@@ -10,9 +10,14 @@
   animal species context and 21-digit telephone identifier and renders an
   SHC-like identity QR only when the owning provider supplies it already
   signed.
-- Print both faces vertically at 50 x 80 mm, enlarge each QR to the usable
-  card width and remove the unreadable printed DID while preserving it as the
-  exact face-A QR payload.
+- Print both faces vertically at 50 x 80 mm and remove the unreadable printed
+  DID while preserving it as the exact face-A QR payload.
+- Present both physical faces side by side whenever the screen has room and
+  collapse them to one column only on narrow viewports. Use a white face A,
+  one larger SOSCHAIN logo, a compact DID QR, the subject label below it and
+  the provider code needed for manual recovery.
+- Keep the reverse free of repeated subject text and format the indivisible
+  21-digit telephone identifier as `4 4 4 4 5` without line wrapping.
 
 ## 0.2.14 - 2026-10-15
 

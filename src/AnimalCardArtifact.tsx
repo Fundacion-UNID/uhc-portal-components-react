@@ -55,6 +55,8 @@ export type SoschainSmartIdentityCardArtifactProps = Readonly<{
   subjectKind?: 'animal' | 'personal'
   subjectLabel?: string
   cardDid: string
+  /** Nine-digit public provider code printed for manual recovery when the DID QR cannot be read. */
+  providerCode?: string
   speciesId7?: string
   cardNumber21?: string
   /** Host-rendered QR whose exact payload is `cardDid`. */
@@ -69,7 +71,7 @@ export type SoschainSmartIdentityCardArtifactProps = Readonly<{
 export function formatSoschainCardNumber21(value: string): string {
   const digits = String(value || '').replace(/[ -]/g, '')
   if (!/^\d{21}$/.test(digits)) throw new TypeError('cardNumber21 must contain exactly 21 digits.')
-  return `${digits.slice(0, 5)} ${digits.slice(5, 10)} ${digits.slice(10, 15)} ${digits.slice(15, 20)} ${digits.slice(20)}`
+  return `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8, 12)} ${digits.slice(12, 16)} ${digits.slice(16)}`
 }
 
 /**
@@ -81,6 +83,7 @@ export function SoschainSmartIdentityCardArtifact({
   subjectKind = 'animal',
   subjectLabel,
   cardDid,
+  providerCode,
   speciesId7,
   cardNumber21,
   didQr,
@@ -90,21 +93,29 @@ export function SoschainSmartIdentityCardArtifact({
 }: SoschainSmartIdentityCardArtifactProps) {
   const publicLabel = subjectKind === 'personal' ? 'Personal' : String(subjectLabel || 'Animal').trim()
   const formattedCardNumber = cardNumber21 ? formatSoschainCardNumber21(cardNumber21) : undefined
+  const normalizedProviderCode = providerCode ? String(providerCode).replace(/[ -]/g, '') : undefined
+  if (normalizedProviderCode && !/^\d{9}$/.test(normalizedProviderCode)) {
+    throw new TypeError('providerCode must contain exactly 9 digits.')
+  }
 
   return <div className="uhcp-smart-id-card-set" aria-label={`SOSCHAIN Smart Identity Card: ${publicLabel}`}>
     <article className="uhcp-smart-id-card uhcp-smart-id-card-front" data-card-face="front">
       <header className="uhcp-smart-id-brand">
-        <img src={logoUrl} alt="" />
-        <strong>SOSCHAIN</strong>
-        <span>{publicLabel}</span>
+        <img src={logoUrl} alt="SOSCHAIN" />
       </header>
-      <div className="uhcp-smart-id-front-qr" aria-label="DID QR code">{didQr}</div>
+      <div className="uhcp-smart-id-front-body">
+        <div className="uhcp-smart-id-front-qr" aria-label="DID QR code">{didQr}</div>
+        <p className="uhcp-smart-id-subject-label">{publicLabel}</p>
+      </div>
+      {normalizedProviderCode ? <footer>
+        <span>Provider</span>
+        <p className="uhcp-smart-id-provider-code">{normalizedProviderCode}</p>
+      </footer> : null}
     </article>
 
     <article className="uhcp-smart-id-card uhcp-smart-id-card-back" data-card-face="back">
       <header>
         <strong>SOSCHAIN SMART IDENTITY CARD</strong>
-        <span>{publicLabel}</span>
       </header>
       <div className="uhcp-smart-id-back-body">
         <dl>
