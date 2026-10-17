@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { OrganizationWorkforceAdministration, type OrganizationWorkforceAdministrationProps } from '../src/OrganizationWorkforceAdministration.js'
 
 const copy: OrganizationWorkforceAdministrationProps['copy'] = {
-  title: 'Licenses and employees', description: 'Manage capacity and invitations.', totalLicenses: 'Total', usedLicenses: 'Used', freeLicenses: 'Free', employeesTitle: 'Employees using licenses', invitationsTitle: 'Invitations', inviteTitle: 'Invite a professional', emailLabel: 'Email', roleLabel: 'Role', unlockSecretLabel: 'Controller PIN', invite: 'Send invitation', inviting: 'Sending…', noFreeLicenses: 'No free licenses.', noEmployees: 'No employees.', noInvitations: 'No invitations.', licenseColumn: 'License', employeeColumn: 'Employee', roleColumn: 'Role', statusColumn: 'Status', devicesColumn: 'Devices', actionsColumn: 'Actions', active: 'Active', inactive: 'Inactive', pending: 'Pending', accepted: 'Accepted', cancelled: 'Cancelled', disable: 'Disable', purge: 'Delete and free', devicesLater: 'Coming later',
+  title: 'Licenses and employees', description: 'Manage capacity and invitations.', totalLicenses: 'Total', usedLicenses: 'Used', freeLicenses: 'Free', employeesTitle: 'Employees using licenses', invitationsTitle: 'Invitations', inviteTitle: 'Invite a professional', emailLabel: 'Email', roleLabel: 'Role', unlockSecretLabel: 'Controller PIN', invite: 'Send invitation', inviting: 'Sending…', noFreeLicenses: 'No free licenses.', noEmployees: 'No employees.', noInvitations: 'No invitations.', licenseColumn: 'License', employeeColumn: 'Employee', roleColumn: 'Role', statusColumn: 'Status', devicesColumn: 'Devices', actionsColumn: 'Actions', active: 'Active', inactive: 'Inactive', pending: 'Pending', accepted: 'Accepted', cancelled: 'Cancelled', disable: 'Suspend', reactivate: 'Reactivate', purge: 'Delete permanently', confirmDisable: 'Suspend this employee?', confirmReactivate: 'Reactivate this employee?', confirmPurge: 'Permanently delete this employee and free the license?', devicesLater: 'Coming later',
 }
 
 afterEach(cleanup)
@@ -19,12 +19,12 @@ function props(overrides: Partial<OrganizationWorkforceAdministrationProps> = {}
       { id: 'active-1', licenseId: 'license-1', email: 'one@example.org', role: 'Doctor', status: 'active' },
       { id: 'inactive-2', licenseId: 'license-2', email: 'two@example.org', role: 'Nurse', status: 'inactive', deviceCount: 2 },
     ],
-    invitations: [
+  invitations: [
       { id: 'invite-1', email: 'pending@example.org', role: 'Doctor', status: 'pending' },
       { id: 'invite-2', email: 'accepted@example.org', role: 'Nurse', status: 'accepted' },
     ],
     roles: [{ value: 'doctor', label: 'Doctor' }], email: '', role: '', unlockSecret: '',
-    onEmailChange: vi.fn(), onRoleChange: vi.fn(), onUnlockSecretChange: vi.fn(), onInvite: vi.fn(), onDisable: vi.fn(), onPurge: vi.fn(),
+    onEmailChange: vi.fn(), onRoleChange: vi.fn(), onUnlockSecretChange: vi.fn(), onInvite: vi.fn(), onDisable: vi.fn(), onReactivate: vi.fn(), onPurge: vi.fn(),
     ...overrides,
   }
 }
@@ -50,19 +50,35 @@ describe('OrganizationWorkforceAdministration', () => {
     expect(screen.getByText('No free licenses.')).toBeTruthy()
   })
 
-  it('only disables active employees and only purges inactive employees', async () => {
+  it('uses semantic lifecycle actions and requires confirmation before every mutation', async () => {
     const onDisable = vi.fn()
+    const onReactivate = vi.fn()
     const onPurge = vi.fn()
-    render(<OrganizationWorkforceAdministration {...props({ onDisable, onPurge })} />)
-    const disable = screen.getAllByRole('button', { name: 'Disable' })
-    const purge = screen.getAllByRole('button', { name: 'Delete and free' })
-    expect(disable[0].hasAttribute('disabled')).toBe(false)
-    expect(disable[1].hasAttribute('disabled')).toBe(true)
-    expect(purge[0].hasAttribute('disabled')).toBe(true)
-    expect(purge[1].hasAttribute('disabled')).toBe(false)
-    await userEvent.click(disable[0])
-    await userEvent.click(purge[1])
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    render(<OrganizationWorkforceAdministration {...props({ onDisable, onReactivate, onPurge })} />)
+    const disable = screen.getByRole('button', { name: 'Suspend' })
+    const reactivate = screen.getByRole('button', { name: 'Reactivate' })
+    const purge = screen.getByRole('button', { name: 'Delete permanently' })
+    expect(disable.classList.contains('uhcp-warning-action')).toBe(true)
+    expect(reactivate.classList.contains('uhcp-primary-action')).toBe(true)
+    expect(purge.classList.contains('uhcp-danger')).toBe(true)
+
+    await userEvent.click(disable)
+    await userEvent.click(reactivate)
+    await userEvent.click(purge)
+    expect(onDisable).not.toHaveBeenCalled()
+    expect(onReactivate).not.toHaveBeenCalled()
+    expect(onPurge).not.toHaveBeenCalled()
+
+    confirm.mockReturnValue(true)
+    await userEvent.click(disable)
+    await userEvent.click(reactivate)
+    await userEvent.click(purge)
     expect(onDisable).toHaveBeenCalledWith('active-1')
+    expect(onReactivate).toHaveBeenCalledWith('inactive-2')
     expect(onPurge).toHaveBeenCalledWith('inactive-2')
+    expect(confirm).toHaveBeenCalledWith('Suspend this employee?')
+    expect(confirm).toHaveBeenCalledWith('Reactivate this employee?')
+    expect(confirm).toHaveBeenCalledWith('Permanently delete this employee and free the license?')
   })
 })

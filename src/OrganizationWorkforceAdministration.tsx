@@ -54,7 +54,11 @@ export type OrganizationWorkforceCopy = Readonly<{
   accepted: string
   cancelled: string
   disable: string
+  reactivate: string
   purge: string
+  confirmDisable: string
+  confirmReactivate: string
+  confirmPurge: string
   devicesLater: string
 }>
 
@@ -74,6 +78,7 @@ export type OrganizationWorkforceAdministrationProps = Readonly<{
   onUnlockSecretChange: (value: string) => void
   onInvite: () => void | Promise<void>
   onDisable: (employeeId: string) => void | Promise<void>
+  onReactivate: (employeeId: string) => void | Promise<void>
   onPurge: (employeeId: string) => void | Promise<void>
 }>
 
@@ -99,6 +104,7 @@ export function OrganizationWorkforceAdministration({
   onUnlockSecretChange,
   onInvite,
   onDisable,
+  onReactivate,
   onPurge,
 }: OrganizationWorkforceAdministrationProps) {
   const noCapacity = summary.free < 1
@@ -108,6 +114,10 @@ export function OrganizationWorkforceAdministration({
   function submitInvitation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (canInvite) void onInvite()
+  }
+
+  function confirmAction(message: string, action: () => void | Promise<void>) {
+    if (window.confirm(message)) void action()
   }
 
   return (
@@ -145,7 +155,14 @@ export function OrganizationWorkforceAdministration({
                 <td><code>{employee.licenseId}</code></td><td>{employee.email}</td><td>{employee.role}</td>
                 <td><span className={`uhcp-status uhcp-status-${employee.status}`}>{employee.status === 'active' ? copy.active : copy.inactive}</span></td>
                 <td>{employee.deviceCount === undefined ? copy.devicesLater : employee.deviceCount}</td>
-                <td className="uhcp-row-actions"><button type="button" disabled={rowBusy || employee.status !== 'active'} onClick={() => void onDisable(employee.id)}>{copy.disable}</button><button type="button" className="uhcp-danger" disabled={rowBusy || employee.status !== 'inactive'} onClick={() => void onPurge(employee.id)}>{copy.purge}</button></td>
+                <td className="uhcp-row-actions">
+                  {employee.status === 'active' ? (
+                    <button type="button" className="uhcp-warning-action" disabled={rowBusy} onClick={() => confirmAction(copy.confirmDisable, () => onDisable(employee.id))}>{copy.disable}</button>
+                  ) : (<>
+                    <button type="button" className="uhcp-primary-action" disabled={rowBusy} onClick={() => confirmAction(copy.confirmReactivate, () => onReactivate(employee.id))}>{copy.reactivate}</button>
+                    <button type="button" className="uhcp-danger" disabled={rowBusy} onClick={() => confirmAction(copy.confirmPurge, () => onPurge(employee.id))}>{copy.purge}</button>
+                  </>)}
+                </td>
               </tr>
             })}
           </tbody></table></div>
