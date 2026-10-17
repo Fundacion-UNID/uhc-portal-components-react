@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Require confirmation for employee suspension, reactivation and permanent
+  deletion; expose only valid lifecycle actions and distinguish warning,
+  constructive and destructive actions with yellow, blue and red treatments.
 - Add the shared two-sided SOSCHAIN Smart Identity Card artifact. Face A keeps
   a DID-only QR and localized subject label; face B formats the seven-digit
   animal species context and 21-digit telephone identifier and renders an
