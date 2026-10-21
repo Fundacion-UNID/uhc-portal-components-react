@@ -32,7 +32,9 @@ describe('IdentityEvidenceDocumentPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: identityEvidenceDocumentCopyFixture.upload }))
     await waitFor(() => expect(onUpload).toHaveBeenCalledWith(identityEvidenceIdentifierFixture.id, pdf))
 
-    fireEvent.click(screen.getByRole('button', { name: identityEvidenceDocumentCopyFixture.verify }))
+    const verifyButton = screen.getByRole('button', { name: identityEvidenceDocumentCopyFixture.verify }) as HTMLButtonElement
+    await waitFor(() => expect(verifyButton.disabled).toBe(false))
+    fireEvent.click(verifyButton)
     await waitFor(() => expect(onVerifySignaturePdf).toHaveBeenCalledWith(identityEvidenceDocumentFixture.id))
     expect(screen.getByText(identityEvidenceDocumentCopyFixture.statusLabels.pending)).not.toBeNull()
   })

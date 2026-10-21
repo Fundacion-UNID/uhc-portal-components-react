@@ -117,6 +117,16 @@ describe('SoschainWorkspace', () => {
     expect(html).not.toContain('encounter-emergency')
   })
 
+  it('accepts the same shared communications screen used by other personal hosts', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="communications"
+      communicationsContent={<article>Shared channels and alert topics</article>}
+    />)
+    expect(html).toContain('Shared channels and alert topics')
+    expect(html).not.toContain(copy.emptyCommunications)
+  })
+
   it('supports one task-first overview and moves secondary areas behind More', () => {
     const compactAreas = ['overview', 'health-summary', 'care-journey'] as const
     const html = renderToStaticMarkup(<SoschainWorkspace

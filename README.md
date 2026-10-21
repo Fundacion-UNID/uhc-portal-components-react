@@ -193,6 +193,12 @@ management, licences, clinical data, care and permissions still live in the
 UHC host application and must be extracted behind host-owned adapters. A brand
 adapter may change tokens, logo, product vocabulary, animal-specific forms and
 route destinations; it must not fork shared flow or authorization behavior.
+Independent deployments are expected: reuse means versioned complete screens,
+one typed BFF path contract and one channel-neutral capability manifest, not a
+mandatory shared deployed shell. Telephone and assistant templates consume
+that same manifest and operation client so a subject-domain or jurisdiction
+deployment changes trusted configuration and adapters rather than copying the
+workflow.
 
 See [`docs/PERSONAL_FLOW_EXTRACTION.md`](docs/PERSONAL_FLOW_EXTRACTION.md) and
 the canonical cross-portal
