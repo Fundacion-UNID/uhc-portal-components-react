@@ -9,6 +9,8 @@ Publishable, brand-neutral React components shared by:
 - UHC Professional
 - VetChain Personal
 - VetChain Professional
+- SOSChain Personal
+- SOSChain Professional
 
 The package owns visual shell behavior only. Authentication, protected-profile
 storage, PIN verification and actor authorization remain in the host portal
@@ -74,9 +76,16 @@ The package deliberately exposes modules instead of a cloned application:
   authorization, fetching or persistence in the browser.
 - `AllClinicalSections<Person|Animal>`: lets each portal compose the same
   authorized section views as a stack or tabs, nest collapsible subsections and
-  exclude inapplicable areas. Family history, care-team members and emergency
+  exclude inapplicable areas. `ClinicalSummaryProfiles.Human` retains Advance
+  Directives; the current `ClinicalSummaryProfiles.Animal` excludes that
+  human-only section while reusing the same screen. Family history, care-team members and emergency
   contacts remain independent; the organizer never follows another subject's
   card or documents automatically.
+- `SubjectWorkspace`: canonical Personal navigation for Profile, Health, Care,
+  Communications and Contacts/Permissions. Product profiles may append an
+  explicit capability screen, such as animal mobility or SOS emergency work,
+  but tab selection never creates authority and all content remains host-
+  authorized.
 - `ClinicalTimeline` and `ClinicalDateTimeFields`: render longitudinal entries
   with localized dates, inclusive date/time ranges, multi-select clinical
   facets and accessible latest-first navigation. Editors capture calendar date
@@ -122,9 +131,11 @@ The package deliberately exposes modules instead of a cloned application:
   returned identifier evidence never grant subject access.
   resolver plus section selector. It deliberately has no scanner role: the
   same component is reusable by an individual member or a professional.
-- `SoschainWorkspace`: subject-card picker and four-area workspace for Places,
-  devices/vehicles and read-only emergency communications. The host supplies
-  already-authorized cards and capabilities.
+- `SoschainWorkspace`: subject-card picker and capability composition for the
+  overview, health summary, care journey, emergency data, communications,
+  places and products screens. The host supplies already-authorized cards,
+  content and capabilities; SOS-specific emergency modules do not fork the
+  common Personal or Professional components.
 - `EncounterTransferConsole`: visual patient-transfer workspace. The host
   resolves the authorized subject, contacts and write capability; the component
   only reports the chosen source outcome (`on-hold` when returning or

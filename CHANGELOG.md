@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.2.20 - 2026-10-21
+
+- Add one accessible Personal subject workspace shared by UHC, PetChain and
+  SOSChain consumers, with five canonical screens and governed product-module
+  extensions.
+- Add explicit human and animal clinical-summary profiles. The animal profile
+  reuses the same clinical screen while excluding Advance Directives for now.
+- Keep the existing capability-driven professional subject workspace as the
+  shared UHC/VetChain composition; SOSChain layers emergency, Encounter and
+  communication capabilities on shared components rather than cloning them.
 - Add one neutral notification composer screen for subject-addressed care
   transitions and public-dataset alerts, with safe Markdown preview and host-
   uploaded image/PDF attachment references.

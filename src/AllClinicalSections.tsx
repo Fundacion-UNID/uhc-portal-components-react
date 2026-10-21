@@ -11,10 +11,18 @@ export const ClinicalSectionNavigationIds = Object.freeze({
   ClinicalNotes: 'clinical-notes',
   CareTeamMembers: 'care-team-members',
   EmergencyContacts: 'emergency-contacts',
+  AdvanceDirectives: 'advance-directives',
 } as const)
 
 export type ClinicalSectionNavigationId = typeof ClinicalSectionNavigationIds[keyof typeof ClinicalSectionNavigationIds]
 export type ClinicalSubjectKind = 'person' | 'animal'
+
+export const ClinicalSummaryProfiles = Object.freeze({
+  Human: Object.freeze({ id: 'human', excludedSectionIds: Object.freeze([]) }),
+  Animal: Object.freeze({ id: 'animal', excludedSectionIds: Object.freeze([ClinicalSectionNavigationIds.AdvanceDirectives]) }),
+} as const)
+
+export type ClinicalSummaryProfile = typeof ClinicalSummaryProfiles[keyof typeof ClinicalSummaryProfiles]
 
 export type AllClinicalSectionDefinition<SubjectKind extends ClinicalSubjectKind> = Readonly<{
   id: ClinicalSectionNavigationId | (string & {})
@@ -31,6 +39,7 @@ export type AllClinicalSectionsProps<SubjectKind extends ClinicalSubjectKind> = 
   title: string
   sections: readonly AllClinicalSectionDefinition<SubjectKind>[]
   excludedSectionIds?: readonly string[]
+  profile?: ClinicalSummaryProfile
   presentation?: 'sections' | 'tabs'
 }>
 
@@ -47,9 +56,11 @@ export function AllClinicalSections<SubjectKind extends ClinicalSubjectKind>({
   title,
   sections,
   excludedSectionIds = [],
+  profile,
   presentation = 'sections',
 }: AllClinicalSectionsProps<SubjectKind>) {
-  const visibleSections = organizeClinicalSections(sections.filter(({ id }) => !excludedSectionIds.includes(id)))
+  const effectiveExcludedSectionIds = [...new Set([...(profile?.excludedSectionIds ?? []), ...excludedSectionIds])]
+  const visibleSections = organizeClinicalSections(sections.filter(({ id }) => !effectiveExcludedSectionIds.includes(id)))
   const [selectedId, setSelectedId] = useState(visibleSections[0]?.id ?? '')
   const selectedSection = visibleSections.find(({ id }) => id === selectedId) ?? visibleSections[0]
 
@@ -72,14 +83,14 @@ export function AllClinicalSections<SubjectKind extends ClinicalSubjectKind>({
           </div>
           {selectedSection ? (
             <div id={`uhcp-all-section-${selectedSection.id}`} role="tabpanel">
-              <ClinicalSection definition={selectedSection} excludedSectionIds={excludedSectionIds} />
+              <ClinicalSection definition={selectedSection} excludedSectionIds={effectiveExcludedSectionIds} />
             </div>
           ) : null}
         </>
       ) : (
         <div className="uhcp-all-clinical-stack">
           {visibleSections.map((section) => (
-            <ClinicalSection key={section.id} definition={section} excludedSectionIds={excludedSectionIds} />
+            <ClinicalSection key={section.id} definition={section} excludedSectionIds={effectiveExcludedSectionIds} />
           ))}
         </div>
       )}

@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   AllClinicalSections,
+  ClinicalSummaryProfiles,
   ClinicalSectionNavigationIds,
   type AllClinicalSectionDefinition,
 } from '../src/AllClinicalSections.js'
@@ -61,5 +62,17 @@ describe('AllClinicalSections', () => {
     expect(ips).toBeTruthy()
     expect(ips?.querySelectorAll(':scope > .uhcp-all-clinical-content > details')).toHaveLength(2)
     expect(document.querySelectorAll('.uhcp-all-clinical-stack > details')).toHaveLength(1)
+  })
+
+  it('keeps Advance Directives in the human profile and excludes it from the current animal summary profile', () => {
+    const sections = [
+      ...SECTIONS,
+      { id: ClinicalSectionNavigationIds.AdvanceDirectives, title: 'Advance directives', content: 'Directive content' },
+    ] as const
+    const { rerender } = render(<AllClinicalSections subjectKind="person" sections={sections} title="Human summary" profile={ClinicalSummaryProfiles.Human}/>)
+    expect(screen.getByText('Advance directives')).toBeTruthy()
+
+    rerender(<AllClinicalSections subjectKind="animal" sections={sections} title="Animal summary" profile={ClinicalSummaryProfiles.Animal}/>)
+    expect(screen.queryByText('Advance directives')).toBeNull()
   })
 })

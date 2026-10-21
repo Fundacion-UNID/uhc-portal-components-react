@@ -17,6 +17,7 @@ export type SoschainCardSummary = Readonly<{
   identifier: string
   displayName: string
   kindLabel: string
+  subjectKind?: 'person' | 'animal'
   selected?: boolean
   openHref: string
 }>
