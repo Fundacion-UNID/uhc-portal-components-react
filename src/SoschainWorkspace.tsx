@@ -98,6 +98,8 @@ export type SoschainWorkspaceProps = Readonly<{
   places: readonly SoschainAssociationSummary[]
   products: readonly SoschainAssociationSummary[]
   communications: readonly SoschainCommunicationSummary[]
+  /** Shared channels/topics screen composed with host-owned BFF adapters. */
+  communicationsContent?: ReactNode
   /** Host-authorized IPS/clinical projection, normally `IpsBundleSummary`. */
   healthSummary?: ReactNode
   /** False only when the host has already resolved a current write capability. */
@@ -154,6 +156,7 @@ export function SoschainWorkspace({
   places,
   products,
   communications,
+  communicationsContent,
   healthSummary,
   clinicalReadOnly = true,
   careJourney = [],
@@ -297,7 +300,7 @@ export function SoschainWorkspace({
         {activeArea === 'places' && <AssociationList items={places} empty={copy.emptyPlaces} />}
         {activeArea === 'products' && <AssociationList items={products} empty={copy.emptyProducts} />}
         {activeArea === 'communications' && (
-          communications.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCommunications}</p> : (
+          communicationsContent ?? (communications.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCommunications}</p> : (
             <ol className="uhcp-sos-timeline">
               {communications.map((message) => (
                 <li key={message.identifier}>
@@ -308,7 +311,7 @@ export function SoschainWorkspace({
                 </li>
               ))}
             </ol>
-          )
+          ))
         )}
       </div>
     </section>

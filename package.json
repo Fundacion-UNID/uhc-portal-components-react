@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "Brand-neutral React portal shell, account preferences and protected-profile UI for UHC and VetChain portals.",
   "license": "Apache-2.0",
   "type": "module",
@@ -31,9 +31,9 @@
     "react-dom": ">=18.3.0"
   },
   "dependencies": {
-    "fhir-data-utils-ts": "0.6.18",
+    "fhir-data-utils-ts": "0.6.21",
     "gdc-common-utils-ts": "2.9.30",
-    "sos-data-utils-ts": "0.6.3",
+    "sos-data-utils-ts": "0.6.15",
     "terminology-components-react": "0.2.0"
   },
   "devDependencies": {

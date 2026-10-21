@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add one neutral notification composer screen for subject-addressed care
+  transitions and public-dataset alerts, with safe Markdown preview and host-
+  uploaded image/PDF attachment references.
+- Define independent portal deployments as the supported reuse model while
+  requiring versioned complete screens, one typed public BFF path contract and
+  one capability manifest across web, mobile, telephone, chat and assistant
+  hosts.
 - Require confirmation for employee suspension, reactivation and permanent
   deletion; expose only valid lifecycle actions and distinguish warning,
   constructive and destructive actions with yellow, blue and red treatments.
