@@ -1,25 +1,19 @@
-# UHC Portal Components React
+# Shared Portal Components React
 
 Historical reusable UI and flow anchors are tracked in
 [`docs/LEGACY_FRONTEND_RECOVERY_INVENTORY.md`](docs/LEGACY_FRONTEND_RECOVERY_INVENTORY.md).
 
-Publishable, brand-neutral React components shared by:
-
-- UHC Personal
-- UHC Professional
-- VetChain Personal
-- VetChain Professional
-- SOSChain Personal
-- SOSChain Professional
+Publishable, brand-neutral React components shared by independent Personal and
+Professional portal deployments.
 
 The package owns visual shell behavior only. Authentication, protected-profile
 storage, PIN verification and actor authorization remain in the host portal
 through `ProfileRuntime`, `LoadedProfileWorkspace` and actor-scoped SDK facades.
 
 `AnimalIdentityOnboardingV2` and `AnimalIdentityDetailsV2` define one shared
-progressive create/read pattern. VetChain uses it for an animal and responsible
-party. UHC Professional must reuse the same contract for a newborn and
-responsible person, changing only governed role policy and copy: an attending
+progressive create/read pattern. A host can use the same contract for an animal
+and responsible party or a newborn and responsible person, changing only
+governed role policy and copy: an attending
 physician, midwife, nurse or paramedic may prepare the identity and default
 permission proposal where the jurisdiction authorizes that occupation. The
 proposal remains pending until the responsible authority confirms it; showing
@@ -40,17 +34,17 @@ Brand differences are supplied through `PortalBrand`: product name,
 organization, official artwork and CSS variables. Artwork declares its
 light/dark-surface files and intrinsic dimensions; the shell preserves those
 proportions and never synthesizes a text monogram. Components do not import
-Firebase, Next.js or any GDC/UHC SDK runtime.
+Firebase, Next.js or any product SDK runtime.
 
 ```tsx
 const brand = {
   family: 'professional',
-  productName: 'UNID Professional',
-  organizationName: 'Fundación UNID',
+  productName: 'Example Professional',
+  organizationName: 'Example Organization',
   homeHref: '/es',
   mark: {
-    lightSurface: { src: '/logos/uhc-logo.svg', alt: 'UHC', width: 100, height: 100 },
-    darkSurface: { src: '/logos/uhc-logo.svg', alt: 'UHC', width: 100, height: 100 },
+    lightSurface: { src: '/logos/product.svg', alt: 'Product', width: 100, height: 100 },
+    darkSurface: { src: '/logos/product.svg', alt: 'Product', width: 100, height: 100 },
   },
 } satisfies PortalBrand
 ```
@@ -196,12 +190,12 @@ token immediately; otherwise it records a `Communication` request for the
 individual controller to review. The GW remains authoritative for the exact
 intersection of requested and consented sections.
 
-UHC Personal and PetChain Personal must ultimately compose the same reusable
-personal flow modules. UHC Professional and VetChain Professional must do the
-same for professional flows. This package does **not yet expose those complete
+Personal deployments must compose the same reusable Personal flow modules;
+Professional deployments must do the same for Professional flows. This package
+does **not yet expose every complete
 route modules**: login, versioned terms, profile protection, individual/member
 management, licences, clinical data, care and permissions still live in the
-UHC host application and must be extracted behind host-owned adapters. A brand
+host application and must be extracted behind host-owned adapters. A brand
 adapter may change tokens, logo, product vocabulary, animal-specific forms and
 route destinations; it must not fork shared flow or authorization behavior.
 Independent deployments are expected: reuse means versioned complete screens,

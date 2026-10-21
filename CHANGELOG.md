@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.2.21 - 2026-10-21
+
+- Move the card preview, profile recovery, elapsed-operation status and
+  collapsible portal section into the shared package and remove their cloned
+  consumer implementations and duplicate elapsed-status tests.
+- Keep package metadata and current usage guidance brand-neutral; consumer
+  names belong in host repositories rather than this reusable package.
+- Centralize the platform-authenticator capability check and mandatory
+  passkey-before-wallet ordering so Personal and Professional hosts cannot
+  silently diverge on biometric enrollment policy.
+
 ## 0.2.20 - 2026-10-21
 
 - Add one accessible Personal subject workspace shared by UHC, PetChain and
