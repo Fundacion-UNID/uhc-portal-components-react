@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.22 - 2026-10-22
+
+- Place the verified login identifier beneath the application name, keep the
+  current subject immediately before the account control and render the
+  account trigger as an icon only across Personal and Professional hosts.
+
 ## 0.2.21 - 2026-10-21
 
 - Move the card preview, profile recovery, elapsed-operation status and

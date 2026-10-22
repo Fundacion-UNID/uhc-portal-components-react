@@ -18,7 +18,11 @@ import {
   resolveRenderedPortalTheme,
 } from './preferences.js'
 import { PortalBrandArtwork } from './PortalBrandArtwork.js'
-import { PortalCurrentSubjectSlot } from './PortalCurrentSubject.js'
+import {
+  PortalCurrentSubjectControl,
+  PortalCurrentSubjectSlot,
+  type PortalCurrentSubjectRegistration,
+} from './PortalCurrentSubject.js'
 
 export type PortalHeaderProps = Readonly<{
   brand: PortalBrand
@@ -32,6 +36,7 @@ export type PortalHeaderProps = Readonly<{
   menuActions?: readonly PortalMenuAction[]
   onSignOut?: () => void | Promise<void>
   storageNamespace?: string
+  currentSubject?: PortalCurrentSubjectRegistration
 }>
 
 /**
@@ -52,6 +57,7 @@ export function PortalHeader({
   menuActions = [],
   onSignOut,
   storageNamespace = 'uhc-portal',
+  currentSubject,
 }: PortalHeaderProps) {
   const [open, setOpen] = useState(false)
   const [density, setDensity] = useState<PortalUiDensity>('medium')
@@ -110,9 +116,16 @@ export function PortalHeader({
     <header className="uhcp-header" style={brand.variables}>
       <a className="uhcp-brand" href={brand.homeHref} aria-label={copy.home}>
         <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
-        <span><strong>{brand.productName}</strong><small>{brand.organizationName}</small></span>
+        <span>
+          <strong>{brand.productName}</strong>
+          <small className={accountIdentifier ? 'uhcp-brand-account' : undefined}>
+            {accountIdentifier || brand.organizationName}
+          </small>
+        </span>
       </a>
-      <PortalCurrentSubjectSlot />
+      {currentSubject
+        ? <PortalCurrentSubjectControl {...currentSubject} />
+        : <PortalCurrentSubjectSlot />}
       <div className="uhcp-account-menu" ref={ref}>
         <button
           type="button"
@@ -122,8 +135,6 @@ export function PortalHeader({
           aria-expanded={open}
         >
           <PersonIcon />
-          {accountIdentifier && <span className="uhcp-account-id">{accountIdentifier}</span>}
-          <span aria-hidden="true">⌄</span>
         </button>
         {open && (
           <section className="uhcp-menu" aria-label={copy.accountAndPreferences}>

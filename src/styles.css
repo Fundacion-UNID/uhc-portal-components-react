@@ -51,7 +51,7 @@ html[data-theme='dark'] {
 }
 .uhcp-brand { align-items: center; color: var(--uhcp-text); display: flex; gap: .75rem; text-decoration: none; }
 .uhcp-brand > span:last-child { display: grid; line-height: 1.15; }
-.uhcp-brand small { color: var(--uhcp-muted); }
+.uhcp-brand small { color: var(--uhcp-muted); max-width: min(22rem, 42vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .uhcp-brand-mark {
   align-items: center;
   display: inline-flex;
@@ -80,9 +80,10 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   color: var(--uhcp-text);
   cursor: pointer;
   display: flex;
-  gap: .5rem;
-  max-width: min(19rem, 48vw);
-  padding: .7rem .85rem;
+  justify-content: center;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: .7rem;
 }
 .uhcp-person-icon { height: 1.25rem; min-width: 1.25rem; width: 1.25rem; }
 .uhcp-account-id { font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -709,7 +710,7 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-floating-back { border-radius: 50%; bottom: 1.25rem; height: 3.5rem; left: 1.25rem; width: 3.5rem; }
 .uhcp-floating-assistant { border-radius: 999px; bottom: 1.25rem; gap: .5rem; padding: 1rem 1.25rem; right: 1.25rem; }
 @media (max-width: 620px) {
-  .uhcp-account-id, .uhcp-brand small { display: none; }
+  .uhcp-brand small { max-width: 48vw; }
   .uhcp-entry-hero { grid-template-columns: 1fr; }
   .uhcp-access-grid { grid-template-columns: 1fr; }
 }
