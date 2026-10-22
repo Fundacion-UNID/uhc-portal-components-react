@@ -1,7 +1,9 @@
 // Flow contract: every personal or professional portal shows the verified login below the application name, keeps the current subject separate, and renders an icon-only account trigger.
+// @vitest-environment jsdom
 
+import { cleanup, render } from '@testing-library/react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { PortalHeader } from '../src/PortalHeader.js'
 
 const brand = {
@@ -27,6 +29,8 @@ const copy = {
   signOut: 'Sign out',
 } as const
 
+afterEach(() => cleanup())
+
 describe('shared authenticated portal header', () => {
   it('places the login identifier with the brand and keeps it out of the icon-only account trigger', () => {
     const markup = renderToStaticMarkup(<PortalHeader
@@ -49,5 +53,19 @@ describe('shared authenticated portal header', () => {
     expect(triggerMarkup).not.toContain('person@example.org')
     expect(triggerMarkup).not.toContain('⌄')
     expect(markup.indexOf('Current subject')).toBeLessThan(markup.indexOf('uhcp-account-menu'))
+  })
+
+  it('keeps rendering when the host does not expose the optional matchMedia API', () => {
+    const originalMatchMedia = window.matchMedia
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: undefined })
+
+    expect(() => render(<PortalHeader
+      brand={brand}
+      copy={copy}
+      accountIdentifier="person@example.org"
+      guestActionHref="/en/login"
+    />)).not.toThrow()
+
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
   })
 })

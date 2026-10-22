@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.2.23 - 2026-10-22
+
+- Keep the shared header usable in server-rendered and test hosts that do not
+  expose the optional browser `matchMedia` API.
+
 ## 0.2.22 - 2026-10-22
 
 - Place the verified login identifier beneath the application name, keep the

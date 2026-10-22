@@ -75,15 +75,17 @@ export function PortalHeader({
   }, [densityKey, themeKey])
 
   useEffect(() => {
-    const media = matchMedia('(prefers-color-scheme: dark)')
+    const media = typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-color-scheme: dark)')
+      : undefined
     const apply = () => {
-      const rendered = resolveRenderedPortalTheme(theme, media.matches)
+      const rendered = resolveRenderedPortalTheme(theme, media?.matches === true)
       document.documentElement.dataset.theme = rendered
       document.documentElement.style.colorScheme = rendered
     }
     apply()
-    media.addEventListener('change', apply)
-    return () => media.removeEventListener('change', apply)
+    media?.addEventListener('change', apply)
+    return () => media?.removeEventListener('change', apply)
   }, [theme])
 
   useEffect(() => {
