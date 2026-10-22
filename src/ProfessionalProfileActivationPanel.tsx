@@ -27,9 +27,10 @@ export type ProfessionalProfileActivationPanelProps = Readonly<{
 }>
 
 /**
- * Brand-neutral first-device activation for an authorized employee.
- * The BFF resolves trusted routing and authority from one organization-issued
- * value; the browser never reconstructs a sector, organization, DID and URN.
+ * Legacy brand-neutral employee-invitation activation.
+ * `credential` is retained as an API-compatible field name, but its value is
+ * an invitation/activation code, never a reusable professional credential.
+ * Existing professionals use ExistingProfessionalProfilePanel instead.
  */
 export function ProfessionalProfileActivationPanel({ copy, busy, error, onSubmit }: ProfessionalProfileActivationPanelProps) {
   const [credential, setCredential] = useState('')

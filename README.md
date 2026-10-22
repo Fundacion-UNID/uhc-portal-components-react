@@ -120,6 +120,10 @@ The package deliberately exposes modules instead of a cloned application:
 - `InvitationAcceptancePanel`: controlled invitation-code UI for a related
   individual member; the host refreshes the authorized-subject list after its
   BFF accepts the invitation.
+- `ExistingProfessionalProfilePanel`: existing employees scan or upload a
+  signed professional-credential QR, or use the explicit DID/URN plus sector
+  fallback. The host verifies the evidence before DCR; this screen never
+  accepts an employee invitation.
 - `SubjectAccessRequestPanel`: controlled provider-enabled QR, numeric-code,
   `did:web`, microchip, tattoo, email or telephone locator. Resolution and
   returned identifier evidence never grant subject access.

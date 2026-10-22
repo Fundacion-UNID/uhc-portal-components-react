@@ -2,12 +2,19 @@
 
 ## Unreleased
 
+## 0.2.28 - 2026-10-22
+
+- Add one reusable existing-professional screen with two explicit alternatives:
+  scan or upload the signed professional-credential QR, or enter one DID/URN
+  plus the organization sector manually.
+- Keep the employee invitation, verified professional credential and device
+  registration as separate artifacts and flows.
+
 ## 0.2.27 - 2026-10-22
 
-- Add one brand-neutral Professional profile activation screen that accepts a
-  single organization-issued credential and a local PIN. Product BFFs resolve
-  organization, sector, role, licence and technical identities; the browser no
-  longer asks employees to reconstruct separate DID and URN values.
+- Add one brand-neutral employee-invitation activation screen and local PIN.
+  Product BFFs resolve organization, sector, role, licence and technical
+  identities without exposing provider internals to the browser.
 
 ## 0.2.26 - 2026-10-22
 
