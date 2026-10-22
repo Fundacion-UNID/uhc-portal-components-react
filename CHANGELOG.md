@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.2.27 - 2026-10-22
+
+- Add one brand-neutral Professional profile activation screen that accepts a
+  single organization-issued credential and a local PIN. Product BFFs resolve
+  organization, sector, role, licence and technical identities; the browser no
+  longer asks employees to reconstruct separate DID and URN values.
+
 ## 0.2.26 - 2026-10-22
 
 - Keep race and ethnicity outside the universal human profile: trusted
