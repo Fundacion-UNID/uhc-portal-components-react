@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.2.24 - 2026-10-22
+
+- Let each deployment omit brand artwork when no official mark is configured;
+  the shared shell no longer requires or invents a product logo.
+
 ## 0.2.23 - 2026-10-22
 
 - Keep the shared header usable in server-rendered and test hosts that do not

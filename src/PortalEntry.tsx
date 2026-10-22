@@ -19,12 +19,14 @@ export function PortalEntryHero({
 }: PortalEntryHeroProps) {
   return (
     <section className="uhcp-entry-hero" style={brand.variables}>
-      <div className="uhcp-hero-orbit" aria-hidden="true">
-        <PortalBrandArtwork
-          artwork={brand.heroArtwork || brand.mark}
-          className="uhcp-hero-logo"
-        />
-      </div>
+      {brand.heroArtwork || brand.mark ? (
+        <div className="uhcp-hero-orbit" aria-hidden="true">
+          <PortalBrandArtwork
+            artwork={brand.heroArtwork || brand.mark!}
+            className="uhcp-hero-logo"
+          />
+        </div>
+      ) : null}
       <div className="uhcp-entry-copy">
         <div className="uhcp-badge">{eyebrow}</div>
         <h1>{title}</h1>

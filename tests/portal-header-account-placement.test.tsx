@@ -68,4 +68,22 @@ describe('shared authenticated portal header', () => {
 
     Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
   })
+
+  it('does not invent brand artwork when a deployment provides no official mark', () => {
+    const brandWithoutMark = {
+      family: 'personal',
+      productName: 'Configured Personal Portal',
+      organizationName: 'Configured Organization',
+      homeHref: '/en/home',
+    } as const
+
+    const { container } = render(<PortalHeader
+      brand={brandWithoutMark}
+      copy={copy}
+      accountIdentifier="person@example.org"
+      guestActionHref="/en/login"
+    />)
+
+    expect(container.querySelector('.uhcp-brand-mark')).toBeNull()
+  })
 })

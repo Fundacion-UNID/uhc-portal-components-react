@@ -117,7 +117,9 @@ export function PortalHeader({
   return (
     <header className="uhcp-header" style={brand.variables}>
       <a className="uhcp-brand" href={brand.homeHref} aria-label={copy.home}>
-        <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
+        {brand.mark ? (
+          <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
+        ) : null}
         <span>
           <strong>{brand.productName}</strong>
           <small className={accountIdentifier ? 'uhcp-brand-account' : undefined}>
