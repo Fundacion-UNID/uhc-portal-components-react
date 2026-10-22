@@ -974,3 +974,37 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-selected-subject-tabs { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .uhcp-selected-subject-tabs button { min-height: 2.75rem; border: 1px solid var(--uhcp-border, #cbd5e1); border-radius: 999px; padding: 0.625rem 1rem; background: var(--uhcp-surface, #fff); color: inherit; font: inherit; font-weight: 700; }
 .uhcp-selected-subject-tabs button[aria-selected='true'] { border-color: var(--uhcp-accent, #0f766e); background: color-mix(in srgb, var(--uhcp-accent, #0f766e) 12%, transparent); }
+
+.uhcp-subject-demographics-fields,
+.uhcp-subject-demographics-fields dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.uhcp-subject-demographics-fields label,
+.uhcp-subject-demographics-fields dl > div {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.uhcp-subject-demographics-fields label > span,
+.uhcp-subject-demographics-fields dt {
+  font-weight: 700;
+}
+
+.uhcp-subject-demographics-fields select {
+  min-height: 2.75rem;
+  width: 100%;
+  border: 1px solid var(--uhcp-border, #cbd5e1);
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--uhcp-surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+
+.uhcp-subject-demographics-fields dl,
+.uhcp-subject-demographics-fields dd {
+  margin: 0;
+}

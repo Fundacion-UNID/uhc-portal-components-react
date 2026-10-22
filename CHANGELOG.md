@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.25 - 2026-10-22
+
+- Add one shared read/edit demographics slot whose trusted profile renders
+  human race and ethnicity or animal species and breed while preserving
+  distinct field names, terminology options and persistence adapters.
+
 ## 0.2.24 - 2026-10-22
 
 - Let each deployment omit brand artwork when no official mark is configured;
