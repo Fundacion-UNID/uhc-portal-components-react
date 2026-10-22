@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.2.26 - 2026-10-22
+
+- Keep race and ethnicity outside the universal human profile: trusted
+  jurisdictional profiles may enable either, both or neither.
+- Present enabled human demographic concepts as optional additions and omit
+  empty optional concepts from read-only views.
+
 ## 0.2.25 - 2026-10-22
 
 - Add one shared read/edit demographics slot whose trusted profile renders

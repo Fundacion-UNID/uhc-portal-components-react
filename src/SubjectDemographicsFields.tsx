@@ -1,4 +1,4 @@
-import type { ChangeEvent } from 'react'
+import { useState, type ChangeEvent } from 'react'
 
 export type SubjectDemographicsOption = Readonly<{
   value: string
@@ -8,8 +8,8 @@ export type SubjectDemographicsOption = Readonly<{
 export type SubjectDemographicsProfile =
   | Readonly<{
       subjectKind: 'human'
-      raceOptions: readonly SubjectDemographicsOption[]
-      ethnicityOptions: readonly SubjectDemographicsOption[]
+      raceOptions?: readonly SubjectDemographicsOption[]
+      ethnicityOptions?: readonly SubjectDemographicsOption[]
     }>
   | Readonly<{
       subjectKind: 'animal'
@@ -20,6 +20,8 @@ export type SubjectDemographicsProfile =
 export type SubjectDemographicsCopy = Readonly<{
   race?: string
   ethnicity?: string
+  addRace?: string
+  addEthnicity?: string
   species?: string
   breed?: string
 }>
@@ -44,34 +46,81 @@ export function SubjectDemographicsFields({
   values?: Readonly<{ primary?: string; secondary?: string }>
   onValuesChange?: (values: Readonly<{ primary?: string; secondary?: string }>) => void
 }>) {
+  const [visibleHumanFields, setVisibleHumanFields] = useState<ReadonlySet<'race' | 'ethnicity'>>(
+    () => new Set([
+      ...(values?.primary ? ['race' as const] : []),
+      ...(values?.secondary ? ['ethnicity' as const] : []),
+    ]),
+  )
   const fields = profile.subjectKind === 'human'
     ? [
-        { name: 'human.race', label: requiredCopy(copy.race, 'race'), options: profile.raceOptions, value: values?.primary },
-        { name: 'human.ethnicity', label: requiredCopy(copy.ethnicity, 'ethnicity'), options: profile.ethnicityOptions, value: values?.secondary },
+        ...(profile.raceOptions === undefined ? [] : [{
+          concept: 'race' as const,
+          valueKey: 'primary' as const,
+          name: 'human.race',
+          label: requiredCopy(copy.race, 'race'),
+          addLabel: mode === 'edit' ? requiredCopy(copy.addRace, 'add_race') : '',
+          options: profile.raceOptions,
+          value: values?.primary,
+          required: false,
+        }]),
+        ...(profile.ethnicityOptions === undefined ? [] : [{
+          concept: 'ethnicity' as const,
+          valueKey: 'secondary' as const,
+          name: 'human.ethnicity',
+          label: requiredCopy(copy.ethnicity, 'ethnicity'),
+          addLabel: mode === 'edit' ? requiredCopy(copy.addEthnicity, 'add_ethnicity') : '',
+          options: profile.ethnicityOptions,
+          value: values?.secondary,
+          required: false,
+        }]),
       ]
     : [
-        { name: 'animal.species', label: requiredCopy(copy.species, 'species'), options: profile.speciesOptions, value: values?.primary },
-        { name: 'animal.breed', label: requiredCopy(copy.breed, 'breed'), options: profile.breedOptions, value: values?.secondary },
+        { concept: 'species' as const, valueKey: 'primary' as const, name: 'animal.species', label: requiredCopy(copy.species, 'species'), addLabel: '', options: profile.speciesOptions, value: values?.primary, required: true },
+        { concept: 'breed' as const, valueKey: 'secondary' as const, name: 'animal.breed', label: requiredCopy(copy.breed, 'breed'), addLabel: '', options: profile.breedOptions, value: values?.secondary, required: true },
       ]
 
   return <div className="uhcp-subject-demographics-fields" data-subject-kind={profile.subjectKind}>
-    {mode === 'edit'
-      ? fields.map((field) => <label key={field.name}>
+    {mode === 'edit' && profile.subjectKind === 'human'
+      ? fields.map((field) => visibleHumanFields.has(field.concept as 'race' | 'ethnicity')
+        ? <label key={field.name}>
           <span>{field.label}</span>
-          <select name={field.name} aria-label={field.label} required {...(onValuesChange
+          <select name={field.name} aria-label={field.label} {...(onValuesChange
             ? {
                 value: field.value ?? '',
                 onChange: (event: ChangeEvent<HTMLSelectElement>) => onValuesChange({
-                  primary: field === fields[0] ? event.currentTarget.value : values?.primary,
-                  secondary: field === fields[1] ? event.currentTarget.value : values?.secondary,
+                  primary: field.valueKey === 'primary' ? event.currentTarget.value : values?.primary,
+                  secondary: field.valueKey === 'secondary' ? event.currentTarget.value : values?.secondary,
                 }),
               }
             : { defaultValue: field.value ?? '' })}>
             <option value="" disabled>{field.label}</option>
             {field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
-        </label>)
-      : <dl>{fields.map((field) => <div key={field.name}>
+        </label>
+        : <button
+            className="uhcp-subject-demographics-add"
+            key={field.name}
+            type="button"
+            onClick={() => setVisibleHumanFields((current) => new Set([...current, field.concept as 'race' | 'ethnicity']))}
+          >{field.addLabel}</button>)
+      : mode === 'edit'
+        ? fields.map((field) => <label key={field.name}>
+            <span>{field.label}</span>
+            <select name={field.name} aria-label={field.label} required={field.required} {...(onValuesChange
+              ? {
+                  value: field.value ?? '',
+                  onChange: (event: ChangeEvent<HTMLSelectElement>) => onValuesChange({
+                    primary: field.valueKey === 'primary' ? event.currentTarget.value : values?.primary,
+                    secondary: field.valueKey === 'secondary' ? event.currentTarget.value : values?.secondary,
+                  }),
+                }
+              : { defaultValue: field.value ?? '' })}>
+              <option value="" disabled>{field.label}</option>
+              {field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>)
+        : <dl>{fields.filter((field) => profile.subjectKind === 'animal' || field.value).map((field) => <div key={field.name}>
           <dt>{field.label}</dt>
           <dd>{field.value || '—'}</dd>
         </div>)}</dl>}
