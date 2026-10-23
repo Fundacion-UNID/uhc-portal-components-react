@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.31",
+  "version": "0.2.32",
   "description": "Brand-neutral React portal screens, account preferences and protected-profile UI.",
   "license": "Apache-2.0",
   "type": "module",
@@ -22,7 +22,7 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc && cp src/styles.css dist/styles.css",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --maxWorkers=1",
     "check": "npm run typecheck && npm test && npm run build",
     "prepack": "npm run check"
   },

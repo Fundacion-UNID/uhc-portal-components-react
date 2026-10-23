@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.32 - 2026-10-23
+
+- Export the product-neutral subject communication composer so Emergency,
+  Personal and Professional screens submit through the same accessible UI
+  while their BFF adapters retain recipient and delivery authority.
+
 ## 0.2.31 - 2026-10-23
 
 - Add one concise, accessible `Sections` index for Personal portals so card,

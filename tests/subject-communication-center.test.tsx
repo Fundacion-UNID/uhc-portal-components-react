@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import { SubjectCommunicationCenter } from '../src/SubjectCommunicationCenter.js'
+import { SubjectCommunicationCenter, SubjectCommunicationComposerPanel } from '../src/SubjectCommunicationCenter.js'
 
 const items = [
   { id: 'message-1', kind: 'message' as const, category: 'care' as const, title: 'Clinic message', summary: 'New private message', direction: 'incoming' as const, senderLabel: 'Emergency team', avatarUrl: '/team.png' },
@@ -53,5 +53,30 @@ describe('subject communication center', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Attach Bundle' }))
     expect(sent).toEqual(['Pluto is home.'])
     expect(attached).toEqual(['bundle'])
+  })
+
+  it('reuses the standalone composer inside emergency and ordinary communication screens', () => {
+    const sent: string[] = []
+    render(<SubjectCommunicationComposerPanel composer={{
+      placeholder: 'Emergency message', sendLabel: 'Send emergency message', onSend: text => sent.push(text),
+    }} />)
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Emergency message' }), { target: { value: 'We are on the way.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send emergency message' }))
+    expect(sent).toEqual(['We are on the way.'])
+    expect((screen.getByRole('textbox', { name: 'Emergency message' }) as HTMLTextAreaElement).value).toBe('')
+  })
+
+  it('binds each reusable composer label to a unique textarea', () => {
+    render(<>
+      <SubjectCommunicationComposerPanel composer={{ placeholder: 'First contact', sendLabel: 'Send', onSend: () => undefined }} />
+      <SubjectCommunicationComposerPanel composer={{ placeholder: 'Second contact', sendLabel: 'Send', onSend: () => undefined }} />
+    </>)
+
+    const first = screen.getByRole('textbox', { name: 'First contact' })
+    const second = screen.getByRole('textbox', { name: 'Second contact' })
+    expect(first.id).toBeTruthy()
+    expect(second.id).toBeTruthy()
+    expect(first.id).not.toBe(second.id)
   })
 })

@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react'
+import { type ReactNode, useId, useMemo, useState } from 'react'
 
 export type SubjectCommunicationKind = 'message' | 'audio' | 'audio-call' | 'video-call' | 'appointment'
 export type SubjectCommunicationCategory = 'emergency' | 'care' | 'other'
@@ -49,7 +49,6 @@ export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT
   composer?: SubjectCommunicationComposer
 }>) {
   const [filter, setFilter] = useState<SubjectCommunicationFilter>('all')
-  const [draft, setDraft] = useState('')
   const visibleItems = useMemo(() => items.filter(item => matchesFilter(item, filter)), [filter, items])
 
   return <section className="subject-communication-center" aria-labelledby="subject-communication-center-title">
@@ -73,16 +72,26 @@ export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT
         </div>
       </li>)}
     </ol>}
-    {composer ? <form className="subject-communication-composer" onSubmit={event => {
+    {composer ? <SubjectCommunicationComposerPanel composer={composer} /> : null}
+  </section>
+}
+
+/** Reusable message composer; product BFF adapters retain delivery authority. */
+export function SubjectCommunicationComposerPanel({ composer }: Readonly<{
+  composer: SubjectCommunicationComposer
+}>) {
+  const inputId = useId()
+  const [draft, setDraft] = useState('')
+  return <form className="subject-communication-composer" onSubmit={event => {
       event.preventDefault()
       const text = draft.trim()
       if (!text || composer.disabled) return
       void composer.onSend(text)
       setDraft('')
     }}>
-      <label className="subject-communication-composer-label" htmlFor="subject-communication-composer-input">{composer.placeholder}</label>
+      <label className="subject-communication-composer-label" htmlFor={inputId}>{composer.placeholder}</label>
       <textarea
-        id="subject-communication-composer-input"
+        id={inputId}
         aria-label={composer.placeholder}
         placeholder={composer.placeholder}
         value={draft}
@@ -93,8 +102,7 @@ export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT
         {composer.onAttach && composer.attachLabel ? <button type="button" disabled={composer.disabled} onClick={() => void composer.onAttach?.()}>{composer.attachLabel}</button> : null}
         <button type="submit" disabled={composer.disabled || !draft.trim()}>{composer.sendLabel}</button>
       </div>
-    </form> : null}
-  </section>
+    </form>
 }
 
 function matchesFilter(item: SubjectCommunicationItem, filter: SubjectCommunicationFilter) {
