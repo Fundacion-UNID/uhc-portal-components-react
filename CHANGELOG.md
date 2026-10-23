@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.30 - 2026-10-22
+
+- Restore the stable `activate-member-profile` action marker on the shared
+  employee-invitation activation submit button so consumer E2E inventories and
+  keyboard journeys keep the same observable action across portal brands.
+
 ## 0.2.29 - 2026-10-22
 
 - Add one product-neutral WebRTC engine and call screen for audio/video start,

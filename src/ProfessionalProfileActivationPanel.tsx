@@ -59,7 +59,7 @@ export function ProfessionalProfileActivationPanel({ copy, busy, error, onSubmit
       <label><span>{copy.pinLabel}</span><input name="newPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pin} onChange={event => setPin(event.currentTarget.value)} required /></label>
       <label><span>{copy.pinConfirmationLabel}</span><input name="confirmPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pinConfirmation} onChange={event => setPinConfirmation(event.currentTarget.value)} required /></label>
       {(localError || error) ? <p role="alert">{localError || error}</p> : null}
-      <button type="submit" disabled={busy}>{busy ? copy.submitting : copy.submit}</button>
+      <button type="submit" data-portal-action="activate-member-profile" disabled={busy}>{busy ? copy.submitting : copy.submit}</button>
     </form>
   </section>
 }

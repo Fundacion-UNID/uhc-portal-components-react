@@ -26,6 +26,7 @@ describe('ProfessionalProfileActivationPanel', () => {
     expect(screen.queryByLabelText(/DID/i)).toBeNull()
     expect(screen.queryByLabelText(/URN/i)).toBeNull()
     expect(screen.queryByLabelText(/sector/i)).toBeNull()
+    expect(screen.getByRole('button', { name: copy.submit }).getAttribute('data-portal-action')).toBe('activate-member-profile')
 
     fireEvent.change(screen.getByLabelText(copy.credentialLabel), { target: { value: 'temporary-invitation-code' } })
     fireEvent.change(screen.getByLabelText(copy.pinLabel), { target: { value: '123456' } })
