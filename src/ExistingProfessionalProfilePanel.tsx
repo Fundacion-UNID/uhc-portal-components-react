@@ -35,6 +35,17 @@ export type ExistingProfessionalProfileInput =
   | Readonly<{ method: 'credential'; professionalCredential: string; pin: string }>
   | Readonly<{ method: 'identifier'; professionalIdentifier: string; sector: string; pin: string }>
 
+export type ExistingProfessionalProfileRequest =
+  | Readonly<{ professionalCredential: string; pin: string }>
+  | Readonly<{ professionalIdentifier: string; sectorHint: string; pin: string }>
+
+/** Shared BFF serialization keeps professional evidence distinct from an invitation code. */
+export function toExistingProfessionalProfileRequest(input: ExistingProfessionalProfileInput): ExistingProfessionalProfileRequest {
+  return input.method === 'credential'
+    ? Object.freeze({ professionalCredential: input.professionalCredential, pin: input.pin })
+    : Object.freeze({ professionalIdentifier: input.professionalIdentifier, sectorHint: input.sector, pin: input.pin })
+}
+
 export type ExistingProfessionalSectorOption = Readonly<{ value: string; label: string }>
 
 export type ExistingProfessionalProfilePanelProps = Readonly<{

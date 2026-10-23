@@ -1,7 +1,7 @@
 // Flow contract: every personal or professional portal shows the verified login below the application name, keeps the current subject separate, and renders an icon-only account trigger.
 // @vitest-environment jsdom
 
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
 import { PortalHeader } from '../src/PortalHeader.js'
@@ -29,7 +29,12 @@ const copy = {
   signOut: 'Sign out',
 } as const
 
-afterEach(() => cleanup())
+afterEach(() => {
+  cleanup()
+  document.documentElement.classList.remove('light', 'dark')
+  delete document.documentElement.dataset.theme
+  localStorage.clear()
+})
 
 describe('shared authenticated portal header', () => {
   it('places the login identifier with the brand and keeps it out of the icon-only account trigger', () => {
@@ -67,6 +72,25 @@ describe('shared authenticated portal header', () => {
     />)).not.toThrow()
 
     Object.defineProperty(window, 'matchMedia', { configurable: true, value: originalMatchMedia })
+  })
+
+  it('keeps class-based host themes synchronized with the shared data-theme contract', async () => {
+    document.documentElement.classList.add('light')
+    render(<PortalHeader
+      brand={brand}
+      copy={copy}
+      accountIdentifier="person@example.org"
+      guestActionHref="/en/login"
+    />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Account and preferences' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Dark' }))
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.theme).toBe('dark')
+      expect(document.documentElement.classList.contains('dark')).toBe(true)
+      expect(document.documentElement.classList.contains('light')).toBe(false)
+    })
   })
 
   it('does not invent brand artwork when a deployment provides no official mark', () => {

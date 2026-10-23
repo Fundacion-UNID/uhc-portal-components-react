@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ExistingProfessionalProfilePanel } from '../src/ExistingProfessionalProfilePanel.js'
+import { ExistingProfessionalProfilePanel, toExistingProfessionalProfileRequest } from '../src/ExistingProfessionalProfilePanel.js'
 
 const copy = {
   eyebrow: 'Professional access',
@@ -30,6 +30,15 @@ afterEach(cleanup)
 
 describe('ExistingProfessionalProfilePanel', () => {
   const sectors = [{ value: 'animal-care', label: 'Animal care' }, { value: 'health-care', label: 'Health care' }]
+
+  it('serializes credential and identifier evidence without renaming either as an invitation', () => {
+    expect(toExistingProfessionalProfileRequest({ method: 'credential', professionalCredential: 'shc:/credential', pin: '123456' })).toEqual({
+      professionalCredential: 'shc:/credential', pin: '123456',
+    })
+    expect(toExistingProfessionalProfileRequest({ method: 'identifier', professionalIdentifier: 'did:web:professional', sector: 'health-care', pin: '123456' })).toEqual({
+      professionalIdentifier: 'did:web:professional', sectorHint: 'health-care', pin: '123456',
+    })
+  })
 
   it('scans and submits a professional credential separately from local device protection', async () => {
     const onSubmit = vi.fn()

@@ -35,6 +35,7 @@ export type PortalHeaderProps = Readonly<{
   onSelectAccount?: (id: string) => void
   menuActions?: readonly PortalMenuAction[]
   onSignOut?: () => void | Promise<void>
+  onThemeChange?: (theme: PortalUiTheme) => void
   storageNamespace?: string
   currentSubject?: PortalCurrentSubjectRegistration
 }>
@@ -56,6 +57,7 @@ export function PortalHeader({
   onSelectAccount,
   menuActions = [],
   onSignOut,
+  onThemeChange,
   storageNamespace = 'uhc-portal',
   currentSubject,
 }: PortalHeaderProps) {
@@ -81,6 +83,8 @@ export function PortalHeader({
     const apply = () => {
       const rendered = resolveRenderedPortalTheme(theme, media?.matches === true)
       document.documentElement.dataset.theme = rendered
+      document.documentElement.classList.toggle('dark', rendered === 'dark')
+      document.documentElement.classList.toggle('light', rendered === 'light')
       document.documentElement.style.colorScheme = rendered
     }
     apply()
@@ -112,6 +116,7 @@ export function PortalHeader({
   function changeTheme(value: PortalUiTheme) {
     setTheme(value)
     localStorage.setItem(themeKey, value)
+    onThemeChange?.(value)
   }
 
   return (

@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.2.29 - 2026-10-22
+
+- Add one product-neutral WebRTC engine and call screen for audio/video start,
+  acceptance, local/remote media binding and hang-up. Host BFF adapters remain
+  responsible for subject/service authorization, ICE issuance, signalling and
+  durable call state.
+- Keep shared light/dark theme state synchronized with the host document so
+  independently deployed portal shells render the same selected theme.
 
 ## 0.2.28 - 2026-10-22
 
