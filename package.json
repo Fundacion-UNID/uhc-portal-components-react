@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.30",
+  "version": "0.2.31",
   "description": "Brand-neutral React portal screens, account preferences and protected-profile UI.",
   "license": "Apache-2.0",
   "type": "module",

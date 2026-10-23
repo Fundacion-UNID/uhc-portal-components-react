@@ -1016,3 +1016,42 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-subject-demographics-fields dd {
   margin: 0;
 }
+.uhcp-subject-section-index {
+  border: 1px solid var(--uhcp-border, currentColor);
+  border-radius: 1.5rem;
+  padding: 1rem;
+}
+
+.uhcp-subject-section-index > h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.uhcp-subject-section-index [role='tablist'] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem;
+}
+
+.uhcp-subject-section-index [role='tab'] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--uhcp-border, currentColor);
+  border-radius: 0.9rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.uhcp-subject-section-index [role='tab'][aria-selected='true'] {
+  border-color: var(--uhcp-accent, currentColor);
+  color: var(--uhcp-accent, inherit);
+  box-shadow: inset 0 0 0 1px var(--uhcp-accent, currentColor);
+}

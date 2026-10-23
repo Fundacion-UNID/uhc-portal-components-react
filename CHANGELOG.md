@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.31 - 2026-10-23
+
+- Add one concise, accessible `Sections` index for Personal portals so card,
+  health, appointments and tasks, emergencies, communications, permissions and
+  optional profile destinations do not need a duplicated top navigation row.
+- Keep the active destination marked across human and animal profiles while
+  leaving authorization and enabled-section decisions with the trusted host.
+
 ## 0.2.30 - 2026-10-22
 
 - Restore the stable `activate-member-profile` action marker on the shared
