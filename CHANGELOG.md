@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.33 - 2026-10-27
+
+- Let trusted hosts provide the exact available SOSChain card areas so an
+  unavailable capability is omitted rather than moved into `More`.
+- Make the package test and build gates portable to Windows and Node 26.
+
 ## 0.2.32 - 2026-10-23
 
 - Export the product-neutral subject communication composer so Emergency,

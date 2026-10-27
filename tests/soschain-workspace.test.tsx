@@ -142,4 +142,19 @@ describe('SoschainWorkspace', () => {
     expect(html).not.toContain(card.identifier)
     expect(html).not.toContain('>3<')
   })
+
+  it('omits areas that the host capability projection does not make available', () => {
+    const html = renderToStaticMarkup(<SoschainWorkspace
+      {...base}
+      activeArea="overview"
+      availableAreas={['overview', 'emergency-data']}
+      primaryAreas={['overview', 'emergency-data']}
+    />)
+    expect(html).toContain('Overview')
+    expect(html).toContain('Emergency data')
+    expect(html).not.toContain('Health summary')
+    expect(html).not.toContain('Care journey')
+    expect(html).not.toContain('Communications')
+    expect(html).not.toContain('<summary>More</summary>')
+  })
 })

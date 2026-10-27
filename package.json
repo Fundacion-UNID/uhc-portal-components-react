@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.32",
+  "version": "0.2.33",
   "description": "Brand-neutral React portal screens, account preferences and protected-profile UI.",
   "license": "Apache-2.0",
   "type": "module",
@@ -19,10 +19,10 @@
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "npm run clean && tsc && cp src/styles.css dist/styles.css",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc && node -e \"require('node:fs').copyFileSync('src/styles.css','dist/styles.css')\"",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --maxWorkers=1",
+    "test": "node scripts/run-vitest.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "prepack": "npm run check"
   },

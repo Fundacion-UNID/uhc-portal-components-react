@@ -115,6 +115,8 @@ export type SoschainWorkspaceProps = Readonly<{
   overviewContent?: ReactNode
   /** Areas kept visible; remaining areas move into the accessible More menu. */
   primaryAreas?: readonly SoschainWorkspaceArea[]
+  /** Host-authorized areas. Omitted areas are not rendered or linked. */
+  availableAreas?: readonly SoschainWorkspaceArea[]
   moreLabel?: string
   /** Raw provider identifiers are hidden by SOSChain portals by default. */
   showCardIdentifier?: boolean
@@ -168,6 +170,7 @@ export function SoschainWorkspace({
   importCardHref,
   overviewContent,
   primaryAreas,
+  availableAreas = SOSCHAIN_SUBJECT_WORKSPACE_AREAS,
   moreLabel = 'More',
   showCardIdentifier = true,
   onSelectCard,
@@ -209,35 +212,38 @@ export function SoschainWorkspace({
     )
   }
 
-  const title = activeArea === 'places'
+  const resolvedActiveArea = availableAreas.includes(activeArea) ? activeArea : availableAreas[0] ?? 'overview'
+  const visiblePrimaryAreas = (primaryAreas ?? availableAreas).filter(area => availableAreas.includes(area))
+  const secondaryAreas = availableAreas.filter(area => !visiblePrimaryAreas.includes(area))
+  const title = resolvedActiveArea === 'places'
     ? copy.placesTitle
-    : activeArea === 'products'
+    : resolvedActiveArea === 'products'
       ? copy.productsTitle
-      : activeArea === 'communications'
+      : resolvedActiveArea === 'communications'
         ? copy.communicationsTitle
-        : activeArea === 'health-summary'
+        : resolvedActiveArea === 'health-summary'
           ? copy.healthSummaryTitle
-          : activeArea === 'care-journey'
+          : resolvedActiveArea === 'care-journey'
             ? copy.careJourneyTitle
-        : activeArea === 'emergency-data'
+        : resolvedActiveArea === 'emergency-data'
           ? copy.emergencyDataTitle
         : copy.overviewTitle
-  const body = activeArea === 'places'
+  const body = resolvedActiveArea === 'places'
     ? copy.placesBody
-    : activeArea === 'products'
+    : resolvedActiveArea === 'products'
       ? copy.productsBody
-      : activeArea === 'communications'
+      : resolvedActiveArea === 'communications'
         ? copy.communicationsBody
-        : activeArea === 'health-summary'
+        : resolvedActiveArea === 'health-summary'
           ? copy.healthSummaryBody
-          : activeArea === 'care-journey'
+          : resolvedActiveArea === 'care-journey'
             ? copy.careJourneyBody
-        : activeArea === 'emergency-data'
+        : resolvedActiveArea === 'emergency-data'
           ? copy.emergencyDataBody
         : copy.overviewBody
-  const clinicalAreaIsReadOnly = activeArea === 'care-journey' || (activeArea === 'health-summary' && clinicalReadOnly)
+  const clinicalAreaIsReadOnly = resolvedActiveArea === 'care-journey' || (resolvedActiveArea === 'health-summary' && clinicalReadOnly)
   const associationAreaIsReadOnly = !canManageAssociations && (
-    activeArea === 'overview' || activeArea === 'places' || activeArea === 'products'
+    resolvedActiveArea === 'overview' || resolvedActiveArea === 'places' || resolvedActiveArea === 'products'
   )
 
   return (
@@ -248,15 +254,15 @@ export function SoschainWorkspace({
         <p>{selectedCard.kindLabel}{showCardIdentifier ? ` · ${selectedCard.identifier}` : ''}</p>
       </header>
       <nav className="uhcp-sos-tabs" aria-label={copy.workspaceEyebrow}>
-        {(primaryAreas ?? SOSCHAIN_SUBJECT_WORKSPACE_AREAS).map((area) => (
-          <a key={area} href={areaHrefs[area]} aria-current={activeArea === area ? 'page' : undefined}>
+        {visiblePrimaryAreas.map((area) => (
+          <a key={area} href={areaHrefs[area]} aria-current={resolvedActiveArea === area ? 'page' : undefined}>
             {copy.areas[area]}
           </a>
         ))}
-        {primaryAreas ? <details className="uhcp-sos-more">
+        {secondaryAreas.length ? <details className="uhcp-sos-more">
           <summary>{moreLabel}</summary>
-          <div>{SOSCHAIN_SUBJECT_WORKSPACE_AREAS.filter((area) => !primaryAreas.includes(area)).map((area) => (
-            <a key={area} href={areaHrefs[area]} aria-current={activeArea === area ? 'page' : undefined}>{copy.areas[area]}</a>
+          <div>{secondaryAreas.map((area) => (
+            <a key={area} href={areaHrefs[area]} aria-current={resolvedActiveArea === area ? 'page' : undefined}>{copy.areas[area]}</a>
           ))}</div>
         </details> : null}
       </nav>
@@ -269,19 +275,19 @@ export function SoschainWorkspace({
           {(clinicalAreaIsReadOnly || associationAreaIsReadOnly) && (
             <span className="uhcp-sos-readonly">{copy.readOnly}</span>
           )}
-          {canManageAssociations && activeArea === 'places' && addPlaceHref && <a href={addPlaceHref}>{copy.addPlace}</a>}
-          {canManageAssociations && activeArea === 'products' && addProductHref && <a href={addProductHref}>{copy.addProduct}</a>}
+          {canManageAssociations && resolvedActiveArea === 'places' && addPlaceHref && <a href={addPlaceHref}>{copy.addPlace}</a>}
+          {canManageAssociations && resolvedActiveArea === 'products' && addProductHref && <a href={addProductHref}>{copy.addProduct}</a>}
         </header>
-        {activeArea === 'overview' && (overviewContent ?? (
+        {resolvedActiveArea === 'overview' && (overviewContent ?? (
           <div className="uhcp-sos-overview-grid">
-            <article><strong>{places.length}</strong><span>{copy.areas.places}</span></article>
-            <article><strong>{products.length}</strong><span>{copy.areas.products}</span></article>
-            <article><strong>{communications.length}</strong><span>{copy.areas.communications}</span></article>
-            <article><strong>{careJourney.length}</strong><span>{copy.areas['care-journey']}</span></article>
+            {availableAreas.includes('places') ? <article><strong>{places.length}</strong><span>{copy.areas.places}</span></article> : null}
+            {availableAreas.includes('products') ? <article><strong>{products.length}</strong><span>{copy.areas.products}</span></article> : null}
+            {availableAreas.includes('communications') ? <article><strong>{communications.length}</strong><span>{copy.areas.communications}</span></article> : null}
+            {availableAreas.includes('care-journey') ? <article><strong>{careJourney.length}</strong><span>{copy.areas['care-journey']}</span></article> : null}
           </div>
         ))}
-        {activeArea === 'health-summary' && (healthSummary ?? <p className="uhcp-sos-empty">{copy.emptyHealthSummary}</p>)}
-        {activeArea === 'care-journey' && (
+        {resolvedActiveArea === 'health-summary' && (healthSummary ?? <p className="uhcp-sos-empty">{copy.emptyHealthSummary}</p>)}
+        {resolvedActiveArea === 'care-journey' && (
           careJourney.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCareJourney}</p> : (
             <ol className="uhcp-sos-timeline uhcp-sos-care-journey">
               {careJourney.map((encounter) => (
@@ -297,10 +303,10 @@ export function SoschainWorkspace({
             </ol>
           )
         )}
-        {activeArea === 'emergency-data' && <ProtectedIndexEmergencyData copy={copy.emergencyData} items={emergencyData} />}
-        {activeArea === 'places' && <AssociationList items={places} empty={copy.emptyPlaces} />}
-        {activeArea === 'products' && <AssociationList items={products} empty={copy.emptyProducts} />}
-        {activeArea === 'communications' && (
+        {resolvedActiveArea === 'emergency-data' && <ProtectedIndexEmergencyData copy={copy.emergencyData} items={emergencyData} />}
+        {resolvedActiveArea === 'places' && <AssociationList items={places} empty={copy.emptyPlaces} />}
+        {resolvedActiveArea === 'products' && <AssociationList items={products} empty={copy.emptyProducts} />}
+        {resolvedActiveArea === 'communications' && (
           communicationsContent ?? (communications.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCommunications}</p> : (
             <ol className="uhcp-sos-timeline">
               {communications.map((message) => (
