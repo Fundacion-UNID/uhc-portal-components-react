@@ -30,6 +30,8 @@ export type PortalBrand = Readonly<{
   productName: string
   organizationName: string
   homeHref: string
+  /** Optional destination for the compact mark when it differs from the portal home. */
+  markHref?: string
   /** Compact official mark for navigation chrome. */
   mark?: PortalBrandArtworkSet
   /** Optional official hero artwork; the compact mark is used when omitted. */

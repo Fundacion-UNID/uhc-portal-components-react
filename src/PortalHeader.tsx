@@ -121,17 +121,33 @@ export function PortalHeader({
 
   return (
     <header className="uhcp-header" style={brand.variables}>
-      <a className="uhcp-brand" href={brand.homeHref} aria-label={copy.home}>
-        {brand.mark ? (
-          <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
-        ) : null}
-        <span>
-          <strong>{brand.productName}</strong>
-          <small className={accountIdentifier ? 'uhcp-brand-account' : undefined}>
-            {accountIdentifier || brand.organizationName}
-          </small>
-        </span>
-      </a>
+      {brand.mark && brand.markHref ? (
+        <div className="uhcp-brand">
+          <a className="uhcp-brand-mark-link" href={brand.markHref} aria-label={brand.productName}>
+            <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
+          </a>
+          <a className="uhcp-brand-copy" href={brand.homeHref} aria-label={copy.home}>
+            <span>
+              <strong>{brand.productName}</strong>
+              <small className={accountIdentifier ? 'uhcp-brand-account' : undefined}>
+                {accountIdentifier || brand.organizationName}
+              </small>
+            </span>
+          </a>
+        </div>
+      ) : (
+        <a className="uhcp-brand" href={brand.homeHref} aria-label={copy.home}>
+          {brand.mark ? (
+            <PortalBrandArtwork artwork={brand.mark} className="uhcp-brand-mark" />
+          ) : null}
+          <span>
+            <strong>{brand.productName}</strong>
+            <small className={accountIdentifier ? 'uhcp-brand-account' : undefined}>
+              {accountIdentifier || brand.organizationName}
+            </small>
+          </span>
+        </a>
+      )}
       {currentSubject
         ? <PortalCurrentSubjectControl {...currentSubject} />
         : <PortalCurrentSubjectSlot />}

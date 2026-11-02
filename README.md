@@ -55,6 +55,7 @@ const brand = {
   productName: 'Example Professional',
   organizationName: 'Example Organization',
   homeHref: '/es',
+  markHref: 'https://example.org',
   mark: {
     lightSurface: { src: '/logos/product.svg', alt: 'Product', width: 100, height: 100 },
     darkSurface: { src: '/logos/product.svg', alt: 'Product', width: 100, height: 100 },

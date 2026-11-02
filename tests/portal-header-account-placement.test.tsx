@@ -110,4 +110,17 @@ describe('shared authenticated portal header', () => {
 
     expect(container.querySelector('.uhcp-brand-mark')).toBeNull()
   })
+
+  it('can send the official mark to the product website while the product name returns to the current portal', () => {
+    render(<PortalHeader
+      brand={{ ...brand, markHref: 'https://soschain.app' }}
+      copy={copy}
+      guestActionHref="/en/login"
+    />)
+
+    expect(screen.getByRole('link', { name: 'Configured Personal Portal' }).getAttribute('href'))
+      .toBe('https://soschain.app')
+    expect(screen.getByRole('link', { name: 'Home' }).getAttribute('href'))
+      .toBe('/en/home')
+  })
 })

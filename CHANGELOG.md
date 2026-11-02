@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.35 - 2026-11-02
+
+- Let a portal send its compact official mark to the product website while the
+  adjacent product name continues to return to the current portal home.
+- Preserve the existing single-link brand header when no separate mark
+  destination is configured.
+
 ## 0.2.34 - 2026-11-02
 
 - Define one shared responsive display-title and section-title scale for the

@@ -65,7 +65,9 @@ html[data-theme='dark'] {
   z-index: 40;
 }
 .uhcp-brand { align-items: center; color: var(--uhcp-text); display: flex; gap: .75rem; text-decoration: none; }
-.uhcp-brand > span:last-child { display: grid; line-height: 1.15; }
+.uhcp-brand > span:last-child, .uhcp-brand-copy > span { display: grid; line-height: 1.15; }
+.uhcp-brand-copy, .uhcp-brand-mark-link { color: inherit; text-decoration: none; }
+.uhcp-brand-mark-link { display: inline-flex; flex: 0 0 auto; }
 .uhcp-brand small { color: var(--uhcp-muted); max-width: min(22rem, 42vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .uhcp-brand-mark {
   align-items: center;
