@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.34 - 2026-11-02
+
+- Define one shared responsive display-title and section-title scale for the
+  existing Small, Medium and Large portal density preferences.
+- Reserve product-specific typography changes for explicit
+  `.custom-theme-<brand>` overrides instead of independent portal scales.
+
 ## 0.2.33 - 2026-10-27
 
 - Let trusted hosts provide the exact available SOSChain card areas so an

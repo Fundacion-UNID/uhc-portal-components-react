@@ -36,6 +36,19 @@ light/dark-surface files and intrinsic dimensions; the shell preserves those
 proportions and never synthesizes a text monogram. Components do not import
 Firebase, Next.js or any product SDK runtime.
 
+The package also owns the default typography density contract used by every
+portal. `data-density="small|medium|large"` controls the shared root size and
+the semantic `--uhcp-display-title-size` and `--uhcp-section-title-size`
+tokens. Product CSS should consume those tokens rather than define another
+S/M/L scale. A genuine brand exception must be explicit and scoped:
+
+```css
+.custom-theme-example {
+  --uhcp-display-title-size: clamp(2.75rem, 4vw, 4rem);
+  --uhcp-section-title-size: clamp(2rem, 3vw, 3rem);
+}
+```
+
 ```tsx
 const brand = {
   family: 'professional',

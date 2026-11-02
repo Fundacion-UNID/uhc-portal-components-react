@@ -19,10 +19,25 @@
   --uhcp-unlock-end: hsl(21 86% 48%);
   --uhcp-unlock-text: #fff;
   --uhcp-alternative: color-mix(in srgb, var(--uhcp-attention) 22%, var(--uhcp-panel));
+  --uhcp-display-title-size: clamp(3rem, 4vw, 4rem);
+  --uhcp-section-title-size: clamp(2.25rem, 3vw, 3rem);
 }
-html[data-density='small'] { font-size: 15px; }
-html[data-density='medium'] { font-size: 16px; }
-html[data-density='large'] { font-size: 18px; }
+/* Brand overrides belong under an explicit .custom-theme-<brand> selector. */
+html[data-density='small'] {
+  --uhcp-display-title-size: clamp(2.5rem, 3.3vw, 3.25rem);
+  --uhcp-section-title-size: clamp(2rem, 2.5vw, 2.5rem);
+  font-size: 15px;
+}
+html[data-density='medium'] {
+  --uhcp-display-title-size: clamp(3rem, 4vw, 4rem);
+  --uhcp-section-title-size: clamp(2.25rem, 3vw, 3rem);
+  font-size: 16px;
+}
+html[data-density='large'] {
+  --uhcp-display-title-size: clamp(3rem, 4.6vw, 4rem);
+  --uhcp-section-title-size: clamp(2.25rem, 3.6vw, 3rem);
+  font-size: 18px;
+}
 html[data-theme='dark'] {
   --uhcp-surface: hsl(218 46% 9%);
   --uhcp-surface-muted: hsl(218 37% 13%);
