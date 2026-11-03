@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.37 - 2026-11-03
+
+- Split existing-professional registration into evidence verification and
+  device-PIN setup so the verified role and organization are visible before a
+  local profile can be protected.
+- Reuse one identity icon and resolved-profile target across the portal header,
+  profile unlock and professional registration screens.
+
 ## 0.2.36 - 2026-11-03
 
 - Add an accessible shared card-provider selector that returns only the opaque

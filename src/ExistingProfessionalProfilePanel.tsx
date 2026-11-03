@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import jsQrModule from 'jsqr'
+import type { ProfileProtectionTargetV2 } from './contracts.js'
+import { ProfileIdentityTarget } from './ProfileIdentityTarget.js'
 
 const decodeQrImage = jsQrModule as unknown as (data: Uint8ClampedArray, width: number, height: number) => { data: string } | null
 
@@ -27,6 +29,11 @@ export type ExistingProfessionalProfileCopy = Readonly<{
   pinLabel: string
   pinConfirmationLabel: string
   pinMismatch: string
+  verify?: string
+  verifying?: string
+  verifiedProfile?: string
+  changeEvidence?: string
+  verificationFailed?: string
   submit: string
   submitting: string
 }>
@@ -34,6 +41,12 @@ export type ExistingProfessionalProfileCopy = Readonly<{
 export type ExistingProfessionalProfileInput =
   | Readonly<{ method: 'credential'; professionalCredential: string; pin: string }>
   | Readonly<{ method: 'identifier'; professionalIdentifier: string; sector: string; pin: string }>
+
+export type ExistingProfessionalEvidenceInput =
+  | Readonly<{ method: 'credential'; professionalCredential: string }>
+  | Readonly<{ method: 'identifier'; professionalIdentifier: string; sector: string }>
+
+export type ResolvedExistingProfessionalProfile = Omit<ProfileProtectionTargetV2, 'eyebrow'> & Readonly<{ eyebrow?: string }>
 
 export type ExistingProfessionalProfileRequest =
   | Readonly<{ professionalCredential: string; pin: string }>
@@ -55,6 +68,7 @@ export type ExistingProfessionalProfilePanelProps = Readonly<{
   error?: string
   onScanProfessionalCredential?: () => Promise<string | undefined>
   onReadProfessionalCredentialImage?: (file: File) => Promise<string | undefined>
+  onResolve?: (input: ExistingProfessionalEvidenceInput) => Promise<ResolvedExistingProfessionalProfile>
   onSubmit: (input: ExistingProfessionalProfileInput) => void | Promise<void>
 }>
 
@@ -65,13 +79,15 @@ export type ExistingProfessionalProfilePanelProps = Readonly<{
  * is the preferred path; a single DID-or-URN field plus sector is the explicit
  * manual fallback and never becomes browser-selected authority by itself.
  */
-export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, onScanProfessionalCredential, onReadProfessionalCredentialImage, onSubmit }: ExistingProfessionalProfilePanelProps) {
+export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, onScanProfessionalCredential, onReadProfessionalCredentialImage, onResolve, onSubmit }: ExistingProfessionalProfilePanelProps) {
   const [method, setMethod] = useState<'credential' | 'identifier'>('credential')
   const [professionalCredential, setProfessionalCredential] = useState('')
   const [professionalIdentifier, setProfessionalIdentifier] = useState('')
   const [sector, setSector] = useState(sectors[0]?.value || '')
   const [pin, setPin] = useState('')
   const [pinConfirmation, setPinConfirmation] = useState('')
+  const [resolvedProfile, setResolvedProfile] = useState<ResolvedExistingProfessionalProfile>()
+  const [resolving, setResolving] = useState(false)
   const [localError, setLocalError] = useState('')
   const [cameraActive, setCameraActive] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -150,23 +166,59 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
     setProfessionalCredential(credential)
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function evidenceInput(): ExistingProfessionalEvidenceInput | undefined {
+    if (method === 'credential') {
+      if (!professionalCredential) {
+        setLocalError(copy.professionalCredentialRequired)
+        return undefined
+      }
+      return { method, professionalCredential: professionalCredential.trim() }
+    }
+    return { method, professionalIdentifier: professionalIdentifier.trim(), sector }
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const evidence = evidenceInput()
+    if (!evidence) return
+    if (onResolve && !resolvedProfile) {
+      setLocalError('')
+      setResolving(true)
+      try {
+        setResolvedProfile(await onResolve(evidence))
+      } catch (reason) {
+        setLocalError(reason instanceof Error ? reason.message : copy.verificationFailed || 'professional_profile_verification_failed')
+      } finally {
+        setResolving(false)
+      }
+      return
+    }
     if (pin !== pinConfirmation) {
       setLocalError(copy.pinMismatch)
       return
     }
     setLocalError('')
-    if (method === 'credential') {
-      if (!professionalCredential) {
-        setLocalError(copy.professionalCredentialRequired)
-        return
-      }
-      void onSubmit({ method, professionalCredential: professionalCredential.trim(), pin })
+    if (evidence.method === 'credential') {
+      void onSubmit({ ...evidence, pin })
       return
     }
-    void onSubmit({ method, professionalIdentifier: professionalIdentifier.trim(), sector, pin })
+    void onSubmit({ ...evidence, pin })
   }
+
+  if (onResolve && resolvedProfile) return <section className="uhcp-professional-activation uhcp-professional-pin-setup" aria-labelledby="uhcp-existing-professional-pin-title">
+    <header>
+      <h1 id="uhcp-existing-professional-pin-title">{copy.verifiedProfile || copy.title}</h1>
+      <p>{copy.description}</p>
+    </header>
+    <ProfileIdentityTarget target={{ eyebrow: copy.verifiedProfile || '', ...resolvedProfile }} />
+    <form onSubmit={submit}>
+      <label><span>{copy.pinLabel}</span><input name="newPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pin} onChange={event => setPin(event.currentTarget.value)} required /></label>
+      <label><span>{copy.pinConfirmationLabel}</span><input name="confirmPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pinConfirmation} onChange={event => setPinConfirmation(event.currentTarget.value)} required /></label>
+      {(localError || error) ? <p role="alert">{localError || error}</p> : null}
+      <button type="submit" disabled={busy}>{busy ? copy.submitting : copy.submit}</button>
+      <button type="button" className="uhcp-secondary-action" disabled={busy} onClick={() => { setResolvedProfile(undefined); setPin(''); setPinConfirmation(''); setLocalError('') }}>{copy.changeEvidence || copy.manualMethodLabel}</button>
+    </form>
+  </section>
 
   return <section className="uhcp-professional-activation" aria-labelledby="uhcp-existing-professional-title">
     <form onSubmit={submit}>
@@ -175,9 +227,9 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
         <h1 id="uhcp-existing-professional-title">{copy.title}</h1>
         <p>{copy.description}</p>
       </header>
-      <fieldset>
-        <label><input type="radio" name="professionalEvidenceMethod" value="credential" checked={method === 'credential'} onChange={() => setMethod('credential')} />{copy.credentialMethodLabel}</label>
-        <label><input type="radio" name="professionalEvidenceMethod" value="identifier" checked={method === 'identifier'} onChange={() => setMethod('identifier')} />{copy.manualMethodLabel}</label>
+      <fieldset className="uhcp-professional-evidence-methods">
+        <label><input type="radio" name="professionalEvidenceMethod" value="credential" checked={method === 'credential'} onChange={() => { setMethod('credential'); setLocalError('') }} /><span>{copy.credentialMethodLabel}</span></label>
+        <label><input type="radio" name="professionalEvidenceMethod" value="identifier" checked={method === 'identifier'} onChange={() => { setMethod('identifier'); setLocalError('') }} /><span>{copy.manualMethodLabel}</span></label>
       </fieldset>
       {method === 'credential'
         ? <div className="uhcp-professional-credential-capture">
@@ -194,10 +246,12 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
           <label><span>{copy.professionalIdentifierLabel}</span><input name="professionalIdentifier" value={professionalIdentifier} onChange={event => setProfessionalIdentifier(event.currentTarget.value)} autoComplete="off" required /></label>
           <label><span>{copy.sectorLabel}</span><select name="professionalSector" value={sector} onChange={event => setSector(event.currentTarget.value)} required>{sectors.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
         </>}
-      <label><span>{copy.pinLabel}</span><input name="newPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pin} onChange={event => setPin(event.currentTarget.value)} required /></label>
-      <label><span>{copy.pinConfirmationLabel}</span><input name="confirmPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pinConfirmation} onChange={event => setPinConfirmation(event.currentTarget.value)} required /></label>
+      {!onResolve ? <>
+        <label><span>{copy.pinLabel}</span><input name="newPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pin} onChange={event => setPin(event.currentTarget.value)} required /></label>
+        <label><span>{copy.pinConfirmationLabel}</span><input name="confirmPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pinConfirmation} onChange={event => setPinConfirmation(event.currentTarget.value)} required /></label>
+      </> : null}
       {(localError || error) ? <p role="alert">{localError || error}</p> : null}
-      <button type="submit" disabled={busy}>{busy ? copy.submitting : copy.submit}</button>
+      <button type="submit" disabled={busy || resolving}>{resolving ? copy.verifying || copy.submitting : onResolve ? copy.verify || copy.submit : busy ? copy.submitting : copy.submit}</button>
     </form>
   </section>
 }

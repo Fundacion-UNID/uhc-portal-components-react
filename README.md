@@ -136,8 +136,9 @@ The package deliberately exposes modules instead of a cloned application:
   BFF accepts the invitation.
 - `ExistingProfessionalProfilePanel`: existing employees scan or upload a
   signed professional-credential QR, or use the explicit DID/URN plus sector
-  fallback. The host verifies the evidence before DCR; this screen never
-  accepts an employee invitation.
+  fallback. When the host supplies `onResolve`, the screen verifies and shows
+  the server-resolved role before it offers local device-PIN setup and DCR.
+  This screen never accepts an employee invitation.
 - `SubjectAccessRequestPanel`: controlled provider-enabled QR, numeric-code,
   `did:web`, microchip, tattoo, email or telephone locator. Resolution and
   returned identifier evidence never grant subject access.

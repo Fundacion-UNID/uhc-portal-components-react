@@ -7,6 +7,7 @@ import type {
   ProfileProtectionTargetV2,
   ProfileUnlockResult,
 } from './contracts.js'
+import { ProfileIdentityTarget } from './ProfileIdentityTarget.js'
 
 export type ProfileProtectionGateV2Props = Readonly<{
   state: ProfileProtectionState
@@ -115,21 +116,7 @@ export function ProfileProtectionGateV2({
         <h1>{title}</h1>
         <p>{body}</p>
       </div>
-      <div className="uhcp-profile-target">
-        {target.icon && <img src={target.icon.src} alt={target.icon.alt} width={target.icon.width} height={target.icon.height} />}
-        <div className="uhcp-profile-target-content">
-          <div className="uhcp-profile-target-copy">
-            <strong>{target.title}</strong>
-            {target.subtitle && <span>{target.subtitle}</span>}
-          </div>
-          {target.badges?.length ? <ul className="uhcp-profile-target-badges uhcp-profile-target-badges-centered" aria-label={target.title}>
-            {target.badges.map(badge => <li key={badge}>{badge}</li>)}
-          </ul> : null}
-          {target.details?.length ? <dl className="uhcp-profile-target-details">
-            {target.details.map(detail => <div key={`${detail.label}:${detail.value}`}><dt>{detail.label}</dt><dd>{detail.value}</dd></div>)}
-          </dl> : null}
-        </div>
-      </div>
+      <ProfileIdentityTarget target={target} />
       {state === 'locked' && onPasskeyUnlock && <button type="button" className="uhcp-action-unlock" data-portal-action="unlock-profile-with-passkey" disabled={busy} onClick={unlockWithPasskey}>
         {copy.unlockWithPasskey}
       </button>}
