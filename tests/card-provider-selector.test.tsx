@@ -9,12 +9,7 @@ import { REPOSITORY_SAFE_EXAMPLES } from 'sos-data-utils-ts/repository-privacy'
 
 const providers = ['one', 'two'].map(suffix => ({
   providerId: `${REPOSITORY_SAFE_EXAMPLES.didWeb}:${suffix}`,
-  providerDid: `${REPOSITORY_SAFE_EXAMPLES.didWeb}:${suffix}`,
   displayName: `${REPOSITORY_SAFE_EXAMPLES.organizationLegalName} ${suffix}`,
-  directoryRoute: `${REPOSITORY_SAFE_EXAMPLES.httpsBaseUrl}/${REPOSITORY_SAFE_EXAMPLES.tenantId}-${suffix}/cds-CA/v1/${REPOSITORY_SAFE_EXAMPLES.sector}`,
-  subjectKinds: ['animal'] as const,
-  operations: ['directory', 'create'] as const,
-  providerCode9: REPOSITORY_SAFE_EXAMPLES.organizationBusinessNumber,
 }))
 
 describe('CardProviderSelector', () => {

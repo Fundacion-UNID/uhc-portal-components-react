@@ -1,6 +1,6 @@
 import type { SubjectCardProviderDescriptor } from 'sos-data-utils-ts/subject-card-directory'
 
-export type CardProviderChoice = SubjectCardProviderDescriptor & Readonly<{
+export type CardProviderChoice = Pick<SubjectCardProviderDescriptor, 'providerId' | 'displayName'> & Readonly<{
   available?: boolean
 }>
 
