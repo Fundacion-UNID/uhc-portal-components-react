@@ -135,10 +135,12 @@ The package deliberately exposes modules instead of a cloned application:
   individual member; the host refreshes the authorized-subject list after its
   BFF accepts the invitation.
 - `ExistingProfessionalProfilePanel`: existing employees scan or upload a
-  signed professional-credential QR, or use the explicit DID/URN plus sector
-  fallback. When the host supplies `onResolve`, the screen verifies and shows
-  the server-resolved role before it offers local device-PIN setup and DCR.
-  This screen never accepts an employee invitation.
+  signed professional-credential QR. A host may instead supply country and
+  regional-jurisdiction options so the employee enters an organization legal
+  identifier and sector without knowing a DID, URN or route. When the host
+  supplies `onResolve`, the screen shows the server-resolved role choices
+  before it offers local device-PIN setup and DCR. This screen never accepts an
+  employee invitation or treats a browser role choice as authority.
 - `SubjectAccessRequestPanel`: controlled provider-enabled QR, numeric-code,
   `did:web`, microchip, tattoo, email or telephone locator. Resolution and
   returned identifier evidence never grant subject access.

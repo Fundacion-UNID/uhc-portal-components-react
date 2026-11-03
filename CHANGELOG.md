@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Let hosts offer country, optional region, organization legal identifier and
+  sector discovery for an existing professional. When several authoritative
+  roles resolve, require one to be selected before rendering device PIN setup.
+
 ## 0.2.37 - 2026-11-03
 
 - Split existing-professional registration into evidence verification and
