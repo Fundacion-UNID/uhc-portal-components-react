@@ -18,6 +18,7 @@ import {
   resolveRenderedPortalTheme,
 } from './preferences.js'
 import { PortalBrandArtwork } from './PortalBrandArtwork.js'
+import { ProfileIdentityIcon } from './ProfileIdentityTarget.js'
 import {
   PortalCurrentSubjectControl,
   PortalCurrentSubjectSlot,
@@ -159,7 +160,7 @@ export function PortalHeader({
           aria-label={copy.accountAndPreferences}
           aria-expanded={open}
         >
-          <PersonIcon />
+          <ProfileIdentityIcon />
         </button>
         {open && (
           <section className="uhcp-menu" aria-label={copy.accountAndPreferences}>
@@ -245,7 +246,7 @@ export function PortalHeader({
                   ))}
               {accountIdentifier && onSignOut
                 ? <button type="button" onClick={() => { setOpen(false); void onSignOut() }}>↪ {copy.signOut}</button>
-                : <a href={guestActionHref} onClick={() => setOpen(false)}><PersonIcon /> {copy.chooseAccess}</a>}
+                : <a href={guestActionHref} onClick={() => setOpen(false)}><ProfileIdentityIcon /> {copy.chooseAccess}</a>}
             </div>
           </section>
         )}
@@ -256,13 +257,4 @@ export function PortalHeader({
 
 function PreferenceGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return <fieldset className="uhcp-preferences"><legend>{label}</legend><div>{children}</div></fieldset>
-}
-
-function PersonIcon() {
-  return (
-    <svg className="uhcp-person-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M4.5 21a7.5 7.5 0 0 1 15 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  )
 }

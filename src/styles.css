@@ -192,6 +192,8 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-profile-gate-copy p { margin-top: .45rem; }
 .uhcp-profile-target { align-items: center; background: var(--uhcp-panel); border: 1px solid color-mix(in srgb, var(--uhcp-turquoise) 32%, var(--uhcp-border)); border-radius: 1rem; display: grid; gap: 1rem; grid-template-columns: auto minmax(0, 1fr); padding: 1rem; }
 .uhcp-profile-target > img { background: var(--uhcp-panel); border-radius: .75rem; object-fit: contain; }
+.uhcp-profile-target-default-icon { align-items: center; background: var(--uhcp-surface-muted); border: 1px solid var(--uhcp-border); border-radius: 50%; color: var(--uhcp-turquoise); display: flex; height: 4.5rem; justify-content: center; width: 4.5rem; }
+.uhcp-profile-target-default-icon .uhcp-person-icon { height: 2.3rem; width: 2.3rem; }
 .uhcp-profile-target-content { display: grid; gap: .65rem; min-width: 0; }
 .uhcp-profile-target-copy { display: grid; gap: .2rem; text-align: left; }
 .uhcp-profile-target-copy > strong { color: var(--uhcp-text); font-size: 1.2rem; }
@@ -211,6 +213,13 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   .uhcp-profile-target-badges-centered { justify-content: center; }
 }
 .uhcp-profile-pin-fallback { border-top: 1px solid var(--uhcp-border); padding-top: .8rem; }
+.uhcp-professional-evidence-methods { border: 0; display: grid; gap: .75rem; margin: 0; padding: 0; }
+.uhcp-professional-evidence-methods label { align-items: center; border: 1px solid var(--uhcp-border); border-radius: .9rem; cursor: pointer; display: grid; gap: .75rem; grid-template-columns: 1.25rem 1fr; padding: .9rem 1rem; }
+.uhcp-professional-evidence-methods input[type='radio'] { accent-color: var(--uhcp-turquoise); height: 1.1rem; margin: 0; width: 1.1rem; }
+.uhcp-professional-pin-setup { display: grid; gap: 1rem; }
+.uhcp-professional-pin-setup > header h1, .uhcp-professional-pin-setup > header p { margin: 0; }
+.uhcp-professional-pin-setup > header p { margin-top: .45rem; }
+.uhcp-professional-pin-setup .uhcp-secondary-action { background: transparent; border: 1px solid var(--uhcp-border); color: var(--uhcp-text); }
 .uhcp-profile-pin-fallback summary { color: var(--uhcp-text); cursor: pointer; font-weight: 700; }
 .uhcp-profile-pin-fallback form { margin-top: .8rem; }
 .uhcp-profile-pin-recovery { display: flex; justify-content: flex-start; margin-top: .7rem; }

@@ -1,6 +1,6 @@
-// Flow contract: an already-active professional either presents a W3C/SHC credential or manually enters one DID-or-URN reference plus sector, then chooses a local device PIN; neither path accepts an employee invitation.
+// Flow contract: an already-active professional presents evidence, sees the server-resolved role first, and only then chooses a local device PIN; neither path accepts an employee invitation.
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ExistingProfessionalProfilePanel, toExistingProfessionalProfileRequest } from '../src/ExistingProfessionalProfilePanel.js'
 
@@ -22,6 +22,10 @@ const copy = {
   pinLabel: 'PIN for this device',
   pinConfirmationLabel: 'Repeat PIN',
   pinMismatch: 'The PIN values do not match.',
+  verify: 'Verify professional profile',
+  verifying: 'Verifying…',
+  verifiedProfile: 'Verified professional profile',
+  changeEvidence: 'Use different evidence',
   submit: 'Register this device and continue',
   submitting: 'Registering…',
 }
@@ -37,6 +41,42 @@ describe('ExistingProfessionalProfilePanel', () => {
     })
     expect(toExistingProfessionalProfileRequest({ method: 'identifier', professionalIdentifier: 'did:web:professional', sector: 'health-care', pin: '123456' })).toEqual({
       professionalIdentifier: 'did:web:professional', sectorHint: 'health-care', pin: '123456',
+    })
+  })
+
+  it('resolves and shows the professional role before offering device PIN creation', async () => {
+    const onResolve = vi.fn().mockResolvedValue({
+      title: 'Veterinarian',
+      subtitle: 'Example animal clinic',
+      badges: ['Animal research'],
+    })
+    const onSubmit = vi.fn()
+    render(<ExistingProfessionalProfilePanel copy={copy} sectors={sectors} busy={false} onResolve={onResolve} onSubmit={onSubmit} />)
+
+    expect(screen.queryByLabelText(copy.pinLabel)).toBeNull()
+    fireEvent.click(screen.getByLabelText(copy.manualMethodLabel))
+    fireEvent.change(screen.getByLabelText(copy.professionalIdentifierLabel), { target: { value: 'did:web:professional.example.test:role' } })
+    fireEvent.change(screen.getByLabelText(copy.sectorLabel), { target: { value: 'animal-care' } })
+    fireEvent.click(screen.getByRole('button', { name: copy.verify }))
+
+    await waitFor(() => expect(onResolve).toHaveBeenCalledWith({
+      method: 'identifier',
+      professionalIdentifier: 'did:web:professional.example.test:role',
+      sector: 'animal-care',
+    }))
+    expect(screen.getByText('Veterinarian')).toBeTruthy()
+    expect(screen.getByText('Example animal clinic')).toBeTruthy()
+    expect(screen.getByText('Animal research')).toBeTruthy()
+    expect(screen.getByTestId('professional-identity-icon')).toBeTruthy()
+
+    fireEvent.change(screen.getByLabelText(copy.pinLabel), { target: { value: '123456' } })
+    fireEvent.change(screen.getByLabelText(copy.pinConfirmationLabel), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: copy.submit }))
+    expect(onSubmit).toHaveBeenCalledWith({
+      method: 'identifier',
+      professionalIdentifier: 'did:web:professional.example.test:role',
+      sector: 'animal-care',
+      pin: '123456',
     })
   })
 
