@@ -576,6 +576,10 @@
 
 ## Unreleased
 
+- Add an accessible shared card-provider selector that returns only the opaque
+  provider identity selected by the user and keeps unavailable choices visible
+  without granting browser-side authority.
+
 - Add a reusable, accessible Consent permission directory/editor for
   provider-backed create, edit, suspend/reactivate and delete flows. The host
   owns the schema-backed Bundle mutation and must return authoritative
