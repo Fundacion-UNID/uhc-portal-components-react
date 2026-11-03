@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.36 - 2026-11-03
+
+- Add an accessible shared card-provider selector that returns only the opaque
+  provider identity selected by the user and keeps unavailable choices visible
+  without granting browser-side authority.
+
 ## 0.2.35 - 2026-11-02
 
 - Let a portal send its compact official mark to the product website while the
@@ -575,10 +581,6 @@
   jurisdiction and data-use controls.
 
 ## Unreleased
-
-- Add an accessible shared card-provider selector that returns only the opaque
-  provider identity selected by the user and keeps unavailable choices visible
-  without granting browser-side authority.
 
 - Add a reusable, accessible Consent permission directory/editor for
   provider-backed create, edit, suspend/reactivate and delete flows. The host
