@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.38 - 2026-11-03
+
+- Keep the language dropdown inside the shared person menu on public and
+  authenticated portal routes.
+- Preserve the same account panel before sign-in while omitting account data
+  and private preferences until a verified session exists.
+- Let signed-in hosts opt into showing language alongside their account
+  preferences, and align the subject-card directory dependency with the
+  reusable provider selector contract.
+
 ## 0.2.37 - 2026-11-03
 
 - Split existing-professional registration into evidence verification and
