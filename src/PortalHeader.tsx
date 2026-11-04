@@ -31,6 +31,7 @@ export type PortalHeaderProps = Readonly<{
   accountIdentifier?: string | null
   languageHref?: string
   languageOptions?: readonly PortalLanguageOption[]
+  languageInPreferences?: boolean
   guestActionHref: string
   accountOptions?: readonly PortalAccountOption[]
   onSelectAccount?: (id: string) => void
@@ -53,6 +54,7 @@ export function PortalHeader({
   accountIdentifier,
   languageHref,
   languageOptions = [],
+  languageInPreferences = false,
   guestActionHref,
   accountOptions = [],
   onSelectAccount,
@@ -68,6 +70,8 @@ export function PortalHeader({
   const ref = useRef<HTMLDivElement>(null)
   const densityKey = `${storageNamespace}.density`
   const themeKey = `${storageNamespace}.theme`
+  const signedIn = Boolean(accountIdentifier)
+  const menuLabel = signedIn ? copy.accountAndPreferences : copy.chooseAccess
 
   useEffect(() => {
     const savedDensity = resolvePortalUiDensity(localStorage.getItem(densityKey))
@@ -157,18 +161,18 @@ export function PortalHeader({
           type="button"
           className="uhcp-trigger"
           onClick={() => setOpen((value) => !value)}
-          aria-label={copy.accountAndPreferences}
+          aria-label={menuLabel}
           aria-expanded={open}
         >
           <ProfileIdentityIcon />
         </button>
         {open && (
-          <section className="uhcp-menu" aria-label={copy.accountAndPreferences}>
+          <section className="uhcp-menu" aria-label={menuLabel}>
             <div className="uhcp-account-state">
-              <strong>{copy.accountAndPreferences}</strong>
+              <strong>{menuLabel}</strong>
               <small>{accountIdentifier || copy.notSignedIn}</small>
             </div>
-            {accountOptions.length > 0 && (
+            {signedIn && accountOptions.length > 0 && (
               <div className="uhcp-account-options">
                 {accountOptions.map((option) => (
                   <button
@@ -187,46 +191,52 @@ export function PortalHeader({
                 ))}
               </div>
             )}
-            <PreferenceGroup label={copy.appearance}>
-              {portalUiThemes.map((value) => (
-                <button
-                  type="button"
-                  key={value}
-                  aria-pressed={theme === value}
-                  onClick={() => changeTheme(value)}
-                >
-                  <span aria-hidden="true">{value === 'light' ? '☀' : value === 'dark' ? '☾' : '◫'}</span>
-                  {copy.themes[value]}
-                </button>
-              ))}
-            </PreferenceGroup>
-            <PreferenceGroup label={copy.textSize}>
-              {portalUiDensities.map((value) => (
-                <button
-                  type="button"
-                  key={value}
-                  aria-pressed={density === value}
-                  onClick={() => changeDensity(value)}
-                >
-                  {value === 'small' ? 'S' : value === 'medium' ? 'M' : 'L'}
-                </button>
-              ))}
-            </PreferenceGroup>
+            {signedIn ? <>
+              <PreferenceGroup label={copy.appearance}>
+                {portalUiThemes.map((value) => (
+                  <button
+                    type="button"
+                    key={value}
+                    aria-pressed={theme === value}
+                    onClick={() => changeTheme(value)}
+                  >
+                    <span aria-hidden="true">{value === 'light' ? '☀' : value === 'dark' ? '☾' : '◫'}</span>
+                    {copy.themes[value]}
+                  </button>
+                ))}
+              </PreferenceGroup>
+              <PreferenceGroup label={copy.textSize}>
+                {portalUiDensities.map((value) => (
+                  <button
+                    type="button"
+                    key={value}
+                    aria-pressed={density === value}
+                    onClick={() => changeDensity(value)}
+                  >
+                    {value === 'small' ? 'S' : value === 'medium' ? 'M' : 'L'}
+                  </button>
+                ))}
+              </PreferenceGroup>
+            </> : null}
             <div className="uhcp-menu-actions">
-              {languageOptions.length > 0
-                ? languageOptions.map((option) => (
-                    <a
-                      href={option.href}
-                      key={option.id}
-                      hrefLang={option.id}
-                      aria-current={option.current ? 'page' : undefined}
-                      onClick={() => setOpen(false)}
+              {(!signedIn || languageInPreferences) && languageOptions.length > 0
+                ? <label className="uhcp-language-select">
+                    <span>{copy.language}</span>
+                    <select
+                      aria-label={copy.language}
+                      value={languageOptions.find((option) => option.current)?.href ?? languageOptions[0]?.href}
+                      onChange={(event) => {
+                        setOpen(false)
+                        window.location.assign(event.currentTarget.value)
+                      }}
                     >
-                      ◎ {option.label}
-                    </a>
-                  ))
-                : languageHref && <a href={languageHref} onClick={() => setOpen(false)}>◎ {copy.language}</a>}
-              {menuActions.map((action) => action.href
+                      {languageOptions.map((option) => (
+                        <option value={option.href} key={option.id}>{option.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                : (!signedIn || languageInPreferences) && languageHref && <a href={languageHref} onClick={() => setOpen(false)}>◎ {copy.language}</a>}
+              {signedIn && menuActions.map((action) => action.href
                 ? (
                     <a href={action.href} key={action.id} onClick={() => setOpen(false)}>
                       {action.label}

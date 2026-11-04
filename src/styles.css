@@ -169,6 +169,8 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
   width: 100%;
 }
 .uhcp-menu-actions a:hover, .uhcp-menu-actions button:hover { background: var(--uhcp-surface-muted); color: var(--uhcp-turquoise); }
+.uhcp-language-select { align-items: center; color: var(--uhcp-text); display: grid; font-weight: 700; gap: .45rem; grid-template-columns: auto minmax(0, 1fr); padding: .45rem .7rem; }
+.uhcp-language-select select { background: var(--uhcp-panel); border: 1px solid var(--uhcp-border); border-radius: .75rem; color: var(--uhcp-text); font: inherit; min-width: 0; padding: .6rem 2rem .6rem .7rem; width: 100%; }
 .uhcp-profile-gate {
   background: var(--uhcp-panel);
   border: 1px solid var(--uhcp-border);

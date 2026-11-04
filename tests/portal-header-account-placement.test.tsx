@@ -123,4 +123,45 @@ describe('shared authenticated portal header', () => {
     expect(screen.getByRole('link', { name: 'Home' }).getAttribute('href'))
       .toBe('/en/home')
   })
+
+  it('renders the language selector inside account preferences for a signed-out user', () => {
+    render(<PortalHeader
+      brand={brand}
+      copy={copy}
+      guestActionHref="/en/login"
+      languageOptions={[
+        { id: 'en', label: 'English', href: '/en/test-network', current: true },
+        { id: 'es', label: 'Español', href: '/es/test-network' },
+      ]}
+    />)
+
+    expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Choose access' }))
+
+    const selector = screen.getByRole('combobox', { name: 'Language' }) as HTMLSelectElement
+    expect(selector.value).toBe('/en/test-network')
+    expect(screen.getByRole('option', { name: 'Español' }).getAttribute('value')).toBe('/es/test-network')
+    expect(screen.queryByRole('group', { name: 'Appearance' })).toBeNull()
+    expect(screen.queryByRole('group', { name: 'Text size' })).toBeNull()
+  })
+
+  it('shows language in signed-in preferences only when the host enables it', () => {
+    const props = {
+      brand,
+      copy,
+      accountIdentifier: 'person@example.org',
+      guestActionHref: '/en/login',
+      languageOptions: [
+        { id: 'en', label: 'English', href: '/en/home', current: true },
+        { id: 'es', label: 'Español', href: '/es/home' },
+      ],
+    } as const
+    const { rerender } = render(<PortalHeader {...props} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Account and preferences' }))
+    expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull()
+
+    rerender(<PortalHeader {...props} languageInPreferences />)
+    expect(screen.getByRole('combobox', { name: 'Language' })).not.toBeNull()
+  })
 })
