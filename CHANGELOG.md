@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.40 - 2026-11-04
+
 - Keep credential QR, organization discovery and professional DID/URN as three
   explicit evidence choices. Organization country and legal-identifier fields
   no longer replace the manual DID/URN route.
