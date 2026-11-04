@@ -71,7 +71,7 @@ export function PortalHeader({
   const densityKey = `${storageNamespace}.density`
   const themeKey = `${storageNamespace}.theme`
   const signedIn = Boolean(accountIdentifier)
-  const menuLabel = signedIn ? copy.accountAndPreferences : copy.chooseAccess
+  const menuLabel = copy.accountAndPreferences
 
   useEffect(() => {
     const savedDensity = resolvePortalUiDensity(localStorage.getItem(densityKey))
@@ -191,33 +191,31 @@ export function PortalHeader({
                 ))}
               </div>
             )}
-            {signedIn ? <>
-              <PreferenceGroup label={copy.appearance}>
-                {portalUiThemes.map((value) => (
-                  <button
-                    type="button"
-                    key={value}
-                    aria-pressed={theme === value}
-                    onClick={() => changeTheme(value)}
-                  >
-                    <span aria-hidden="true">{value === 'light' ? '☀' : value === 'dark' ? '☾' : '◫'}</span>
-                    {copy.themes[value]}
-                  </button>
-                ))}
-              </PreferenceGroup>
-              <PreferenceGroup label={copy.textSize}>
-                {portalUiDensities.map((value) => (
-                  <button
-                    type="button"
-                    key={value}
-                    aria-pressed={density === value}
-                    onClick={() => changeDensity(value)}
-                  >
-                    {value === 'small' ? 'S' : value === 'medium' ? 'M' : 'L'}
-                  </button>
-                ))}
-              </PreferenceGroup>
-            </> : null}
+            <PreferenceGroup label={copy.appearance}>
+              {portalUiThemes.map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  aria-pressed={theme === value}
+                  onClick={() => changeTheme(value)}
+                >
+                  <span aria-hidden="true">{value === 'light' ? '☀' : value === 'dark' ? '☾' : '◫'}</span>
+                  {copy.themes[value]}
+                </button>
+              ))}
+            </PreferenceGroup>
+            <PreferenceGroup label={copy.textSize}>
+              {portalUiDensities.map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  aria-pressed={density === value}
+                  onClick={() => changeDensity(value)}
+                >
+                  {value === 'small' ? 'S' : value === 'medium' ? 'M' : 'L'}
+                </button>
+              ))}
+            </PreferenceGroup>
             <div className="uhcp-menu-actions">
               {(!signedIn || languageInPreferences) && languageOptions.length > 0
                 ? <label className="uhcp-language-select">

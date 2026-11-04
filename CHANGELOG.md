@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.41 - 2026-11-04
+
+- Keep device-local appearance and S/M/L text-size preferences available from
+  the shared person menu before and after sign-in. Authentication now changes
+  account identity and protected actions without removing public preferences.
+
 ## 0.2.40 - 2026-11-04
 
 - Keep credential QR, organization discovery and professional DID/URN as three
