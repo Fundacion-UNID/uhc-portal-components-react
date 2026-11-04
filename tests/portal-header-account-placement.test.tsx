@@ -136,16 +136,16 @@ describe('shared authenticated portal header', () => {
     />)
 
     expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Choose access' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Account and preferences' }))
 
     const selector = screen.getByRole('combobox', { name: 'Language' }) as HTMLSelectElement
     expect(selector.value).toBe('/en/test-network')
     expect(screen.getByRole('option', { name: 'Español' }).getAttribute('value')).toBe('/es/test-network')
-    expect(screen.queryByRole('group', { name: 'Appearance' })).toBeNull()
-    expect(screen.queryByRole('group', { name: 'Text size' })).toBeNull()
+    expect(screen.getByRole('group', { name: 'Appearance' })).not.toBeNull()
+    expect(screen.getByRole('group', { name: 'Text size' })).not.toBeNull()
   })
 
-  it('shows language in signed-in preferences only when the host enables it', () => {
+  it('changes only account identity and actions after sign-in while retaining quick preferences', () => {
     const props = {
       brand,
       copy,
@@ -156,12 +156,20 @@ describe('shared authenticated portal header', () => {
         { id: 'es', label: 'Español', href: '/es/home' },
       ],
     } as const
-    const { rerender } = render(<PortalHeader {...props} />)
+    const { rerender } = render(<PortalHeader {...props} menuActions={[
+      { id: 'preferences', label: 'Preferences', href: '/en/preferences' },
+    ]} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Account and preferences' }))
     expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull()
+    expect(screen.getAllByText('person@example.org')).toHaveLength(2)
+    expect(screen.getByRole('group', { name: 'Appearance' })).not.toBeNull()
+    expect(screen.getByRole('group', { name: 'Text size' })).not.toBeNull()
+    expect(screen.getByRole('link', { name: 'Preferences' }).getAttribute('href')).toBe('/en/preferences')
 
-    rerender(<PortalHeader {...props} languageInPreferences />)
+    rerender(<PortalHeader {...props} languageInPreferences menuActions={[
+      { id: 'preferences', label: 'Preferences', href: '/en/preferences' },
+    ]} />)
     expect(screen.getByRole('combobox', { name: 'Language' })).not.toBeNull()
   })
 })
