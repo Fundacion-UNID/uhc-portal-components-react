@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Let hosts offer country, optional region, organization legal identifier and
+  sector discovery for an existing professional. When several authoritative
+  roles resolve, require one to be selected before rendering device PIN setup.
+
 ## 0.2.38 - 2026-11-03
 
 - Keep the language dropdown inside the shared person menu on public and
@@ -9,7 +15,6 @@
 - Let signed-in hosts opt into showing language alongside their account
   preferences, and align the subject-card directory dependency with the
   reusable provider selector contract.
-
 ## 0.2.37 - 2026-11-03
 
 - Split existing-professional registration into evidence verification and

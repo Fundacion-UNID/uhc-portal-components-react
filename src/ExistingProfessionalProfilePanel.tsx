@@ -25,6 +25,12 @@ export type ExistingProfessionalProfileCopy = Readonly<{
   cameraActive: string
   credentialQrUnreadable: string
   professionalIdentifierLabel: string
+  countryLabel?: string
+  countryPlaceholder?: string
+  regionalIdentifierLabel?: string
+  regionLabel?: string
+  regionPlaceholder?: string
+  organizationIdentifierLabel?: string
   sectorLabel: string
   pinLabel: string
   pinConfirmationLabel: string
@@ -41,34 +47,47 @@ export type ExistingProfessionalProfileCopy = Readonly<{
 export type ExistingProfessionalProfileInput =
   | Readonly<{ method: 'credential'; professionalCredential: string; pin: string }>
   | Readonly<{ method: 'identifier'; professionalIdentifier: string; sector: string; pin: string }>
+  | Readonly<{ method: 'organization'; country: string; region?: string; organizationIdentifier: string; sector: string; selectedProfile: string; pin: string }>
 
 export type ExistingProfessionalEvidenceInput =
   | Readonly<{ method: 'credential'; professionalCredential: string }>
   | Readonly<{ method: 'identifier'; professionalIdentifier: string; sector: string }>
+  | Readonly<{ method: 'organization'; country: string; region?: string; organizationIdentifier: string; sector: string }>
 
-export type ResolvedExistingProfessionalProfile = Omit<ProfileProtectionTargetV2, 'eyebrow'> & Readonly<{ eyebrow?: string }>
+export type ResolvedExistingProfessionalProfile = Omit<ProfileProtectionTargetV2, 'eyebrow'> & Readonly<{ eyebrow?: string; selectionValue?: string }>
 
 export type ExistingProfessionalProfileRequest =
   | Readonly<{ professionalCredential: string; pin: string }>
   | Readonly<{ professionalIdentifier: string; sectorHint: string; pin: string }>
+  | Readonly<{ country: string; region?: string; organizationIdentifier: string; sectorHint: string; selectedProfile: string; pin: string }>
 
 /** Shared BFF serialization keeps professional evidence distinct from an invitation code. */
 export function toExistingProfessionalProfileRequest(input: ExistingProfessionalProfileInput): ExistingProfessionalProfileRequest {
-  return input.method === 'credential'
-    ? Object.freeze({ professionalCredential: input.professionalCredential, pin: input.pin })
-    : Object.freeze({ professionalIdentifier: input.professionalIdentifier, sectorHint: input.sector, pin: input.pin })
+  if (input.method === 'credential') return Object.freeze({ professionalCredential: input.professionalCredential, pin: input.pin })
+  if (input.method === 'identifier') return Object.freeze({ professionalIdentifier: input.professionalIdentifier, sectorHint: input.sector, pin: input.pin })
+  return Object.freeze({
+    country: input.country,
+    ...(input.region ? { region: input.region } : {}),
+    organizationIdentifier: input.organizationIdentifier,
+    sectorHint: input.sector,
+    selectedProfile: input.selectedProfile,
+    pin: input.pin,
+  })
 }
 
 export type ExistingProfessionalSectorOption = Readonly<{ value: string; label: string }>
+export type ExistingProfessionalJurisdictionOption = Readonly<{ value: string; label: string }>
 
 export type ExistingProfessionalProfilePanelProps = Readonly<{
   copy: ExistingProfessionalProfileCopy
   sectors: readonly ExistingProfessionalSectorOption[]
+  countries?: readonly ExistingProfessionalJurisdictionOption[]
+  regionsByCountry?: Readonly<Record<string, readonly ExistingProfessionalJurisdictionOption[]>>
   busy: boolean
   error?: string
   onScanProfessionalCredential?: () => Promise<string | undefined>
   onReadProfessionalCredentialImage?: (file: File) => Promise<string | undefined>
-  onResolve?: (input: ExistingProfessionalEvidenceInput) => Promise<ResolvedExistingProfessionalProfile>
+  onResolve?: (input: ExistingProfessionalEvidenceInput) => Promise<ResolvedExistingProfessionalProfile | readonly ResolvedExistingProfessionalProfile[]>
   onSubmit: (input: ExistingProfessionalProfileInput) => void | Promise<void>
 }>
 
@@ -79,14 +98,19 @@ export type ExistingProfessionalProfilePanelProps = Readonly<{
  * is the preferred path; a single DID-or-URN field plus sector is the explicit
  * manual fallback and never becomes browser-selected authority by itself.
  */
-export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, onScanProfessionalCredential, onReadProfessionalCredentialImage, onResolve, onSubmit }: ExistingProfessionalProfilePanelProps) {
+export function ExistingProfessionalProfilePanel({ copy, sectors, countries = [], regionsByCountry = {}, busy, error, onScanProfessionalCredential, onReadProfessionalCredentialImage, onResolve, onSubmit }: ExistingProfessionalProfilePanelProps) {
   const [method, setMethod] = useState<'credential' | 'identifier'>('credential')
   const [professionalCredential, setProfessionalCredential] = useState('')
   const [professionalIdentifier, setProfessionalIdentifier] = useState('')
   const [sector, setSector] = useState(sectors[0]?.value || '')
+  const [country, setCountry] = useState('')
+  const [regional, setRegional] = useState(false)
+  const [region, setRegion] = useState('')
+  const [organizationIdentifier, setOrganizationIdentifier] = useState('')
   const [pin, setPin] = useState('')
   const [pinConfirmation, setPinConfirmation] = useState('')
-  const [resolvedProfile, setResolvedProfile] = useState<ResolvedExistingProfessionalProfile>()
+  const [resolvedProfiles, setResolvedProfiles] = useState<readonly ResolvedExistingProfessionalProfile[]>([])
+  const [selectedProfile, setSelectedProfile] = useState<ResolvedExistingProfessionalProfile>()
   const [resolving, setResolving] = useState(false)
   const [localError, setLocalError] = useState('')
   const [cameraActive, setCameraActive] = useState(false)
@@ -174,6 +198,13 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
       }
       return { method, professionalCredential: professionalCredential.trim() }
     }
+    if (countries.length) return {
+      method: 'organization',
+      country,
+      ...(regional ? { region } : {}),
+      organizationIdentifier: organizationIdentifier.trim(),
+      sector,
+    }
     return { method, professionalIdentifier: professionalIdentifier.trim(), sector }
   }
 
@@ -181,11 +212,14 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
     event.preventDefault()
     const evidence = evidenceInput()
     if (!evidence) return
-    if (onResolve && !resolvedProfile) {
+    if (onResolve && resolvedProfiles.length === 0) {
       setLocalError('')
       setResolving(true)
       try {
-        setResolvedProfile(await onResolve(evidence))
+        const resolution = await onResolve(evidence)
+        const profiles = Array.isArray(resolution) ? resolution : [resolution]
+        setResolvedProfiles(profiles)
+        setSelectedProfile(profiles.length === 1 ? profiles[0] : undefined)
       } catch (reason) {
         setLocalError(reason instanceof Error ? reason.message : copy.verificationFailed || 'professional_profile_verification_failed')
       } finally {
@@ -202,21 +236,35 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
       void onSubmit({ ...evidence, pin })
       return
     }
+    if (evidence.method === 'organization') {
+      if (!selectedProfile?.selectionValue) {
+        setLocalError(copy.verificationFailed || 'professional_profile_selection_required')
+        return
+      }
+      void onSubmit({ ...evidence, selectedProfile: selectedProfile.selectionValue, pin })
+      return
+    }
     void onSubmit({ ...evidence, pin })
   }
 
-  if (onResolve && resolvedProfile) return <section className="uhcp-professional-activation uhcp-professional-pin-setup" aria-labelledby="uhcp-existing-professional-pin-title">
+  if (onResolve && resolvedProfiles.length) return <section className="uhcp-professional-activation uhcp-professional-pin-setup" aria-labelledby="uhcp-existing-professional-pin-title">
     <header>
       <h1 id="uhcp-existing-professional-pin-title">{copy.verifiedProfile || copy.title}</h1>
       <p>{copy.description}</p>
     </header>
-    <ProfileIdentityTarget target={{ eyebrow: copy.verifiedProfile || '', ...resolvedProfile }} />
+    {resolvedProfiles.length > 1 ? <div className="uhcp-resolved-professional-options" role="group" aria-label={copy.verifiedProfile || copy.title}>
+      {resolvedProfiles.map(profile => <button type="button" key={profile.selectionValue || profile.title} aria-pressed={selectedProfile === profile} onClick={() => setSelectedProfile(profile)}>
+        <ProfileIdentityTarget target={{ eyebrow: copy.verifiedProfile || '', ...profile }} />
+      </button>)}
+    </div> : selectedProfile ? <ProfileIdentityTarget target={{ eyebrow: copy.verifiedProfile || '', ...selectedProfile }} /> : null}
     <form onSubmit={submit}>
-      <label><span>{copy.pinLabel}</span><input name="newPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pin} onChange={event => setPin(event.currentTarget.value)} required /></label>
-      <label><span>{copy.pinConfirmationLabel}</span><input name="confirmPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pinConfirmation} onChange={event => setPinConfirmation(event.currentTarget.value)} required /></label>
+      {selectedProfile ? <>
+        <label><span>{copy.pinLabel}</span><input name="newPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pin} onChange={event => setPin(event.currentTarget.value)} required /></label>
+        <label><span>{copy.pinConfirmationLabel}</span><input name="confirmPin" type="password" inputMode="numeric" minLength={6} maxLength={12} autoComplete="new-password" value={pinConfirmation} onChange={event => setPinConfirmation(event.currentTarget.value)} required /></label>
+      </> : null}
       {(localError || error) ? <p role="alert">{localError || error}</p> : null}
-      <button type="submit" disabled={busy}>{busy ? copy.submitting : copy.submit}</button>
-      <button type="button" className="uhcp-secondary-action" disabled={busy} onClick={() => { setResolvedProfile(undefined); setPin(''); setPinConfirmation(''); setLocalError('') }}>{copy.changeEvidence || copy.manualMethodLabel}</button>
+      {selectedProfile ? <button type="submit" disabled={busy}>{busy ? copy.submitting : copy.submit}</button> : null}
+      <button type="button" className="uhcp-secondary-action" disabled={busy} onClick={() => { setResolvedProfiles([]); setSelectedProfile(undefined); setPin(''); setPinConfirmation(''); setLocalError('') }}>{copy.changeEvidence || copy.manualMethodLabel}</button>
     </form>
   </section>
 
@@ -243,7 +291,12 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, busy, error, o
           {professionalCredential ? <p role="status">{copy.professionalCredentialReady}</p> : null}
         </div>
         : <>
-          <label><span>{copy.professionalIdentifierLabel}</span><input name="professionalIdentifier" value={professionalIdentifier} onChange={event => setProfessionalIdentifier(event.currentTarget.value)} autoComplete="off" required /></label>
+          {countries.length ? <>
+            <label><span>{copy.countryLabel || 'Country'}</span><select name="professionalCountry" value={country} onChange={event => { setCountry(event.currentTarget.value); setRegional(false); setRegion('') }} required><option value="" disabled>{copy.countryPlaceholder || copy.countryLabel || 'Country'}</option>{countries.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            <label className="uhcp-professional-regional-identifier"><input type="checkbox" checked={regional} disabled={!country || !(regionsByCountry[country]?.length)} onChange={event => { setRegional(event.currentTarget.checked); if (!event.currentTarget.checked) setRegion('') }} /><span>{copy.regionalIdentifierLabel || 'The legal identifier is regional'}</span></label>
+            {regional ? <label><span>{copy.regionLabel || 'Region'}</span><select name="professionalRegion" value={region} onChange={event => setRegion(event.currentTarget.value)} required><option value="" disabled>{copy.regionPlaceholder || copy.regionLabel || 'Region'}</option>{(regionsByCountry[country] || []).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label> : null}
+            <label><span>{copy.organizationIdentifierLabel || 'Organization legal identifier'}</span><input name="organizationIdentifier" value={organizationIdentifier} onChange={event => setOrganizationIdentifier(event.currentTarget.value)} autoComplete="off" required /></label>
+          </> : <label><span>{copy.professionalIdentifierLabel}</span><input name="professionalIdentifier" value={professionalIdentifier} onChange={event => setProfessionalIdentifier(event.currentTarget.value)} autoComplete="off" required /></label>}
           <label><span>{copy.sectorLabel}</span><select name="professionalSector" value={sector} onChange={event => setSector(event.currentTarget.value)} required>{sectors.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
         </>}
       {!onResolve ? <>

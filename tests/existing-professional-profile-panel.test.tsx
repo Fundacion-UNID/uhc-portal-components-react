@@ -18,6 +18,12 @@ const copy = {
   cameraActive: 'Camera active. Point it at the credential QR.',
   credentialQrUnreadable: 'No credential QR was found in that image.',
   professionalIdentifierLabel: 'Professional DID or URN',
+  countryLabel: 'Country',
+  countryPlaceholder: 'Select a country',
+  regionalIdentifierLabel: 'The legal identifier is regional',
+  regionLabel: 'Region',
+  regionPlaceholder: 'Select a region',
+  organizationIdentifierLabel: 'Organization legal identifier',
   sectorLabel: 'Organization sector',
   pinLabel: 'PIN for this device',
   pinConfirmationLabel: 'Repeat PIN',
@@ -78,6 +84,76 @@ describe('ExistingProfessionalProfilePanel', () => {
       sector: 'animal-care',
       pin: '123456',
     })
+  })
+
+  it('reconstructs professional discovery from country, optional region, legal identifier and sector before PIN', async () => {
+    const onResolve = vi.fn().mockResolvedValue([{
+      selectionValue: 'ISCO-08|2250',
+      title: 'Veterinarian',
+      subtitle: 'Example animal clinic',
+      badges: ['Animal care', 'CA-BC'],
+    }])
+    const onSubmit = vi.fn()
+    render(<ExistingProfessionalProfilePanel
+      copy={copy}
+      sectors={sectors}
+      countries={[{ value: 'CA', label: 'Canada' }, { value: 'ES', label: 'Spain' }]}
+      regionsByCountry={{ CA: [{ value: 'CA-BC', label: 'British Columbia' }] }}
+      busy={false}
+      onResolve={onResolve}
+      onSubmit={onSubmit}
+    />)
+
+    fireEvent.click(screen.getByLabelText(copy.manualMethodLabel))
+    expect(screen.queryByLabelText(copy.professionalIdentifierLabel)).toBeNull()
+    expect(screen.queryByLabelText(copy.pinLabel)).toBeNull()
+    fireEvent.change(screen.getByLabelText(copy.countryLabel), { target: { value: 'CA' } })
+    fireEvent.click(screen.getByLabelText(copy.regionalIdentifierLabel))
+    fireEvent.change(screen.getByLabelText(copy.regionLabel), { target: { value: 'CA-BC' } })
+    fireEvent.change(screen.getByLabelText(copy.organizationIdentifierLabel), { target: { value: '704457076' } })
+    fireEvent.change(screen.getByLabelText(copy.sectorLabel), { target: { value: 'animal-care' } })
+    fireEvent.click(screen.getByRole('button', { name: copy.verify }))
+
+    await waitFor(() => expect(onResolve).toHaveBeenCalledWith({
+      method: 'organization', country: 'CA', region: 'CA-BC',
+      organizationIdentifier: '704457076', sector: 'animal-care',
+    }))
+    expect(screen.getByText('Veterinarian')).toBeTruthy()
+    fireEvent.change(screen.getByLabelText(copy.pinLabel), { target: { value: '123456' } })
+    fireEvent.change(screen.getByLabelText(copy.pinConfirmationLabel), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: copy.submit }))
+    expect(onSubmit).toHaveBeenCalledWith({
+      method: 'organization', country: 'CA', region: 'CA-BC',
+      organizationIdentifier: '704457076', sector: 'animal-care',
+      selectedProfile: 'ISCO-08|2250', pin: '123456',
+    })
+  })
+
+  it('requires choosing one authoritative role before showing the PIN fields', async () => {
+    const onResolve = vi.fn().mockResolvedValue([
+      { selectionValue: 'ISCO-08|2250', title: 'Veterinarian', subtitle: 'Example clinic' },
+      { selectionValue: 'ISCO-08|2211', title: 'Physician', subtitle: 'Example clinic' },
+    ])
+    render(<ExistingProfessionalProfilePanel
+      copy={copy}
+      sectors={sectors}
+      countries={[{ value: 'CA', label: 'Canada' }]}
+      regionsByCountry={{}}
+      busy={false}
+      onResolve={onResolve}
+      onSubmit={vi.fn()}
+    />)
+
+    fireEvent.click(screen.getByLabelText(copy.manualMethodLabel))
+    fireEvent.change(screen.getByLabelText(copy.countryLabel), { target: { value: 'CA' } })
+    fireEvent.change(screen.getByLabelText(copy.organizationIdentifierLabel), { target: { value: 'Example-123' } })
+    fireEvent.click(screen.getByRole('button', { name: copy.verify }))
+
+    expect(await screen.findByText('Veterinarian')).toBeTruthy()
+    expect(screen.getByText('Physician')).toBeTruthy()
+    expect(screen.queryByLabelText(copy.pinLabel)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /Veterinarian/ }))
+    expect(screen.getByLabelText(copy.pinLabel)).toBeTruthy()
   })
 
   it('scans and submits a professional credential separately from local device protection', async () => {

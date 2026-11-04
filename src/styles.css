@@ -218,6 +218,11 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-professional-evidence-methods { border: 0; display: grid; gap: .75rem; margin: 0; padding: 0; }
 .uhcp-professional-evidence-methods label { align-items: center; border: 1px solid var(--uhcp-border); border-radius: .9rem; cursor: pointer; display: grid; gap: .75rem; grid-template-columns: 1.25rem 1fr; padding: .9rem 1rem; }
 .uhcp-professional-evidence-methods input[type='radio'] { accent-color: var(--uhcp-turquoise); height: 1.1rem; margin: 0; width: 1.1rem; }
+.uhcp-professional-regional-identifier { align-items: center !important; display: flex !important; gap: .55rem; }
+.uhcp-professional-regional-identifier input { accent-color: var(--uhcp-turquoise); min-height: auto !important; width: auto !important; }
+.uhcp-resolved-professional-options { display: grid; gap: .75rem; }
+.uhcp-resolved-professional-options > button { background: transparent; border: 1px solid var(--uhcp-border); border-radius: 1rem; color: inherit; cursor: pointer; padding: 0; text-align: left; }
+.uhcp-resolved-professional-options > button[aria-pressed='true'] { border-color: var(--uhcp-turquoise); box-shadow: 0 0 0 2px color-mix(in srgb, var(--uhcp-turquoise) 25%, transparent); }
 .uhcp-professional-pin-setup { display: grid; gap: 1rem; }
 .uhcp-professional-pin-setup > header h1, .uhcp-professional-pin-setup > header p { margin: 0; }
 .uhcp-professional-pin-setup > header p { margin-top: .45rem; }
