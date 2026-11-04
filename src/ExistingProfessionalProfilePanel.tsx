@@ -16,6 +16,7 @@ export type ExistingProfessionalProfileCopy = Readonly<{
   title: string
   description: string
   credentialMethodLabel: string
+  organizationMethodLabel: string
   manualMethodLabel: string
   scanProfessionalCredential: string
   uploadProfessionalCredentialQr: string
@@ -95,11 +96,11 @@ export type ExistingProfessionalProfilePanelProps = Readonly<{
  * Registers this portal device for an already-active professional profile.
  * Professional evidence, employee invitations and device registration are
  * separate artifacts. This screen accepts no invitation. A signed credential
- * is the preferred path; a single DID-or-URN field plus sector is the explicit
- * manual fallback and never becomes browser-selected authority by itself.
+ * is the preferred path. Organization coordinates and a DID-or-URN are two
+ * explicit alternatives; neither becomes browser-selected authority by itself.
  */
 export function ExistingProfessionalProfilePanel({ copy, sectors, countries = [], regionsByCountry = {}, busy, error, onScanProfessionalCredential, onReadProfessionalCredentialImage, onResolve, onSubmit }: ExistingProfessionalProfilePanelProps) {
-  const [method, setMethod] = useState<'credential' | 'identifier'>('credential')
+  const [method, setMethod] = useState<'credential' | 'organization' | 'identifier'>('credential')
   const [professionalCredential, setProfessionalCredential] = useState('')
   const [professionalIdentifier, setProfessionalIdentifier] = useState('')
   const [sector, setSector] = useState(sectors[0]?.value || '')
@@ -198,7 +199,7 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, countries = []
       }
       return { method, professionalCredential: professionalCredential.trim() }
     }
-    if (countries.length) return {
+    if (method === 'organization') return {
       method: 'organization',
       country,
       ...(regional ? { region } : {}),
@@ -277,6 +278,7 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, countries = []
       </header>
       <fieldset className="uhcp-professional-evidence-methods">
         <label><input type="radio" name="professionalEvidenceMethod" value="credential" checked={method === 'credential'} onChange={() => { setMethod('credential'); setLocalError('') }} /><span>{copy.credentialMethodLabel}</span></label>
+        {countries.length ? <label><input type="radio" name="professionalEvidenceMethod" value="organization" checked={method === 'organization'} onChange={() => { setMethod('organization'); setLocalError('') }} /><span>{copy.organizationMethodLabel}</span></label> : null}
         <label><input type="radio" name="professionalEvidenceMethod" value="identifier" checked={method === 'identifier'} onChange={() => { setMethod('identifier'); setLocalError('') }} /><span>{copy.manualMethodLabel}</span></label>
       </fieldset>
       {method === 'credential'
@@ -291,7 +293,7 @@ export function ExistingProfessionalProfilePanel({ copy, sectors, countries = []
           {professionalCredential ? <p role="status">{copy.professionalCredentialReady}</p> : null}
         </div>
         : <>
-          {countries.length ? <>
+          {method === 'organization' ? <>
             <label><span>{copy.countryLabel || 'Country'}</span><select name="professionalCountry" value={country} onChange={event => { setCountry(event.currentTarget.value); setRegional(false); setRegion('') }} required><option value="" disabled>{copy.countryPlaceholder || copy.countryLabel || 'Country'}</option>{countries.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             <label className="uhcp-professional-regional-identifier"><input type="checkbox" checked={regional} disabled={!country || !(regionsByCountry[country]?.length)} onChange={event => { setRegional(event.currentTarget.checked); if (!event.currentTarget.checked) setRegion('') }} /><span>{copy.regionalIdentifierLabel || 'The legal identifier is regional'}</span></label>
             {regional ? <label><span>{copy.regionLabel || 'Region'}</span><select name="professionalRegion" value={region} onChange={event => setRegion(event.currentTarget.value)} required><option value="" disabled>{copy.regionPlaceholder || copy.regionLabel || 'Region'}</option>{(regionsByCountry[country] || []).map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label> : null}

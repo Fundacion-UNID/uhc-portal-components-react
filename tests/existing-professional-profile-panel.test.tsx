@@ -1,4 +1,4 @@
-// Flow contract: an already-active professional presents evidence, sees the server-resolved role first, and only then chooses a local device PIN; neither path accepts an employee invitation.
+// Flow contract: an already-active professional chooses credential, organization discovery or DID/URN evidence, sees the server-resolved role first, and only then chooses a local device PIN; no path accepts an employee invitation.
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -9,6 +9,7 @@ const copy = {
   title: 'Use an existing professional profile',
   description: 'Use the professional evidence supplied by your existing professional portal.',
   credentialMethodLabel: 'Scan or upload professional credential',
+  organizationMethodLabel: 'Join an organization',
   manualMethodLabel: 'Enter DID or URN manually',
   scanProfessionalCredential: 'Scan professional credential',
   uploadProfessionalCredentialQr: 'Upload credential QR image',
@@ -104,7 +105,10 @@ describe('ExistingProfessionalProfilePanel', () => {
       onSubmit={onSubmit}
     />)
 
-    fireEvent.click(screen.getByLabelText(copy.manualMethodLabel))
+    expect(screen.getByLabelText(copy.credentialMethodLabel)).toBeTruthy()
+    expect(screen.getByLabelText(copy.organizationMethodLabel)).toBeTruthy()
+    expect(screen.getByLabelText(copy.manualMethodLabel)).toBeTruthy()
+    fireEvent.click(screen.getByLabelText(copy.organizationMethodLabel))
     expect(screen.queryByLabelText(copy.professionalIdentifierLabel)).toBeNull()
     expect(screen.queryByLabelText(copy.pinLabel)).toBeNull()
     fireEvent.change(screen.getByLabelText(copy.countryLabel), { target: { value: 'CA' } })
@@ -144,7 +148,7 @@ describe('ExistingProfessionalProfilePanel', () => {
       onSubmit={vi.fn()}
     />)
 
-    fireEvent.click(screen.getByLabelText(copy.manualMethodLabel))
+    fireEvent.click(screen.getByLabelText(copy.organizationMethodLabel))
     fireEvent.change(screen.getByLabelText(copy.countryLabel), { target: { value: 'CA' } })
     fireEvent.change(screen.getByLabelText(copy.organizationIdentifierLabel), { target: { value: 'Example-123' } })
     fireEvent.click(screen.getByRole('button', { name: copy.verify }))
@@ -190,7 +194,13 @@ describe('ExistingProfessionalProfilePanel', () => {
 
   it('offers one DID-or-URN field plus sector as the manual alternative', () => {
     const onSubmit = vi.fn()
-    render(<ExistingProfessionalProfilePanel copy={copy} sectors={sectors} busy={false} onSubmit={onSubmit} />)
+    render(<ExistingProfessionalProfilePanel
+      copy={copy}
+      sectors={sectors}
+      countries={[{ value: 'CA', label: 'Canada' }]}
+      busy={false}
+      onSubmit={onSubmit}
+    />)
 
     fireEvent.click(screen.getByLabelText(copy.manualMethodLabel))
     fireEvent.change(screen.getByLabelText(copy.professionalIdentifierLabel), { target: { value: ' urn:cds-ca-bc:v1:organization:bn:Example:member:zMember:2250 ' } })

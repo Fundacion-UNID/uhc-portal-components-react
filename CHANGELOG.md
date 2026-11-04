@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep credential QR, organization discovery and professional DID/URN as three
+  explicit evidence choices. Organization country and legal-identifier fields
+  no longer replace the manual DID/URN route.
+
 ## 0.2.39 - 2026-11-04
 
 - Let hosts offer country, optional region, organization legal identifier and
