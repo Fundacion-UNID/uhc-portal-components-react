@@ -23,6 +23,7 @@ import type {
   ClinicalTerminologySearch,
   ClinicalTerminologySourceSearch,
 } from './ClinicalArtifactEditor.js'
+import { clinicalArtifactSubjectClaims, type FhirIpsClinicalArtifactType } from 'fhir-data-utils-ts'
 
 export type ClinicalArtifactRelatedEntryV2 = Readonly<{
   entryId: string
@@ -106,7 +107,10 @@ export function ClinicalArtifactEditorV2({ request, authoringContext, copy, fiel
         id: draftId.current,
         sectionCode: request.sectionCode,
         mode: request.mode,
-        claims: cleanClaims(claims, fields),
+        claims: {
+          ...clinicalArtifactSubjectClaims(request.resourceType as FhirIpsClinicalArtifactType, authoringContext.subjectReference),
+          ...cleanClaims(claims, fields),
+        },
         attachments,
         relatedEntries: buildRelatedEntries?.(claims, draftId.current) ?? [],
       }

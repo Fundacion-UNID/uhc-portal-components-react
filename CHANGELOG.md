@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.44 - 2026-11-05
+
+- Preserve host-owned subject claims and editable speech transcripts in the
+  canonical progressive V2 clinical document editor.
+
 ## 0.2.43 - 2026-11-05
 
 - Establish `ClinicalBundleDraftEditorV2` as the sole canonical clinical

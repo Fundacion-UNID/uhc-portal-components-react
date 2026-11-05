@@ -58,7 +58,9 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
   loadTerminologySources?: ClinicalTerminologySourceSearch
   onChange: (value: Readonly<{ text: string; code: string; display: string }>) => void
 }>) {
+  const [speechRevision, setSpeechRevision] = useState(0)
   return <TerminologyCodePickerV2
+    key={speechRevision}
     resourceType={resourceType}
     param={codeClaim}
     language={locale}
@@ -72,7 +74,7 @@ export function CodedConceptPropertyV2({ resourceType, textClaim, codeClaim, dis
     {...(searchTerminology ? { search: async input => (await searchTerminology({ resourceType: input.resourceType, claim: input.param, language: input.language, text: input.text, limit: input.limit, ...(input.taxonomyId ? { taxonomyId: input.taxonomyId } : {}), ...(input.sources ? { sources: input.sources } : {}) })).map(candidate => ({ ...candidate, text: candidate.text || candidate.display, language: input.language })) } : {})}
     {...(loadTerminologySources ? { loadSources: input => loadTerminologySources({ resourceType: input.resourceType, claim: input.param, language: input.language, ...(input.taxonomyId ? { taxonomyId: input.taxonomyId } : {}) }) } : {})}
     onChange={onChange}
-    headingAction={textClaim ? <ClinicalSpeechInputButton resourceType={resourceType} claim={textClaim} locale={locale} fieldLabel={label} onTranscript={transcript => onChange({ text: transcript, code: '', display: '' })}/>: null}
+    headingAction={textClaim ? <ClinicalSpeechInputButton resourceType={resourceType} claim={textClaim} locale={locale} fieldLabel={label} onTranscript={transcript => { onChange({ text: transcript, code: '', display: '' }); setSpeechRevision(current => current + 1) }}/>: null}
     classNames={{ root: 'uhcp-clinical-property-v2 uhcp-coded-concept-property-v2', heading: 'uhcp-clinical-editor-field-heading', query: 'uhcp-coded-concept-query-v2', searchButton: 'uhcp-icon-button-v2', clearButton: 'uhcp-clear-code-v2', sources: 'uhcp-coding-sources-v2', selected: 'uhcp-selected-code-v2' }}
   />
 }

@@ -119,6 +119,7 @@ describe('SchemaClinicalArtifactEditorV2', () => {
     await waitFor(() => expect(saveArtifact).toHaveBeenCalledWith(expect.objectContaining({
       resourceType: 'Condition',
       claims: expect.objectContaining({
+        'Condition.subject': 'urn:uuid:subject01',
         'Condition.code': 'http://hl7.org/fhir/sid/icd-10|H16.0',
         'Condition.code-display': 'Corneal ulcer',
         'Condition.code-text': 'Úlcera corneal',
