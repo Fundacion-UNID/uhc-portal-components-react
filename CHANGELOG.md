@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.43 - 2026-11-05
+
+- Establish `ClinicalBundleDraftEditorV2` as the sole canonical clinical
+  authoring surface. Standalone, version-selecting and specialized clinical
+  editor components remain export-compatible but are explicitly deprecated so
+  host portals can migrate without maintaining parallel active workflows.
+- Confirm `ConsentPermissionDirectory` as the canonical shared permissions
+  surface; host-specific group and research surfaces follow the same single-
+  surface contract without adding parallel generic editors to this package.
+
 ## 0.2.42 - 2026-11-04
 
 - Render the reusable subject-card index provider control as a compact native

@@ -78,6 +78,7 @@ export type ClinicalArtifactEditorV2Props = Readonly<{
 }>
 
 /** Progressive reusable V2 shell. Resource rules are supplied by a specialized editor. */
+/** @deprecated Use ClinicalBundleDraftEditorV2 for every new clinical authoring flow. */
 export function ClinicalArtifactEditorV2({ request, authoringContext, copy, fields, initialVisibleClaims, initialClaims = {}, locale = 'en', timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone, taxonomyId, fieldLabel, resourceTypeLabel, searchTerminology, loadTerminologySources, validate, buildRelatedEntries, saveArtifact, onCancel, onReadback }: ClinicalArtifactEditorV2Props) {
   const titleId = useId()
   const [claims, setClaims] = useState<Record<string, string>>({ ...initialClaims, ...stringClaims(request.initialClaims) })

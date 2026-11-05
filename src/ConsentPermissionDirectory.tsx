@@ -21,6 +21,7 @@ export type ConsentPermissionDirectoryCopy = Readonly<{
   saving: string; loadError: string; required: string
 }>
 
+/** Canonical shared permission directory for view, add, edit, revoke, and delete workflows. */
 export function ConsentPermissionDirectory({ records, contacts, purposeOptions, roleOptions, targetOptions, copy, editable = false, onSave, onStatusChange, onDelete }: Readonly<{
   records: readonly ConsentPermissionRecord[]
   contacts: readonly ConsentPermissionContact[]

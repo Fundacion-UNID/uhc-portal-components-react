@@ -27,6 +27,7 @@ export type ImmunizationArtifactEditorV2Props = Omit<ClinicalArtifactEditorV2Pro
 }>
 
 /** Demo-first Immunization specialization over the reusable progressive V2 shell. */
+/** @deprecated Use ClinicalBundleDraftEditorV2 for every new clinical authoring flow. */
 export function ImmunizationArtifactEditorV2({ copy, locale = 'en', ...props }: ImmunizationArtifactEditorV2Props) {
   const fields = immunizationFields(locale)
   return <ClinicalArtifactEditorV2

@@ -164,6 +164,7 @@ export type ClinicalArtifactEditorProps = Readonly<{
  * persistence and terminology service access. A successful form submission is
  * published only after the host returns a fresh provider readback Bundle.
  */
+/** @deprecated Use ClinicalBundleDraftEditorV2 for every new clinical authoring flow. */
 export function ClinicalArtifactEditor({
   request,
   schema,

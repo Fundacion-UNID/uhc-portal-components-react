@@ -13,6 +13,7 @@ export type SchemaClinicalArtifactEditorV2Props = Omit<ClinicalArtifactEditorV2P
 }>
 
 /** Adapts every schema-backed IPS resource to the same progressive V2 editor. */
+/** @deprecated Use ClinicalBundleDraftEditorV2 for every new clinical authoring flow. */
 export function SchemaClinicalArtifactEditorV2({ schema, locale = 'en', ...props }: SchemaClinicalArtifactEditorV2Props) {
   return <ClinicalArtifactEditorV2
     {...props}

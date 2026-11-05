@@ -53,6 +53,7 @@ const VITAL_SIGN_KINDS: readonly VitalSignKind[] = Object.freeze([
 ])
 
 /** Shared vital-sign capture. Composite values remain one typed measurement. */
+/** @deprecated Use ClinicalBundleDraftEditorV2 for every new clinical authoring flow. */
 export function VitalSignArtifactEditor({
   entryId,
   subjectReference,

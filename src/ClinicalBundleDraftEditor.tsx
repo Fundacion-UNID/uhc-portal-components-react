@@ -124,6 +124,7 @@ type ResourceChooserState = Readonly<{
  * It owns no authorization or persistence: the host supplies subject and
  * provenance and only `onSubmitDraft` may cross a persistence boundary.
  */
+/** @deprecated Use ClinicalBundleDraftEditorV2; the version-selecting entry point remains only for compatibility. */
 export function ClinicalBundleDraftEditor({
   schemas,
   authoringContext,
