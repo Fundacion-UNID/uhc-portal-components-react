@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Render the reusable subject-card index provider control as a compact native
+  dropdown. It preserves explicit provider identity, disabled options and
+  accessible labeling, while allowing hosts to choose a regional default.
+
 ## 0.2.41 - 2026-11-04
 
 - Keep device-local appearance and S/M/L text-size preferences available from

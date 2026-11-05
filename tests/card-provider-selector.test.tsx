@@ -22,10 +22,10 @@ describe('CardProviderSelector', () => {
       copy={{ legend: 'Choose card provider', description: 'The selected provider will issue this card.', unavailable: 'Unavailable' }}
     />)
 
-    await userEvent.click(screen.getByRole('radio', { name: providers[1].displayName }))
+    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Choose card provider' }), providers[1].providerId)
 
     expect(onChange).toHaveBeenCalledWith(providers[1].providerId)
-    expect(screen.getByRole('group', { name: 'Choose card provider' })).toBeTruthy()
+    expect(screen.getByRole('combobox', { name: 'Choose card provider' })).toBeTruthy()
   })
 
   it('keeps an unavailable provider visible but disabled', () => {
@@ -36,6 +36,6 @@ describe('CardProviderSelector', () => {
       copy={{ legend: 'Choose card provider', description: 'Select one.', unavailable: 'Unavailable' }}
     />)
 
-    expect((screen.getByRole('radio', { name: `${providers[0].displayName} Unavailable` }) as HTMLInputElement).disabled).toBe(true)
+    expect((screen.getByRole('option', { name: `${providers[0].displayName} — Unavailable` }) as HTMLOptionElement).disabled).toBe(true)
   })
 })

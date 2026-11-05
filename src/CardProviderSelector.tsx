@@ -29,24 +29,19 @@ export function CardProviderSelector({
   return <fieldset className="uhcp-card-provider-selector" disabled={disabled}>
     <legend>{copy.legend}</legend>
     <p>{copy.description}</p>
-    <div className="uhcp-card-provider-options">
+    <select
+      className="uhcp-card-provider-select"
+      aria-label={copy.legend}
+      value={value}
+      onChange={event => onChange(event.target.value)}
+    >
+      <option value="" disabled>—</option>
       {providers.map(provider => {
         const unavailable = provider.available === false
-        return <label key={provider.providerId} className="uhcp-card-provider-option">
-          <input
-            type="radio"
-            name="card-provider"
-            value={provider.providerId}
-            checked={value === provider.providerId}
-            disabled={unavailable}
-            onChange={() => onChange(provider.providerId)}
-          />
-          <span>
-            <strong>{provider.displayName}</strong>
-            {unavailable ? <> <small>{copy.unavailable}</small></> : null}
-          </span>
-        </label>
+        return <option key={provider.providerId} value={provider.providerId} disabled={unavailable}>
+          {provider.displayName}{unavailable ? ` — ${copy.unavailable}` : ''}
+        </option>
       })}
-    </div>
+    </select>
   </fieldset>
 }
