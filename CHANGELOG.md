@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.42 - 2026-11-04
 
 - Render the reusable subject-card index provider control as a compact native
   dropdown. It preserves explicit provider identity, disabled options and
