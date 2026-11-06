@@ -41,7 +41,10 @@ const DEFAULT_COPY: SubjectCommunicationCenterCopy = {
 
 const FILTERS: readonly SubjectCommunicationFilter[] = ['all', 'messages', 'calls', 'emergency']
 
-/** Brand-neutral, subject-scoped message and internet-call timeline for personal portals. */
+/**
+ * @deprecated Use `SubjectConversationChat`. Kept only as a source-compatible
+ * migration bridge; hosts must not maintain this as a parallel active surface.
+ */
 export function SubjectCommunicationCenter({ subjectLabel, items, copy = DEFAULT_COPY, composer }: Readonly<{
   subjectLabel: string
   items: readonly SubjectCommunicationItem[]

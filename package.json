@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.44",
+  "version": "0.2.45",
   "description": "Brand-neutral React portal screens, account preferences and protected-profile UI.",
   "license": "Apache-2.0",
   "type": "module",
@@ -16,7 +16,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./subject-conversation-chat": {
+      "types": "./dist/SubjectConversationChat.d.ts",
+      "default": "./dist/SubjectConversationChat.js"
+    }
   },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
@@ -27,17 +31,33 @@
     "prepack": "npm run check"
   },
   "peerDependencies": {
+    "@kesha-antonov/react-native-chat": "^6.0.1",
     "react": ">=18.3.0",
-    "react-dom": ">=18.3.0"
+    "react-dom": ">=18.3.0",
+    "react-native": ">=0.82.0",
+    "react-native-gesture-handler": ">=3.0.0",
+    "react-native-keyboard-controller": ">=1.0.0",
+    "react-native-reanimated": ">=3.0.0",
+    "react-native-safe-area-context": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@kesha-antonov/react-native-chat": { "optional": true },
+    "react-native": { "optional": true },
+    "react-native-gesture-handler": { "optional": true },
+    "react-native-keyboard-controller": { "optional": true },
+    "react-native-reanimated": { "optional": true },
+    "react-native-safe-area-context": { "optional": true }
   },
   "dependencies": {
+    "antifraud-portal-components-react": "0.2.1",
     "fhir-data-utils-ts": "0.6.21",
     "gdc-common-utils-ts": "2.9.30",
     "jsqr": "1.4.0",
-    "sos-data-utils-ts": "0.6.21",
+    "sos-data-utils-ts": "0.6.24",
     "terminology-components-react": "0.2.0"
   },
   "devDependencies": {
+    "@kesha-antonov/react-native-chat": "6.0.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "19.2.17",
@@ -45,6 +65,13 @@
     "jsdom": "^26.1.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-native": "0.86.3",
+    "react-native-gesture-handler": "3.5.0",
+    "react-native-keyboard-controller": "1.23.0",
+    "react-native-reanimated": "4.7.1",
+    "react-native-safe-area-context": "5.11.1",
+    "react-native-web": "0.21.4",
+    "react-native-worklets": "0.13.1",
     "typescript": "^5.5.4",
     "vitest": "^4.1.10"
   }

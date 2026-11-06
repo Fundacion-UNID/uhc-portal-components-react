@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.45 - 2026-11-06
+
+- Add `SubjectConversationChat`, the canonical React Native/Web conversation
+  adapter backed by the neutral Antifraud conversation surface,
+  `@kesha-antonov/react-native-chat` and the platform-neutral SOS conversation
+  contract. Hosts retain authorization, delivery, attachment opening and
+  WebRTC authority while sharing one transcript and composer.
+- Deprecate `SubjectCommunicationCenter` as a migration-only bridge so portal
+  flavours do not keep alternative active chat implementations.
+
 ## 0.2.44 - 2026-11-05
 
 - Preserve host-owned subject claims and editable speech transcripts in the
