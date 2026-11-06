@@ -88,6 +88,11 @@ export type OrganizationWorkforceAdministrationProps = Readonly<{
  * The component never infers authorization or changes GW state. The host owns
  * invitation persistence, license reads and employee lifecycle commands.
  */
+/**
+ * @deprecated Import `OrganizationWorkforceAdministration` from
+ * `antifraud-hosting-components-react`. This UHC compatibility implementation
+ * is retained for migration and explicit legacy consumers.
+ */
 export function OrganizationWorkforceAdministration({
   copy,
   summary,

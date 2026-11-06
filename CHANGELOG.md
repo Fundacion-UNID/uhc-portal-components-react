@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.47 - 2026-11-06
+
+- Deprecate the historical UHC workforce administration component in favor of
+  `antifraud-hosting-components-react`, the canonical host- and
+  tenant-controller UI package.
+- Preserve the compatibility export and a separately runnable legacy test,
+  while excluding it from the active UHC surface suite.
+
 ## 0.2.46 - 2026-11-06
 
 - Consume the SOS projection of the real FHIR Communication that performs a
