@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.46 - 2026-11-06
+
+- Consume the SOS projection of the real FHIR Communication that performs a
+  subject-index update; the shared conversation no longer needs a synthetic
+  text event or a parallel chat record.
+
 ## 0.2.45 - 2026-11-06
 
 - Add `SubjectConversationChat`, the canonical React Native/Web conversation
