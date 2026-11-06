@@ -1,28 +1,14 @@
-// Flow contract: the shared web and Expo surface delegates transcript/composer behavior to react-native-chat while SOS contracts retain typed FHIR, calendar, audio and call metadata. Host callbacks retain send and attachment authority.
+// Flow contract: the deprecated UHC conversation export remains behaviorally compatible while delegating implementation and SOS projection ownership to sos-portal-components-react.
 // @vitest-environment jsdom
 import React from 'react'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-
-const capture = vi.hoisted(() => vi.fn())
-vi.mock('antifraud-portal-components-react/conversation-surface', () => ({
-  AntifraudConversationSurface: (props: any) => {
-    capture(props)
-    const documentMessage = props.messages.find((message: any) => message.subjectConversation.content.kind === 'fhir-document')
-    return <div data-testid="react-native-chat">
-      {props.messages.map((message: any) => <span key={message._id}>{message.text}</span>)}
-      {documentMessage ? props.renderMessageContent(documentMessage) : null}
-      <button type="button" onClick={() => props.onSendText('Reply from shared chat')}>Mock send</button>
-    </div>
-  },
-}))
-
+import { afterEach, describe, expect, it } from 'vitest'
 import { SubjectConversationChat } from '../src/SubjectConversationChat.js'
 
-afterEach(() => { cleanup(); capture.mockClear() })
+afterEach(cleanup)
 
-describe('SubjectConversationChat', () => {
-  it('uses react-native-chat for one IMessage transcript and delegates FHIR rendering and send authority', () => {
+describe('SubjectConversationChat compatibility export', () => {
+  it('renders SOS entries, delegates FHIR content and sends through the host callback', () => {
     const sent: string[] = []
     render(<SubjectConversationChat
       entries={[
@@ -31,16 +17,16 @@ describe('SubjectConversationChat', () => {
         { id: 'call-1', createdAt: '2026-11-06T10:02:00.000Z', direction: 'incoming', sender: { id: 'PractitionerRole/one', name: 'Clinic' }, content: { kind: 'call', media: 'video', state: 'missed', label: 'Missed video call' } },
       ]}
       currentUser={{ id: 'Patient/self', name: 'Me' }}
-      onSendText={text => sent.push(text)}
+      onSendText={text => { sent.push(text) }}
       renderFhirDocument={({ label }) => <div>FHIR renderer: {label}</div>}
       locale="en"
     />)
 
-    expect(screen.getByTestId('react-native-chat')).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'Conversation' })).toBeTruthy()
     expect(screen.getByText('Missed video call')).toBeTruthy()
     expect(screen.getByText('FHIR renderer: Vaccination Bundle')).toBeTruthy()
-    expect(capture.mock.calls[0][0].messages[0].system).toBe(true)
-    fireEvent.click(screen.getByRole('button', { name: 'Mock send' }))
-    expect(sent).toEqual(['Reply from shared chat'])
+    fireEvent.change(screen.getByPlaceholderText('Message'), { target: { value: 'Reply from compatibility export' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    expect(sent).toEqual(['Reply from compatibility export'])
   })
 })

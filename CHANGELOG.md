@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.48 - 2026-11-06
+
+- Move the canonical `SubjectConversationChat` implementation into
+  `sos-portal-components-react` and retain the UHC subpath only as a deprecated
+  compatibility re-export.
+- Remove the duplicate SOS projection and Antifraud conversation composition
+  from the human-health package.
+
 ## 0.2.47 - 2026-11-06
 
 - Deprecate the historical UHC workforce administration component in favor of

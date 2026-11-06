@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.47",
+  "version": "0.2.48",
   "description": "Brand-neutral React portal screens, account preferences and protected-profile UI.",
   "license": "Apache-2.0",
   "type": "module",
@@ -42,12 +42,24 @@
     "react-native-safe-area-context": ">=5.0.0"
   },
   "peerDependenciesMeta": {
-    "@kesha-antonov/react-native-chat": { "optional": true },
-    "react-native": { "optional": true },
-    "react-native-gesture-handler": { "optional": true },
-    "react-native-keyboard-controller": { "optional": true },
-    "react-native-reanimated": { "optional": true },
-    "react-native-safe-area-context": { "optional": true }
+    "@kesha-antonov/react-native-chat": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "react-native-gesture-handler": {
+      "optional": true
+    },
+    "react-native-keyboard-controller": {
+      "optional": true
+    },
+    "react-native-reanimated": {
+      "optional": true
+    },
+    "react-native-safe-area-context": {
+      "optional": true
+    }
   },
   "dependencies": {
     "antifraud-portal-components-react": "0.2.1",
@@ -55,6 +67,7 @@
     "gdc-common-utils-ts": "2.9.30",
     "jsqr": "1.4.0",
     "sos-data-utils-ts": "0.6.25",
+    "sos-portal-components-react": "0.1.0",
     "terminology-components-react": "0.2.0"
   },
   "devDependencies": {
