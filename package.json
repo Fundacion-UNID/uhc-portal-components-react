@@ -1,6 +1,6 @@
 {
   "name": "uhc-portal-components-react",
-  "version": "0.2.48",
+  "version": "0.2.49",
   "description": "Brand-neutral React portal screens, account preferences and protected-profile UI.",
   "license": "Apache-2.0",
   "type": "module",
@@ -62,12 +62,12 @@
     }
   },
   "dependencies": {
-    "antifraud-portal-components-react": "0.2.1",
+    "antifraud-portal-components-react": "0.2.2",
     "fhir-data-utils-ts": "0.6.21",
     "gdc-common-utils-ts": "2.9.30",
     "jsqr": "1.4.0",
-    "sos-data-utils-ts": "0.6.25",
-    "sos-portal-components-react": "0.1.0",
+    "sos-data-utils-ts": "0.6.28",
+    "sos-portal-components-react": "0.2.2",
     "terminology-components-react": "0.2.0"
   },
   "devDependencies": {

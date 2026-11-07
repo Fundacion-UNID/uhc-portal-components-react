@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.49 - 2026-11-07
+
+- Align the deprecated subject-conversation compatibility re-export with
+  `sos-portal-components-react@0.2.2`, `sos-data-utils-ts@0.6.28` and
+  `antifraud-portal-components-react@0.2.2`. Consuming CH applications no
+  longer install an older nested conversation implementation or contract
+  behind the UHC bridge.
+
 ## 0.2.48 - 2026-11-06
 
 - Move the canonical `SubjectConversationChat` implementation into

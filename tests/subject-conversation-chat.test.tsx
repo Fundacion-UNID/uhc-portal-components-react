@@ -23,7 +23,7 @@ describe('SubjectConversationChat compatibility export', () => {
     />)
 
     expect(screen.getByRole('region', { name: 'Conversation' })).toBeTruthy()
-    expect(screen.getByText('Missed video call')).toBeTruthy()
+    expect(screen.getByText('Missed video call · Missed')).toBeTruthy()
     expect(screen.getByText('FHIR renderer: Vaccination Bundle')).toBeTruthy()
     fireEvent.change(screen.getByPlaceholderText('Message'), { target: { value: 'Reply from compatibility export' } })
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
