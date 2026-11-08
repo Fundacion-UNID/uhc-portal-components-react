@@ -15,7 +15,9 @@ import {
 import {
   resolvePortalUiDensity,
   resolvePortalUiTheme,
-  resolveRenderedPortalTheme,
+  notifyPortalUiPreferencesChanged,
+  subscribePortalUiPreferences,
+  observePortalUiTheme,
 } from './preferences.js'
 import { PortalBrandArtwork } from './PortalBrandArtwork.js'
 import { ProfileIdentityIcon } from './ProfileIdentityTarget.js'
@@ -81,21 +83,14 @@ export function PortalHeader({
     document.documentElement.dataset.density = savedDensity
   }, [densityKey, themeKey])
 
-  useEffect(() => {
-    const media = typeof window.matchMedia === 'function'
-      ? window.matchMedia('(prefers-color-scheme: dark)')
-      : undefined
-    const apply = () => {
-      const rendered = resolveRenderedPortalTheme(theme, media?.matches === true)
-      document.documentElement.dataset.theme = rendered
-      document.documentElement.classList.toggle('dark', rendered === 'dark')
-      document.documentElement.classList.toggle('light', rendered === 'light')
-      document.documentElement.style.colorScheme = rendered
-    }
-    apply()
-    media?.addEventListener('change', apply)
-    return () => media?.removeEventListener('change', apply)
-  }, [theme])
+  useEffect(() => observePortalUiTheme(theme),[theme])
+
+  useEffect(() => subscribePortalUiPreferences(storageNamespace,kind => {
+    const savedTheme = resolvePortalUiTheme(localStorage.getItem(themeKey))
+    setTheme(savedTheme)
+    setDensity(resolvePortalUiDensity(localStorage.getItem(densityKey)))
+    if (kind === 'theme') onThemeChange?.(savedTheme)
+  }),[storageNamespace,themeKey,densityKey,onThemeChange])
 
   useEffect(() => {
     const closeOutside = (event: MouseEvent) => {
@@ -116,12 +111,13 @@ export function PortalHeader({
     setDensity(value)
     localStorage.setItem(densityKey, value)
     document.documentElement.dataset.density = value
+    notifyPortalUiPreferencesChanged(storageNamespace,'density')
   }
 
   function changeTheme(value: PortalUiTheme) {
     setTheme(value)
     localStorage.setItem(themeKey, value)
-    onThemeChange?.(value)
+    notifyPortalUiPreferencesChanged(storageNamespace,'theme')
   }
 
   return (

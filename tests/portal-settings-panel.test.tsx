@@ -1,4 +1,4 @@
-// TDD contract: write this test red first; make it green only with the complete real behavior.
+// Flow contract: the shared Preferences page persists presentation state and applies the same light/dark classes used by the account menu, without granting product policy.
 // @vitest-environment jsdom
 
 import { fireEvent, render, screen } from '@testing-library/react'
@@ -18,6 +18,7 @@ describe('PortalSettingsPanel', () => {
     ><p>Secondary-use policy</p></PortalSettingsPanel>)
     fireEvent.click(screen.getByRole('button', { name: 'Dark' }))
     expect(localStorage.getItem('test-portal.theme')).toBe('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
     expect(screen.getByText('Secondary-use policy')).toBeTruthy()
   })
 })

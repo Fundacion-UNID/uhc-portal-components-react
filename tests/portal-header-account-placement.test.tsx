@@ -1,10 +1,11 @@
 // Flow contract: every personal or professional portal shows the verified login below the application name, keeps the current subject separate, and renders an icon-only account trigger.
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { PortalHeader } from '../src/PortalHeader.js'
+import {PortalSettingsPanel} from '../src/PortalSettingsPanel.js'
 
 const brand = {
   family: 'personal',
@@ -34,9 +35,31 @@ afterEach(() => {
   document.documentElement.classList.remove('light', 'dark')
   delete document.documentElement.dataset.theme
   localStorage.clear()
+  vi.unstubAllGlobals()
 })
 
 describe('shared authenticated portal header', () => {
+  it('keeps the person menu and Preferences page selections synchronized in both directions', () => {
+    vi.stubGlobal('matchMedia',()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()}))
+    const hostTheme=vi.fn()
+    const {container}=render(<>
+      <PortalHeader brand={brand} copy={copy} accountIdentifier="person@example.org" guestActionHref="/en/login" storageNamespace="shared-ui" onThemeChange={hostTheme} />
+      <PortalSettingsPanel storageNamespace="shared-ui" languageOptions={[]} legalLinks={[]} copy={{
+        title:'Settings',description:'Device settings',security:'Account',appearance:'Appearance',theme:'Theme',textSize:'Text size',language:'Language',legal:'Information',
+        themes:copy.themes,densities:{small:'Small',medium:'Medium',large:'Large'},
+      }} />
+    </>)
+    const settings=within(screen.getByRole('main'))
+    fireEvent.click(settings.getByRole('button',{name:'Dark'}))
+    fireEvent.click(screen.getByRole('button',{name:'Account and preferences'}))
+    const menu=within(container.querySelector('.uhcp-header')!)
+    expect(menu.getByRole('button',{name:'Dark'}).getAttribute('aria-pressed')).toBe('true')
+    expect(hostTheme).toHaveBeenLastCalledWith('dark')
+    fireEvent.click(menu.getByRole('button',{name:'Light'}))
+    expect(settings.getByRole('button',{name:'Light'}).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(menu.getByRole('button',{name:'L'}))
+    expect(settings.getByRole('button',{name:'Large'}).getAttribute('aria-pressed')).toBe('true')
+  })
   it('places the login identifier with the brand and keeps it out of the icon-only account trigger', () => {
     const markup = renderToStaticMarkup(<PortalHeader
       brand={brand}

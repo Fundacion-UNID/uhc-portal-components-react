@@ -1,5 +1,17 @@
 # Shared Portal Components React
 
+The shared account menu and `PortalSettingsPanel` use one presentation
+namespace per application: theme and text-size changes propagate between the
+two surfaces and across tabs. System appearance observes the operating system
+and applies the same HTML classes from either surface. Import the package CSS
+once; selected appearance options use readable blue/white in both themes.
+
+Device processing preferences are composed through
+`sos-portal-components-react/device-assistance-preferences`, backed by the
+neutral Antifraud renderer. This package retains the header/settings shell and
+clinical/domain extensions; do not create another menu per mode or flavour.
+Device consent does not grant profile or subject authority.
+
 Historical reusable UI and flow anchors are tracked in
 [`docs/LEGACY_FRONTEND_RECOVERY_INVENTORY.md`](docs/LEGACY_FRONTEND_RECOVERY_INVENTORY.md).
 

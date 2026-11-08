@@ -678,6 +678,20 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-11-08
+
+- Synchronize the existing shared account menu and Preferences page using their
+  existing presentation keys, including same-page and cross-tab changes.
+  Apply the same light/dark classes and system-theme observer from either
+  surface; no second business-state store or authentication policy is added.
+- Use readable blue/white selected appearance options in both themes,
+  independent of product accent colours. Browser contrast coverage reproduced
+  the former dark-mode ratio of 1.13:1 before the correction.
+- Consume SOS and Antifraud 0.3.0. Device assistance remains owned by their
+  shared controlled component; clinical/domain extensions stay in this package.
+- Eleven focused preference/header cases, typecheck and build pass. CH browser
+  acceptance separately exercises menu/page synchronization and reload.
+
 - Add a reusable, accessible Consent permission directory/editor for
   provider-backed create, edit, suspend/reactivate and delete flows. The host
   owns the schema-backed Bundle mutation and must return authoritative

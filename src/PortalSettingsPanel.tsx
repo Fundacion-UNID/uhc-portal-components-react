@@ -9,7 +9,7 @@ import {
   type PortalUiDensity,
   type PortalUiTheme,
 } from './contracts.js'
-import { resolvePortalUiDensity, resolvePortalUiTheme, resolveRenderedPortalTheme } from './preferences.js'
+import { resolvePortalUiDensity, resolvePortalUiTheme, observePortalUiTheme, notifyPortalUiPreferencesChanged, subscribePortalUiPreferences } from './preferences.js'
 
 export type PortalSettingsCopy = Readonly<{
   title: string
@@ -54,18 +54,23 @@ export function PortalSettingsPanel({
     setDensity(resolvePortalUiDensity(localStorage.getItem(densityKey)))
   }, [densityKey, themeKey])
 
+  useEffect(() => observePortalUiTheme(theme),[theme])
+  useEffect(() => subscribePortalUiPreferences(storageNamespace,() => {
+    setTheme(resolvePortalUiTheme(localStorage.getItem(themeKey)))
+    setDensity(resolvePortalUiDensity(localStorage.getItem(densityKey)))
+  }),[storageNamespace,themeKey,densityKey])
+
   function changeTheme(value: PortalUiTheme) {
     setTheme(value)
     localStorage.setItem(themeKey, value)
-    const rendered = resolveRenderedPortalTheme(value, matchMedia('(prefers-color-scheme: dark)').matches)
-    document.documentElement.dataset.theme = rendered
-    document.documentElement.style.colorScheme = rendered
+    notifyPortalUiPreferencesChanged(storageNamespace,'theme')
   }
 
   function changeDensity(value: PortalUiDensity) {
     setDensity(value)
     localStorage.setItem(densityKey, value)
     document.documentElement.dataset.density = value
+    notifyPortalUiPreferencesChanged(storageNamespace,'density')
   }
 
   return (
