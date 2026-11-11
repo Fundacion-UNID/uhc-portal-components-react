@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+## 0.3.1 - 2026-11-11
+
+- Delegate Encounter transfer rendering and styles to the shared SOS component.
+  Add a host-composed persisted journey slot in the selected-card workspace.
+
 ## 0.2.49 - 2026-11-07
 
 - Align the deprecated subject-conversation compatibility re-export with
@@ -675,11 +682,6 @@
 - Add a brand-neutral full-page account settings surface for security actions,
   theme, text size, language and legal links, with a product-extension slot for
   jurisdiction and data-use controls.
-
-## Unreleased
-
-- Delegate Encounter transfer rendering and styles to the shared SOS component.
-  Add a host-composed persisted journey slot in the selected-card workspace.
 
 ## 0.3.0 - 2026-11-08
 
