@@ -158,3 +158,9 @@ describe('SoschainWorkspace', () => {
     expect(html).not.toContain('<summary>More</summary>')
   })
 })
+
+it('composes the one authorized encounter journey instead of a separate fixture timeline',()=>{
+  const html=renderToStaticMarkup(<SoschainWorkspace {...base} activeArea="care-journey" canManageAssociations={false} careJourneyContent={<section>Persisted encounter journey</section>}/>)
+  expect(html).toContain('Persisted encounter journey')
+  expect(html).not.toContain(copy.emptyCareJourney)
+})
