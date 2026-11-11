@@ -678,6 +678,9 @@
 
 ## Unreleased
 
+- Delegate Encounter transfer rendering and styles to the shared SOS component.
+  Add a host-composed persisted journey slot in the selected-card workspace.
+
 ## 0.3.0 - 2026-11-08
 
 - Synchronize the existing shared account menu and Preferences page using their
