@@ -808,7 +808,7 @@ html[data-theme='dark'] .uhcp-brand-artwork-dark { display: block !important; }
 .uhcp-card-provider-selector { border: 0; margin: 0; padding: 0; }
 .uhcp-card-provider-selector > legend { font-size: 1rem; font-weight: 800; }
 .uhcp-card-provider-selector > p { color: var(--uhcp-muted, #64748b); margin: .35rem 0 .75rem; }
-.uhcp-card-provider-select { background: var(--uhcp-surface, #fff); border: 1px solid var(--uhcp-border, #cbd5e1); border-radius: .9rem; color: var(--uhcp-foreground, #0f172a); min-height: 2.75rem; padding: .65rem .85rem; width: 100%; }
+.uhcp-card-provider-select { background: var(--uhcp-surface, #fff); border: 1px solid var(--uhcp-border, #cbd5e1); border-radius: .9rem; color: var(--uhcp-text, #0f172a); min-height: 2.75rem; padding: .65rem .85rem; width: 100%; }
 .uhcp-card-provider-select:focus-visible { border-color: var(--uhcp-accent, #2563eb); box-shadow: 0 0 0 2px color-mix(in srgb, var(--uhcp-accent, #2563eb) 22%, transparent); outline: none; }
 .uhcp-card-provider-select:disabled { cursor: not-allowed; opacity: .62; }
 .uhcp-smart-id-card-back { background: #fff; color: #0f2942; display: grid; gap: .5rem; grid-template-rows: auto 1fr; }

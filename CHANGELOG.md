@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Use the canonical shared text theme token for the selected individual index label, preserving readable foreground contrast in dark mode.
+
 ## 0.3.1 - 2026-11-11
 
 - Delegate Encounter transfer rendering and styles to the shared SOS component.
