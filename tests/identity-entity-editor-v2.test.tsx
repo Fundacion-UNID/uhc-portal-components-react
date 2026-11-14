@@ -39,4 +39,25 @@ describe('IdentityEntityEditorV2', () => {
     expect((screen.getByLabelText('Relationship evidence (optional)') as HTMLInputElement).required).toBe(false)
     expect(screen.queryByLabelText('PIN')).toBeNull()
   })
+
+  it('allows a related controller without an issued identifier and keeps country-only residence context', () => {
+    const {container} = render(<form><IdentityEntityEditorV2 mode="related" copy={copy} requireIdentifier={false} showEvidence={false} relationshipOptions={[{value: 'RESPRSN', label: 'Responsible party'}]}/></form>)
+    fireEvent.change(screen.getByLabelText('Legal name'), {target: {value: 'Proposed adult'}})
+    expect((screen.getByLabelText('Identifier type') as HTMLInputElement).value).toBe('')
+    expect((screen.getByLabelText('Identifier value') as HTMLInputElement).required).toBe(false)
+    fireEvent.change(screen.getByLabelText('Country'), {target: {value: 'ES'}})
+    expect(container.querySelector('form')!.checkValidity()).toBe(true)
+  })
+
+  it('requires a complete country/type/value identifier once an optional identifier is supplied', () => {
+    const {container} = render(<form><IdentityEntityEditorV2 mode="related" copy={copy} requireIdentifier={false} showEvidence={false} relationshipOptions={[{value: 'RESPRSN', label: 'Responsible party'}]}/></form>)
+    fireEvent.change(screen.getByLabelText('Legal name'), {target: {value: 'Proposed adult'}})
+    fireEvent.change(screen.getByLabelText('Identifier value'), {target: {value: 'TEST-ONLY'}})
+    expect((screen.getByLabelText('Identifier type') as HTMLInputElement).required).toBe(true)
+    expect((screen.getByLabelText('Country') as HTMLInputElement).required).toBe(true)
+    expect(container.querySelector('form')!.checkValidity()).toBe(false)
+    fireEvent.change(screen.getByLabelText('Country'), {target: {value: 'ES'}})
+    fireEvent.change(screen.getByLabelText('Identifier type'), {target: {value: 'passport'}})
+    expect(container.querySelector('form')!.checkValidity()).toBe(true)
+  })
 })

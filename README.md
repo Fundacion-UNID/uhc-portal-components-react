@@ -22,14 +22,18 @@ The package owns visual shell behavior only. Authentication, protected-profile
 storage, PIN verification and actor authorization remain in the host portal
 through `ProfileRuntime`, `LoadedProfileWorkspace` and actor-scoped SDK facades.
 
-`AnimalIdentityOnboardingV2` and `AnimalIdentityDetailsV2` define one shared
-progressive create/read pattern. A host can use the same contract for an animal
-and responsible party or a newborn and responsible person, changing only
-governed role policy and copy: an attending
-physician, midwife, nurse or paramedic may prepare the identity and default
-permission proposal where the jurisdiction authorizes that occupation. The
-proposal remains pending until the responsible authority confirms it; showing
-or submitting the UI never grants access by itself.
+`IdentityEntityEditorV2` requires an identifier by default. Hosts registering
+people without an issued identifier can set `requireIdentifier={false}`:
+type and number then start empty, and country alone remains residence context.
+Entering either identifier type or number requires the complete country,
+type and number. This form validation grants no controller authority.
+
+`AnimalIdentityOnboardingV2` and `AnimalIdentityDetailsV2` define the animal
+create/read pattern, including animal taxonomy. Human registration composes
+human demographics with a separate related-controller editor; newborns and
+dependants do not acquire animal fields by changing copy. The host enforces
+the occupation and jurisdiction policy. Any permission proposal remains
+pending until the responsible authority approves it.
 
 ```tsx
 import {

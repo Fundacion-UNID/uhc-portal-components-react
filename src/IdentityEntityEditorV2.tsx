@@ -45,6 +45,7 @@ export function IdentityEntityEditorV2({
   contactError,
   requireEmail = false,
   requireTelephone = false,
+  requireIdentifier = true,
   showEvidence = true,
 }: Readonly<{
   copy: IdentityEntityEditorV2Copy
@@ -57,19 +58,27 @@ export function IdentityEntityEditorV2({
   contactError?: string
   requireEmail?: boolean
   requireTelephone?: boolean
+  requireIdentifier?: boolean
   showEvidence?: boolean
 }>) {
   const [entityType, setEntityType] = useState<'person' | 'organization'>('person')
   const [country, setCountry] = useState('')
   const [regional, setRegional] = useState(false)
+  const [identifierType, setIdentifierType] = useState(requireIdentifier ? identifierTypeOptions?.person[0]?.value ?? 'national_identity_card' : '')
+  const [identifierValue, setIdentifierValue] = useState('')
+  const identifierRequired = requireIdentifier || Boolean(identifierType.trim() || identifierValue.trim())
   const regions = regionOptionsByCountry[country] ?? []
   const name = (value: string) => fieldPrefix ? `${fieldPrefix}.${value}` : value
+  function selectEntity(value: 'person' | 'organization') {
+    setEntityType(value)
+    setIdentifierType(requireIdentifier ? identifierTypeOptions?.[value][0]?.value ?? 'national_identity_card' : '')
+  }
 
   return <div className="uhcp-identity-entity-editor">
     <div className="uhcp-identity-entity-heading-row">
       <fieldset className="uhcp-animal-owner-kind"><legend>{copy.entityType}</legend>
-        <label><input type="radio" name={name('controllerKind')} value="person" checked={entityType === 'person'} onChange={() => setEntityType('person')}/> {copy.personEntity}</label>
-        <label><input type="radio" name={name('controllerKind')} value="organization" checked={entityType === 'organization'} onChange={() => setEntityType('organization')}/> {copy.organizationEntity}</label>
+        <label><input type="radio" name={name('controllerKind')} value="person" checked={entityType === 'person'} onChange={() => selectEntity('person')}/> {copy.personEntity}</label>
+        <label><input type="radio" name={name('controllerKind')} value="organization" checked={entityType === 'organization'} onChange={() => selectEntity('organization')}/> {copy.organizationEntity}</label>
       </fieldset>
       <div className="uhcp-identity-entity-relationship">
         <span>{copy.relationship}</span>
@@ -80,11 +89,11 @@ export function IdentityEntityEditorV2({
     </div>
     <div className="uhcp-animal-onboarding-fields">
       <label className="uhcp-animal-owner-name">{copy.fullLegalName}<input name={name('controllerLegalName')} required maxLength={160} autoComplete={entityType === 'person' ? 'name' : 'organization'}/></label>
-      <label>{copy.country}{countryOptions.length ? <select name={name('controllerCountry')} required value={country} onChange={event => setCountry(event.currentTarget.value)}><option value="" disabled>{copy.countryPlaceholder ?? copy.country}</option>{countryOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerCountry')} required pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country" onChange={event => setCountry(event.currentTarget.value.toUpperCase())}/>}</label>
+      <label>{copy.country}{countryOptions.length ? <select name={name('controllerCountry')} required={identifierRequired} value={country} onChange={event => setCountry(event.currentTarget.value)}><option value="" disabled>{copy.countryPlaceholder ?? copy.country}</option>{countryOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerCountry')} required={identifierRequired} pattern="[A-Za-z]{2}" maxLength={2} autoComplete="country" onChange={event => setCountry(event.currentTarget.value.toUpperCase())}/>}</label>
       <label className="uhcp-animal-regional-identifier"><input type="checkbox" checked={regional} disabled={!regions.length} onChange={event => setRegional(event.currentTarget.checked)}/> {copy.regionalIdentifier}</label>
       <label>{copy.region}<select name={name('controllerRegion')} required={regional} disabled={!regional}><option value=""/>{regions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-      <label>{copy.identifierType}{identifierTypeOptions ? <select name={name('controllerIdentifierType')} required key={entityType}>{identifierTypeOptions[entityType].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerIdentifierType')} required defaultValue="national_identity_card" maxLength={80}/>}</label>
-      <label>{copy.identifierValue}<input name={name('controllerIdentifierValue')} required maxLength={120} autoComplete="off"/></label>
+      <label>{copy.identifierType}{identifierTypeOptions ? <select name={name('controllerIdentifierType')} required={identifierRequired} key={entityType} value={identifierType} onChange={event => setIdentifierType(event.currentTarget.value)}>{!requireIdentifier ? <option value=""/> : null}{identifierTypeOptions[entityType].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : <input name={name('controllerIdentifierType')} required={identifierRequired} value={identifierType} onChange={event => setIdentifierType(event.currentTarget.value)} maxLength={80}/>}</label>
+      <label>{copy.identifierValue}<input name={name('controllerIdentifierValue')} required={identifierRequired} value={identifierValue} onChange={event => setIdentifierValue(event.currentTarget.value)} maxLength={120} autoComplete="off"/></label>
       <label className="uhcp-identity-entity-contact-wide">{copy.email}<input name={name('controllerEmail')} type="email" autoComplete="email" required={requireEmail}/></label>
       <label>{copy.telephone}<input name={name('controllerTelephone')} type="tel" autoComplete="tel" required={requireTelephone}/></label>
       {mode === 'controller' ? <label className="uhcp-animal-controller-confirmation"><input type="checkbox" checked disabled readOnly aria-disabled="true"/> {copy.controllerConfirmation}</label> : null}

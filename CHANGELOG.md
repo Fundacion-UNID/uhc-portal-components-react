@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Allow a host to register a related controller without an issued identifier,
+  preserving required identifiers by default and requiring complete details
+  when an optional identifier is supplied.
+
 ## 0.2.49 - 2026-11-07
 
 - Align the deprecated subject-conversation compatibility re-export with
