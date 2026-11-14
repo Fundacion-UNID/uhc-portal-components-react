@@ -6,6 +6,15 @@
   preserving required identifiers by default and requiring complete details
   when an optional identifier is supplied.
 
+## 0.3.2 - 2026-11-12
+
+- Use the canonical shared text theme token for the selected individual index label, preserving readable foreground contrast in dark mode.
+
+## 0.3.1 - 2026-11-11
+
+- Delegate Encounter transfer rendering and styles to the shared SOS component.
+  Add a host-composed persisted journey slot in the selected-card workspace.
+
 ## 0.2.49 - 2026-11-07
 
 - Align the deprecated subject-conversation compatibility re-export with
@@ -681,8 +690,6 @@
 - Add a brand-neutral full-page account settings surface for security actions,
   theme, text size, language and legal links, with a product-extension slot for
   jurisdiction and data-use controls.
-
-## Unreleased
 
 ## 0.3.0 - 2026-11-08
 

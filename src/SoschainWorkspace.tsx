@@ -105,6 +105,7 @@ export type SoschainWorkspaceProps = Readonly<{
   healthSummary?: ReactNode
   /** False only when the host has already resolved a current write capability. */
   clinicalReadOnly?: boolean
+  careJourneyContent?: ReactNode
   careJourney?: readonly SoschainCareJourneyEntry[]
   emergencyData?: readonly ProtectedIndexEmergencyItem[]
   canManageAssociations: boolean
@@ -163,6 +164,7 @@ export function SoschainWorkspace({
   healthSummary,
   clinicalReadOnly = true,
   careJourney = [],
+  careJourneyContent,
   emergencyData = [],
   canManageAssociations,
   addPlaceHref,
@@ -288,7 +290,7 @@ export function SoschainWorkspace({
         ))}
         {resolvedActiveArea === 'health-summary' && (healthSummary ?? <p className="uhcp-sos-empty">{copy.emptyHealthSummary}</p>)}
         {resolvedActiveArea === 'care-journey' && (
-          careJourney.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCareJourney}</p> : (
+          careJourneyContent ?? (careJourney.length === 0 ? <p className="uhcp-sos-empty">{copy.emptyCareJourney}</p> : (
             <ol className="uhcp-sos-timeline uhcp-sos-care-journey">
               {careJourney.map((encounter) => (
                 <li key={encounter.identifier}>
@@ -301,7 +303,7 @@ export function SoschainWorkspace({
                 </li>
               ))}
             </ol>
-          )
+          ))
         )}
         {resolvedActiveArea === 'emergency-data' && <ProtectedIndexEmergencyData copy={copy.emergencyData} items={emergencyData} />}
         {resolvedActiveArea === 'places' && <AssociationList items={places} empty={copy.emptyPlaces} />}

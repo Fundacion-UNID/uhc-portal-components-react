@@ -71,7 +71,7 @@ const brand = {
   productName: 'Example Professional',
   organizationName: 'Example Organization',
   homeHref: '/es',
-  markHref: 'https://example.org',
+  markHref: 'https://example.invalid',
   mark: {
     lightSurface: { src: '/logos/product.svg', alt: 'Product', width: 100, height: 100 },
     darkSurface: { src: '/logos/product.svg', alt: 'Product', width: 100, height: 100 },
@@ -168,7 +168,9 @@ The package deliberately exposes modules instead of a cloned application:
   places and products screens. The host supplies already-authorized cards,
   content and capabilities; SOS-specific emergency modules do not fork the
   common Personal or Professional components.
-- `EncounterTransferConsole`: visual patient-transfer workspace. The host
+- `EncounterTransferConsole`: deprecated compatibility wrapper. New code imports
+  `sos-portal-components-react/encounter-transfer-console`. The SOS component
+  owns the visual patient-transfer workspace. The host
   resolves the authorized subject, contacts and write capability; the component
   only reports the chosen source outcome (`on-hold` when returning or
   `completed` when leaving definitively) and never treats browser state as
