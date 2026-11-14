@@ -63,11 +63,11 @@
   },
   "dependencies": {
     "antifraud-portal-components-react": "0.3.0",
-    "fhir-data-utils-ts": "0.6.21",
+    "fhir-data-utils-ts": "0.6.24",
     "gdc-common-utils-ts": "2.9.30",
     "jsqr": "1.4.0",
-    "sos-data-utils-ts": "0.6.33",
-    "sos-portal-components-react": "0.3.3",
+    "sos-data-utils-ts": "0.6.35",
+    "sos-portal-components-react": "0.3.4",
     "terminology-components-react": "0.2.0"
   },
   "devDependencies": {

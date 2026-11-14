@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Align delegated SOS rendering and FHIR/SOS data dependencies with the
+  reviewed runtime, avoiding older nested renderer and contract copies.
+
 - Allow a host to register a related controller without an issued identifier,
   preserving required identifiers by default and requiring complete details
   when an optional identifier is supplied.
